@@ -6,4 +6,8 @@ I've always preferred beer over spirits, except for the occasional margarita. Sw
 
 For my wife's 30th birthday we did a cocktail tour of DC's chinatown area, visiting some fancy bars and getting an appreciation for the craft of making high-end cocktails. How are old fashioneds made? Why are they stirred so much? What is mezcal and why is it smoky? I didn't know how to describe a really good drink but I suppose you know it when you see it. You combine an ounce of this, a dash of that, and with the right balance of ingredient you can end up with something that transcends the separate parts.
 
-<!-- Continue your story here -->
+The next personal eye openings were from travel — we went to this bar in Florence, Italy where the bartender would spend at least 90 seconds carefully placing each piece of fruit in a wine glass for this aperol spritz, it was a work of art. After a while we noticed a cocktail magazine on the wall behind the bar, with him on the cover! Then spring break in Punta Cana, Dominican Republic, there was a bartender who was all about smoked drinks. She used a wood slab sprinkled with cinnamon and wood chips, blasted it with a torch and would cover it with an overturned glass before pouring the drink into it. She also made mocktails for the kids with this smoke bubble contraption that would cover the glass with a smoke-filled bubble.
+
+I just enjoy experimenting, tasty concoctions, and people's reactions when I make something good.
+
+Professional bartenders can impressively deliver quality drinks efficiently and repeatedly in a way I never could. But I don't have to — the advantage of a home bartender is time. I can spend 20 minutes on one drink, try something weird, mess it up, and try again. This book is a collection of those experiments.
