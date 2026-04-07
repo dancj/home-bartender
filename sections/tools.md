@@ -4,7 +4,7 @@
 
 You can make every recipe in this book with these six things:
 
-**Shaker** — A two-piece cocktail shaker (tin + tin, or tin + glass). The Boston shaker is the professional standard; a cobbler shaker with a built-in strainer works fine at home.
+**Shaker** — A two-piece cocktail shaker (tin + tin, or tin + glass). The Boston shaker is the professional standard; a cobbler shaker with a built-in strainer works fine at home. Shake without spilling, give it a good whack and pull apart.
 
 **Strainer** — A Hawthorne strainer (the one with a spring coil) for shaker drinks. A julep strainer for mixing glass drinks. In a pinch, hold the lid of a cobbler shaker.
 

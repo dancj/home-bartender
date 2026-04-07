@@ -2,7 +2,7 @@
 
 **Agave nectar** — A sweetener made from the agave plant, used in tequila and mezcal cocktails in place of simple syrup. Slightly more complex and less cloying than plain sugar syrup.
 
-**Angostura bitters** — The most common cocktail bitters. Dark, aromatic, and spiced. A few dashes adds depth to almost any spirit-forward drink.
+**Angostura bitters** — The most common cocktail bitters. Dark, aromatic, and spiced. A few dashes add depth to almost any spirit-forward drink.
 
 **Bar spoon** — A long-handled spoon used for stirring and floating. The twisted handle helps control the pour for layered drinks.
 

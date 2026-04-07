@@ -26,7 +26,10 @@ Muddling extracts oils and juice from fresh ingredients by pressing them with a 
 
 ## Dry Shaking
 
-For drinks with egg white, dry shake first — shake without ice — to emulsify the protein before adding ice. This builds a thicker, more stable foam. Then add ice and shake again to chill. The Lavender Fields uses this technique.
+For drinks with egg white, dry shake first — shake without ice — to emulsify the protein before adding ice. This builds a thicker, more stable foam. Then add ice and shake again to chill. 
+
+See recipes:
+* Lavender Fields
 
 ## Flaming a Citrus Peel
 
