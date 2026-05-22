@@ -1,0 +1,33 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Dan Thayer
+
+The recipe prose, blurbs, notes, and section writeups in this repository are
+licensed under the Creative Commons Attribution 4.0 International License.
+
+To view a copy of this license, visit:
+https://creativecommons.org/licenses/by/4.0/
+
+What this covers
+----------------
+- Recipe blurbs, "Notes" sections, and any prose written by the copyright
+  holder in `recipes/**/*.md`
+- Section writeups in `sections/**/*.md` (introduction, techniques, tools,
+  glossary)
+- The repository's README and prose documentation in `docs/`
+
+What this does NOT cover
+------------------------
+- The recipe specifications themselves (ingredients, ratios, methods) — these
+  are facts and techniques, not subject to copyright.
+- Recipes credited to an original creator via the `attribution:` frontmatter
+  block — credit belongs to that creator. The copyright holder of this
+  repository claims no ownership of the underlying recipe.
+- The framework code (Astro application, build scripts, GitHub Actions
+  workflow, configuration). That is MIT-licensed separately. See LICENSE-CODE.
+
+How to attribute
+----------------
+- Credit "Dan Thayer" and link back to this repository.
+- For any recipe with an `attribution` frontmatter block, also credit the
+  original creator listed there (creator, bar, year, source).
