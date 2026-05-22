@@ -30,7 +30,7 @@ const recipes = defineCollection({
       bar: z.string().default(''),
       year: z.string().default(''),
       source_url: z.string().default(''),
-    }).default({}),
+    }).default(() => ({ creator: '', bar: '', year: '', source_url: '' })),
 
     related: z.array(z.string()).default([]),
     aliases: z.array(z.string()).default([]),
@@ -43,4 +43,13 @@ const recipes = defineCollection({
   }),
 });
 
-export const collections = { recipes };
+const sections = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.md', base: './sections' }),
+  schema: z.object({
+    title: z.string(),
+    order: z.number().default(99),
+    summary: z.string().optional(),
+  }),
+});
+
+export const collections = { recipes, sections };

@@ -1,3 +1,9 @@
+---
+title: Tools
+order: 3
+summary: What you actually need on the bar — basics first, then the nice-to-haves.
+---
+
 # Tools
 
 ## The Basics

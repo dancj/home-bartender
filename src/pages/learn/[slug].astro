@@ -1,0 +1,32 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const sections = await getCollection('sections');
+  return sections.map(section => ({ params: { slug: section.id }, props: { section } }));
+}
+
+const { section } = Astro.props;
+const { Content } = await render(section);
+---
+<BaseLayout title={`${section.data.title} — Home Bartender`} description={section.data.summary}>
+  <article data-pagefind-body class="prose">
+    <Content />
+  </article>
+</BaseLayout>
+
+<style>
+  .prose :global(h1) { font-size: clamp(1.75rem, 4vw, 2.5rem); margin-block: 0 1rem; }
+  .prose :global(h2) { font-size: 1.25rem; margin-block-start: 2rem; }
+  .prose :global(p) { margin-block: 0.75rem; }
+  .prose :global(strong) { color: var(--color-accent); }
+  .prose :global(ul), .prose :global(ol) { margin-block: 0.75rem; padding-inline-start: 1.5rem; }
+  .prose :global(li) { margin-block: 0.25rem; }
+  .prose :global(code) {
+    background: var(--color-soft);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+</style>

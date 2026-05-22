@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title="Learn — Home Bartender" description="Techniques, tools, glossary, and prose about home bartending.">
+  <h1>Learn</h1>
+  <p class="lede">Techniques, tools, vocabulary, and the philosophy behind this collection.</p>
+
+  <ul class="section-list">
+    {sections.map(s => (
+      <li>
+        <a href={`${base}/learn/${s.id}/`}>
+          <h2>{s.data.title}</h2>
+          {s.data.summary && <p>{s.data.summary}</p>}
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .lede { font-style: italic; color: var(--color-muted); margin-bottom: 2rem; }
+  .section-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .section-list > li > a {
+    display: block;
+    padding: 1.25rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 150ms;
+  }
+  .section-list > li > a:hover { border-color: var(--color-accent); }
+  .section-list h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+  .section-list p { margin: 0; color: var(--color-muted); font-style: italic; }
+</style>

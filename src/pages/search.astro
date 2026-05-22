@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Search from '../components/Search.astro';
+---
+<BaseLayout title="Search — Home Bartender" description="Search the recipe collection.">
+  <h1>Search</h1>
+  <p class="lede">Find recipes by name, ingredient, technique, or any prose in the collection.</p>
+  <Search mode="full" />
+</BaseLayout>
+
+<style>
+  .lede { font-style: italic; color: var(--color-muted); margin-bottom: 2rem; }
+</style>

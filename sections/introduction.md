@@ -1,3 +1,9 @@
+---
+title: Introduction
+order: 1
+summary: Why this collection exists.
+---
+
 # Introduction
 
 This is not a book for professionals. My goals were to learn about the craft and variety of cocktails, experiment with great ingredients on hand, and complement some fun house parties with drinkable creations.

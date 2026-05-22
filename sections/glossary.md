@@ -1,3 +1,9 @@
+---
+title: Glossary
+order: 4
+summary: Vocabulary for ingredients, techniques, and bar lingo.
+---
+
 # Glossary
 
 **Agave nectar** — A sweetener made from the agave plant, used in tequila and mezcal cocktails in place of simple syrup. Slightly more complex and less cloying than plain sugar syrup.

@@ -1,3 +1,9 @@
+---
+title: Techniques
+order: 2
+summary: Stirring, shaking, dilution, fat washing, dry shake, and other foundational moves.
+---
+
 # Techniques
 
 ## Stirring vs. Shaking

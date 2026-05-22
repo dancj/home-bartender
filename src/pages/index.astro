@@ -1,31 +1,128 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import RecipeCard from '../components/RecipeCard.astro';
 import { publishedRecipes } from '../lib/recipes';
+import { label, groupByTax } from '../lib/taxonomy';
 
-const recipes = (await publishedRecipes()).sort((a, b) =>
-  a.data.title.localeCompare(b.data.title)
-);
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const recipes = (await publishedRecipes()).sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+const spirits = [...new Set(recipes.flatMap(r => r.data.spirits))].sort();
+const flavors = [...groupByTax(recipes, 'flavors').keys()];
+const difficulties = ['easy', 'medium', 'advanced'];
+const methods = ['shaken', 'stirred', 'built', 'blended'].filter(m => recipes.some(r => r.data.method === m));
 ---
 <BaseLayout title="Home Bartender" description="Personal cocktail recipe collection.">
   <h1>Home Bartender</h1>
   <p class="lede">Personal cocktail recipe collection — {recipes.length} recipes across classics, originals, and seasonal experiments.</p>
 
-  <ul class="recipe-grid">
-    {recipes.map(r => (
-      <li>
-        <a href={`${base}/recipes/${r.id.split('/').pop()}/`}>
-          <h2>{r.data.title}</h2>
-          <p class="blurb">{r.data.blurb}</p>
-          <ul class="meta">
-            <li>{r.data.method}</li>
-            <li>{r.data.difficulty}</li>
-            {r.data.spirits[0] && <li>{r.data.spirits[0]}</li>}
-          </ul>
-        </a>
-      </li>
-    ))}
+  <details class="filter-bar">
+    <summary>Filter <span class="count" id="filter-count"></span></summary>
+    <div class="filter-groups">
+      <div class="filter-group">
+        <h3>Spirit</h3>
+        <ul>
+          {spirits.map(s => <li><button type="button" data-filter="spirit" data-value={s}>{label('spirits', s)}</button></li>)}
+        </ul>
+      </div>
+      <div class="filter-group">
+        <h3>Difficulty</h3>
+        <ul>
+          {difficulties.map(d => <li><button type="button" data-filter="difficulty" data-value={d}>{label('difficulty', d)}</button></li>)}
+        </ul>
+      </div>
+      <div class="filter-group">
+        <h3>Method</h3>
+        <ul>
+          {methods.map(m => <li><button type="button" data-filter="method" data-value={m}>{label('method', m)}</button></li>)}
+        </ul>
+      </div>
+      <div class="filter-group">
+        <h3>Flavor</h3>
+        <ul>
+          {flavors.map(f => <li><button type="button" data-filter="flavor" data-value={f}>{label('flavor', f)}</button></li>)}
+        </ul>
+      </div>
+    </div>
+    <button type="button" id="clear-filters" class="clear">Clear filters</button>
+  </details>
+
+  <ul class="recipe-grid" id="recipe-grid">
+    {recipes.map(r => <RecipeCard recipe={r} />)}
   </ul>
+
+  <p id="empty-state" class="empty" hidden>No recipes match the current filters.</p>
+
+  <script is:inline>
+    (function () {
+      const grid = document.getElementById('recipe-grid');
+      const cards = Array.from(grid.querySelectorAll('.recipe-card'));
+      const emptyEl = document.getElementById('empty-state');
+      const countEl = document.getElementById('filter-count');
+      const summary = document.querySelector('.filter-bar > summary');
+      const buttons = Array.from(document.querySelectorAll('button[data-filter]'));
+      const clearBtn = document.getElementById('clear-filters');
+
+      const FIELDS = ['spirit', 'difficulty', 'method', 'flavor'];
+
+      function readFilters() {
+        const params = new URLSearchParams(location.search);
+        const f = {};
+        for (const key of FIELDS) {
+          const v = params.get(key);
+          if (v) f[key] = v;
+        }
+        return f;
+      }
+
+      function writeFilters(filters) {
+        const params = new URLSearchParams();
+        for (const [k, v] of Object.entries(filters)) if (v) params.set(k, v);
+        const qs = params.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+      }
+
+      function cardMatches(card, filters) {
+        const ds = card.dataset;
+        if (filters.spirit && !ds.spirits.split(',').includes(filters.spirit)) return false;
+        if (filters.flavor && !ds.flavors.split(',').includes(filters.flavor)) return false;
+        if (filters.method && ds.method !== filters.method) return false;
+        if (filters.difficulty && ds.difficulty !== filters.difficulty) return false;
+        return true;
+      }
+
+      function apply() {
+        const filters = readFilters();
+        let visible = 0;
+        for (const c of cards) {
+          const show = cardMatches(c, filters);
+          c.hidden = !show;
+          if (show) visible++;
+        }
+        emptyEl.hidden = visible > 0;
+        const active = Object.keys(filters).length;
+        countEl.textContent = active ? `(${active} active, ${visible}/${cards.length} shown)` : '';
+        for (const b of buttons) {
+          const active = filters[b.dataset.filter] === b.dataset.value;
+          b.classList.toggle('active', active);
+        }
+        if (active > 0 && summary) summary.parentElement.open = true;
+      }
+
+      for (const btn of buttons) {
+        btn.addEventListener('click', () => {
+          const f = readFilters();
+          const key = btn.dataset.filter, val = btn.dataset.value;
+          if (f[key] === val) delete f[key];
+          else f[key] = val;
+          writeFilters(f);
+          apply();
+        });
+      }
+      clearBtn.addEventListener('click', () => { writeFilters({}); apply(); });
+      window.addEventListener('popstate', apply);
+      apply();
+    })();
+  </script>
 </BaseLayout>
 
 <style>
@@ -33,7 +130,89 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     font-style: italic;
     color: var(--color-muted);
     font-size: 1.125rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .filter-bar {
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+    padding: 0 1rem;
+  }
+  .filter-bar > summary {
+    cursor: pointer;
+    padding: 0.75rem 0;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    list-style: none;
+  }
+  .filter-bar > summary::-webkit-details-marker { display: none; }
+  .filter-bar > summary::before {
+    content: '+ ';
+    display: inline-block;
+    width: 1rem;
+  }
+  .filter-bar[open] > summary::before { content: '− '; }
+  .filter-bar .count {
+    color: var(--color-muted);
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-left: 0.5rem;
+  }
+  .filter-groups {
+    padding-block: 0.5rem 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1.5rem;
+  }
+  .filter-group h3 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+  .filter-group ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .filter-group button {
+    cursor: pointer;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 999px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    text-transform: capitalize;
+  }
+  .filter-group button:hover { border-color: var(--color-accent); }
+  .filter-group button.active {
+    background: var(--color-accent);
+    color: var(--color-bg);
+    border-color: var(--color-accent);
+  }
+  .clear {
+    margin: 0 0 1rem;
+    background: none;
+    border: none;
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
   }
   .recipe-grid {
     list-style: none;
@@ -42,47 +221,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
     gap: 1rem;
   }
-  .recipe-grid > li > a {
-    display: block;
-    padding: 1.25rem;
-    border: 1px solid var(--color-rule);
-    border-radius: 6px;
-    text-decoration: none;
-    color: inherit;
-    background: var(--color-bg);
-    transition: border-color 150ms, transform 150ms;
-  }
-  .recipe-grid > li > a:hover {
-    border-color: var(--color-accent);
-    transform: translateY(-2px);
-  }
-  .recipe-grid h2 {
-    font-size: 1.125rem;
-    margin: 0 0 0.5rem;
-  }
-  .recipe-grid .blurb {
-    font-size: 0.9rem;
+  .empty {
+    text-align: center;
     color: var(--color-muted);
     font-style: italic;
-    margin: 0 0 0.75rem;
-    line-height: 1.4;
-  }
-  .recipe-grid .meta {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    font-family: var(--font-sans);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-muted);
-  }
-  .recipe-grid .meta li {
-    padding: 0.2rem 0.5rem;
-    background: var(--color-soft);
-    border-radius: 3px;
+    padding: 2rem;
   }
 </style>

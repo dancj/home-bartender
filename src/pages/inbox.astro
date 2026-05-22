@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RecipeCard from '../components/RecipeCard.astro';
+import { unpublishedRecipes } from '../lib/recipes';
+
+const recipes = (await unpublishedRecipes()).sort((a, b) =>
+  (b.data.created?.getTime() ?? 0) - (a.data.created?.getTime() ?? 0)
+);
+---
+<BaseLayout title="Inbox — Home Bartender" description="Pending recipes awaiting review.">
+  <div id="inbox-gate">
+    <h1>Inbox</h1>
+    <p>This page lists recipes pending review. They are not surfaced from the site index.</p>
+    <p>Add <code>?preview=1</code> to the URL to view them.</p>
+  </div>
+
+  <div id="inbox-content" hidden>
+    <h1>Inbox <span class="count">({recipes.length})</span></h1>
+    <p class="lede">Pending recipes — review, edit, then run <code>npm run publish &lt;slug&gt;</code> to move them out of <code>recipes/inbox/</code> and flip <code>publish: true</code>.</p>
+    <ul class="recipe-grid">
+      {recipes.map(r => <RecipeCard recipe={r} />)}
+    </ul>
+  </div>
+
+  <script is:inline>
+    if (new URLSearchParams(location.search).get('preview') === '1') {
+      document.getElementById('inbox-gate').hidden = true;
+      document.getElementById('inbox-content').hidden = false;
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .lede { font-style: italic; color: var(--color-muted); margin-bottom: 2rem; }
+  .count { color: var(--color-muted); font-weight: normal; font-size: 0.7em; vertical-align: middle; }
+  .recipe-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; }
+  #inbox-gate { padding: 2rem; background: var(--color-soft); border-radius: 6px; text-align: center; }
+  #inbox-gate p { color: var(--color-muted); }
+  #inbox-gate code { background: var(--color-bg); padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+</style>
