@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import type { Recipe } from '../lib/recipes';
+import { label } from '../lib/taxonomy';
 
 interface Props {
   recipe: Recipe;
@@ -13,24 +14,48 @@ const hasAttribution = data.attribution.creator || data.attribution.bar || data.
 <BaseLayout title={`${data.title} — Home Bartender`} description={data.blurb}>
   <article data-pagefind-body>
     <header class="recipe-header">
+      <p class="eyebrow"><a href={`${base}/`}>← All recipes</a></p>
       <h1>{data.title}</h1>
       <p class="blurb">{data.blurb}</p>
 
       <dl class="facts">
         <div><dt>Glass</dt><dd>{data.glass}</dd></div>
-        <div><dt>Method</dt><dd>{data.method}{data.method_note && <span class="note"> · {data.method_note}</span>}</dd></div>
-        <div><dt>Ice</dt><dd>{data.ice}{data.ice_note && <span class="note"> · {data.ice_note}</span>}</dd></div>
-        <div><dt>Difficulty</dt><dd>{data.difficulty}</dd></div>
+        <div>
+          <dt>Method</dt>
+          <dd>
+            {label('method', data.method)}
+            {data.method_note && <span class="note">· {data.method_note}</span>}
+          </dd>
+        </div>
+        <div>
+          <dt>Ice</dt>
+          <dd>
+            {label('ice', data.ice)}
+            {data.ice_note && <span class="note">· {data.ice_note}</span>}
+          </dd>
+        </div>
+        <div><dt>Difficulty</dt><dd>{label('difficulty', data.difficulty)}</dd></div>
       </dl>
 
-      {data.flavors.length > 0 && (
-        <ul class="tags" aria-label="Flavors">
-          {data.flavors.map((f: string) => <li><a href={`${base}/by-flavor/${f}/`}>{f}</a></li>)}
-        </ul>
+      {(data.flavors.length > 0 || data.spirits.length > 0) && (
+        <div class="taxonomy">
+          {data.spirits.length > 0 && (
+            <ul class="tags spirits" aria-label="Spirits">
+              {data.spirits.map((s: string) => <li><a href={`${base}/by-spirit/${s}/`}>{label('spirits', s)}</a></li>)}
+            </ul>
+          )}
+          {data.flavors.length > 0 && (
+            <ul class="tags flavors" aria-label="Flavors">
+              {data.flavors.map((f: string) => <li><a href={`${base}/by-flavor/${f}/`}>{f}</a></li>)}
+            </ul>
+          )}
+        </div>
       )}
     </header>
 
-    <slot />
+    <div class="recipe-body">
+      <slot />
+    </div>
 
     {hasAttribution && (
       <aside class="attribution" data-pagefind-ignore>
@@ -56,54 +81,147 @@ const hasAttribution = data.attribution.creator || data.attribution.bar || data.
 </BaseLayout>
 
 <style>
-  .blurb {
-    font-style: italic;
-    color: var(--color-muted);
-    font-size: 1.125rem;
-    margin-block: 0 1rem;
-  }
-  .facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-    gap: 0.75rem 1.5rem;
-    margin: 1rem 0 0.5rem;
-    padding: 1rem;
-    background: var(--color-soft);
-    border-radius: 4px;
+  .recipe-header { margin-bottom: 1.75rem; }
+
+  .eyebrow {
     font-family: var(--font-sans);
-    font-size: 0.875rem;
-  }
-  .facts div { display: flex; flex-direction: column; }
-  .facts dt {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--color-muted);
+    margin: 0 0 0.75rem;
+  }
+  .eyebrow a { color: var(--color-muted); text-decoration: none; }
+  .eyebrow a:hover { color: var(--color-accent); }
+
+  .blurb {
+    font-style: italic;
+    color: var(--color-muted);
+    font-size: 1.1875rem;
+    line-height: 1.4;
+    margin: 0.25rem 0 1.5rem;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 0.75rem 1.75rem;
+    margin: 0;
+    padding: 1.125rem 1.25rem;
+    background: var(--color-soft);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-rule);
+  }
+  .facts > div { display: flex; flex-direction: column; gap: 0.15rem; }
+  .facts dt {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-muted);
     font-weight: 600;
   }
-  .facts dd { margin: 0.2rem 0 0; text-transform: capitalize; }
-  .facts .note { color: var(--color-muted); font-style: italic; text-transform: none; }
-  .tags { list-style: none; padding: 0; margin: 0.75rem 0 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .facts dd {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-text);
+  }
+  .facts .note { color: var(--color-muted); margin-left: 0.25rem; font-style: italic; }
+
+  .taxonomy {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin: 1rem 0 0;
+  }
+  .tags {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
   .tags li a {
     display: inline-block;
-    padding: 0.2rem 0.6rem;
+    padding: 0.2rem 0.65rem;
     border: 1px solid var(--color-rule);
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--color-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-decoration: none;
     font-family: var(--font-sans);
+    transition: border-color 150ms, color 150ms;
   }
-  .tags li a:hover { background: var(--color-soft); }
+  .tags li a:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .tags.spirits li a {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    font-weight: 600;
+  }
+
+  .recipe-body :global(h2) {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-accent);
+    font-weight: 600;
+    margin-block: 2.25rem 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .recipe-body :global(h2:first-child) { margin-top: 1.5rem; }
+  .recipe-body :global(h3) {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-block: 1.25rem 0.5rem;
+  }
+  .recipe-body :global(p) { margin-block: 0.65rem; }
+  .recipe-body :global(ul), .recipe-body :global(ol) {
+    margin-block: 0.5rem;
+    padding-inline-start: 1.25rem;
+  }
+  .recipe-body :global(li) { margin-block: 0.25rem; }
+  .recipe-body :global(ul) :global(li) { padding-left: 0.25rem; }
+  .recipe-body :global(em) { color: var(--color-muted); }
+  .recipe-body :global(strong) { color: var(--color-accent); }
+  .recipe-body :global(hr) { display: none; }
+
   .attribution, .related {
-    margin-top: 2rem;
-    padding-top: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
     border-top: 1px solid var(--color-rule);
     font-size: 0.95rem;
   }
-  .attribution h2, .related h2 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.1em; margin-block: 0 0.5rem; }
-  .related ul { list-style: none; padding: 0; }
-  .related li a { text-transform: capitalize; }
+  .attribution h2, .related h2 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-block: 0 0.65rem;
+    color: var(--color-muted);
+    font-weight: 600;
+    border: none;
+    padding: 0;
+  }
+  .attribution p, .related p { margin: 0; }
+  .related ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+  }
+  .related li a {
+    text-transform: capitalize;
+    text-decoration: none;
+    color: var(--color-accent);
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .related li a:hover { border-color: var(--color-accent); }
 </style>

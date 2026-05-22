@@ -1,5 +1,10 @@
 ---
+import '@fontsource/newsreader/400.css';
+import '@fontsource/newsreader/400-italic.css';
+import '@fontsource/newsreader/600.css';
+import '@fontsource/newsreader/700.css';
 import Search from '../components/Search.astro';
+
 interface Props {
   title: string;
   description?: string;
@@ -15,6 +20,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
   </head>
   <body>
     <header>
@@ -31,7 +40,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
       <slot />
     </main>
     <footer>
-      <p>Recipes shared under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Framework <a href="https://github.com/dancj/home-bartender">on GitHub</a>.</p>
+      <p>Recipes shared under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. <a href="https://github.com/dancj/home-bartender">Framework on GitHub</a>.</p>
     </footer>
   </body>
 </html>
@@ -39,26 +48,69 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 <style is:global>
   :root {
     --color-accent: #2c4a3e;
+    --color-accent-soft: #3a5e51;
     --color-soft: #f5f0e8;
     --color-muted: #8c7b6b;
     --color-rule: #ddd8cf;
     --color-text: #1a1a1a;
     --color-bg: #fefcf7;
-    --font-serif: 'Newsreader', Georgia, serif;
-    --font-sans: system-ui, -apple-system, sans-serif;
+    --color-card: #ffffff;
+    --shadow-card: 0 1px 2px rgba(28, 30, 25, 0.04);
+    --shadow-card-hover: 0 6px 16px rgba(28, 30, 25, 0.08);
+
+    --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
     --measure: 65ch;
+    --radius: 6px;
   }
 
-  * { box-sizing: border-box; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-accent: #98c7b3;
+      --color-accent-soft: #b9d8c8;
+      --color-soft: #2a2925;
+      --color-muted: #968b7c;
+      --color-rule: #383530;
+      --color-text: #ece6da;
+      --color-bg: #1a1916;
+      --color-card: #21201c;
+      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+  }
 
-  html { font-family: var(--font-serif); color: var(--color-text); background: var(--color-bg); line-height: 1.5; }
-  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+  *, *::before, *::after { box-sizing: border-box; }
 
-  main { flex: 1; max-width: var(--measure); margin: 0 auto; padding: 1.5rem 1rem; width: 100%; }
+  html {
+    font-family: var(--font-serif);
+    color: var(--color-text);
+    background: var(--color-bg);
+    line-height: 1.55;
+    font-feature-settings: 'liga', 'kern', 'onum';
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  main {
+    flex: 1;
+    max-width: var(--measure);
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+    width: 100%;
+  }
 
   header {
     border-bottom: 1px solid var(--color-rule);
-    padding: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-bg);
   }
   header nav {
     max-width: var(--measure);
@@ -70,43 +122,70 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     flex-wrap: wrap;
   }
   header .brand {
-    font-family: var(--font-sans);
+    font-family: var(--font-serif);
     font-weight: 600;
+    font-style: italic;
     color: var(--color-accent);
     text-decoration: none;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    font-size: 0.875rem;
+    font-size: 1.125rem;
+    letter-spacing: 0;
   }
-  header .nav-links { display: flex; gap: 1rem; }
+  header .nav-links { display: flex; gap: 1.25rem; }
   header .nav-links a {
     font-family: var(--font-sans);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 500;
     color: var(--color-muted);
     text-decoration: none;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
   }
   header .nav-links a:hover { color: var(--color-accent); }
-  header .header-search { flex: 0 1 18rem; min-width: 0; }
-  @media (max-width: 32rem) {
+  header .header-search { flex: 0 1 16rem; min-width: 0; }
+  @media (max-width: 38rem) {
     header .header-search { flex-basis: 100%; }
   }
 
   footer {
     border-top: 1px solid var(--color-rule);
-    padding: 1.5rem 1rem;
-    font-size: 0.875rem;
+    padding: 2rem 1.25rem;
+    font-size: 0.8125rem;
     color: var(--color-muted);
     text-align: center;
   }
-  footer a { color: var(--color-muted); }
+  footer a { color: var(--color-muted); text-decoration: underline; text-decoration-color: var(--color-rule); text-underline-offset: 2px; }
+  footer a:hover { color: var(--color-accent); text-decoration-color: currentColor; }
 
-  h1, h2, h3 { color: var(--color-accent); line-height: 1.2; }
-  h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin-block: 0.5rem; }
-  h2 { font-size: 1.25rem; margin-block-start: 2rem; }
-  h3 { font-size: 1.1rem; }
+  h1, h2, h3 {
+    color: var(--color-accent);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-block: 0;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 2.875rem);
+    font-weight: 700;
+    margin-block: 0.25rem 0.5rem;
+  }
+  h2 {
+    font-size: 1.375rem;
+    font-weight: 600;
+    margin-block-start: 2rem;
+    margin-block-end: 0.5rem;
+  }
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
 
-  a { color: var(--color-accent); }
+  a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 150ms;
+  }
+  a:hover { text-decoration-color: currentColor; }
+
+  ::selection { background: var(--color-accent); color: var(--color-bg); }
 </style>

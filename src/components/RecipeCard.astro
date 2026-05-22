@@ -9,6 +9,7 @@ const { recipe } = Astro.props;
 const slug = recipe.id.split('/').pop();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const data = recipe.data;
+const primarySpirit = data.spirits[0];
 ---
 <li
   class="recipe-card"
@@ -18,59 +19,73 @@ const data = recipe.data;
   data-difficulty={data.difficulty}
 >
   <a href={`${base}/recipes/${slug}/`}>
+    {primarySpirit && <p class="card-eyebrow">{label('spirits', primarySpirit)}</p>}
     <h2>{data.title}</h2>
     <p class="blurb">{data.blurb}</p>
-    <ul class="meta">
-      <li class="method">{label('method', data.method)}</li>
-      <li class="difficulty">{label('difficulty', data.difficulty)}</li>
-      {data.spirits[0] && <li class="spirit">{label('spirits', data.spirits[0])}</li>}
-    </ul>
+    <p class="meta">
+      <span>{label('method', data.method)}</span>
+      <span class="dot">·</span>
+      <span>{label('difficulty', data.difficulty)}</span>
+      {data.format !== 'single' && <><span class="dot">·</span><span>{data.format}</span></>}
+    </p>
   </a>
 </li>
 
 <style>
   .recipe-card > a {
-    display: block;
-    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.5rem 1.375rem 1.375rem;
     border: 1px solid var(--color-rule);
-    border-radius: 6px;
+    border-radius: var(--radius);
     text-decoration: none;
     color: inherit;
-    background: var(--color-bg);
-    transition: border-color 150ms, transform 150ms;
+    background: var(--color-card);
+    box-shadow: var(--shadow-card);
+    transition: border-color 200ms, transform 200ms, box-shadow 200ms;
     height: 100%;
   }
   .recipe-card > a:hover {
     border-color: var(--color-accent);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-card-hover);
+  }
+  .card-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-accent);
+    font-weight: 600;
+    margin: 0;
   }
   .recipe-card h2 {
-    font-size: 1.125rem;
-    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+    color: var(--color-text);
   }
   .recipe-card .blurb {
-    font-size: 0.9rem;
+    font-size: 0.9375rem;
     color: var(--color-muted);
     font-style: italic;
-    margin: 0 0 0.75rem;
+    margin: 0;
     line-height: 1.4;
+    flex: 1;
   }
   .meta {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
+    margin: 0.5rem 0 0;
     font-family: var(--font-sans);
     font-size: 0.7rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     color: var(--color-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
   }
-  .meta li {
-    padding: 0.2rem 0.5rem;
-    background: var(--color-soft);
-    border-radius: 3px;
-  }
+  .meta .dot { opacity: 0.5; }
 </style>
