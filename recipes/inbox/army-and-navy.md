@@ -1,11 +1,43 @@
-# Army & Navy
-> *A vintage gin sour with orgeat — bright, nutty, and deceptively simple.*
+---
+title: "Army & Navy"
+blurb: "A vintage gin sour with orgeat — bright, nutty, and deceptively simple."
 
-**Glass:** Coupe
-**Method:** Shaken
-**Ice:** None (served up)
-**Difficulty:** Easy
-**Flavors:** `CITRUS` `NUTTY` `BOTANICAL` `BRIGHT`
+category: inbox
+publish: false
+
+glass: Coupe
+method: shaken
+ice: none
+ice_note: "(served up)"
+difficulty: easy
+
+spirits: [gin]
+format: single
+serves: 1
+
+flavors: [citrus, nutty, botanical, bright]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [sea-legs, dead-mans-handle, gin-gimlet]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Army & Navy
+
+> *A vintage gin sour with orgeat — bright, nutty, and deceptively simple.*
 
 ---
 
@@ -44,9 +76,3 @@ Combine and refrigerate. Shake each serving individually with ice and strain.
 A Prohibition-era classic, sometimes called the Navy Grog's cousin. The orgeat (almond syrup) gives it a rich, nutty sweetness that pairs beautifully with gin's botanicals. London Dry gin works best here — the almond rounds out the juniper without competing. The single dash of Angostura adds just enough complexity.
 
 ---
-
-## If You Like This, Try
-
-- **[Sea Legs](sea-legs.md)** — also uses orgeat in a two-spirit sour with mezcal + scotch `NUTTY` `CITRUS`
-- **[Dead Man's Handle](dead-mans-handle.md)** — the tequila riff on this same orgeat-citrus template
-- **[Gin Gimlet](gin-gimlet.md)** — another clean gin sour, no orgeat `CITRUS` `BOTANICAL`

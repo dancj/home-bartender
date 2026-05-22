@@ -1,11 +1,42 @@
-# Chocolate Old Fashioned
-> *A rich, dessert-leaning Old Fashioned — bourbon deepened with chocolate liqueur and a whisper of maple.*
+---
+title: "Chocolate Old Fashioned"
+blurb: "A rich, dessert-leaning Old Fashioned — bourbon deepened with chocolate liqueur and a whisper of maple."
 
-**Glass:** Rocks
-**Method:** Stirred
-**Ice:** Large cube
-**Difficulty:** Easy
-**Flavors:** `CHOCOLATE` `RICH` `SWEET` `SPIRIT-FORWARD`
+category: inbox
+publish: false
+
+glass: Rocks
+method: stirred
+ice: large-cube
+difficulty: easy
+
+spirits: [bourbon]
+format: single
+serves: 1
+
+flavors: [chocolate, rich, sweet, spirit-forward]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [maple-bacon-old-fashioned, manhattan]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Chocolate Old Fashioned
+
+> *A rich, dessert-leaning Old Fashioned — bourbon deepened with chocolate liqueur and a whisper of maple.*
 
 ---
 
@@ -47,8 +78,3 @@ Combine and refrigerate. Add 2 oz water to pre-dilute. Stir briefly before servi
 An original riff on the Old Fashioned. The key is restraint — maple syrup is just 1 bar spoon (the card crossed out ¼ oz as too much). The chocolate liqueur and bitters carry the chocolate character; the maple adds depth without making it sweet-heavy. Orange peel is essential for brightness against all that richness.
 
 ---
-
-## If You Like This, Try
-
-- **[Maple Bacon Old Fashioned](../../originals/maple-bacon-old-fashioned.md)** — the other original Old Fashioned riff in the book `SPIRIT-FORWARD` `SWEET` `SAVORY`
-- **[Manhattan](manhattan.md)** — another stirred bourbon classic with a modifying liqueur `SPIRIT-FORWARD` `BITTER`

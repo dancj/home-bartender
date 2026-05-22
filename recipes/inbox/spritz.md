@@ -1,11 +1,44 @@
-# Spritz
-> *A limoncello-Aperol spritz — bright citrus and gentle bitterness with bubbles.*
+---
+title: Spritz
+blurb: "A limoncello-Aperol spritz — bright citrus and gentle bitterness with bubbles."
 
-**Glass:** Wine glass or spritz glass
-**Method:** Shaken + built
-**Ice:** Yes (over ice)
-**Difficulty:** Easy
-**Flavors:** `CITRUS` `BUBBLY` `BITTER` `BRIGHT`
+category: inbox
+publish: false
+
+glass: "Wine glass or spritz glass"
+method: shaken
+method_note: built
+ice: cubed
+ice_note: "over ice"
+difficulty: easy
+
+spirits: [aperitif, liqueur, champagne]
+format: single
+serves: 1
+
+flavors: [citrus, bubbly, bitter, bright]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [prosecco-mojito, paloma]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Spritz
+
+> *A limoncello-Aperol spritz — bright citrus and gentle bitterness with bubbles.*
 
 ---
 
@@ -47,8 +80,3 @@ Combine and refrigerate. Pour ~2 oz of mix per serving over ice, top with Prosec
 A more composed, cocktail-forward take on the Aperol Spritz — the limoncello and fresh lemon juice add real citrus depth that the classic recipe lacks. The shaken-then-built method integrates the base flavors before adding the bubbles. Dan wrote the 6x batch directly on the card, which suggests this gets made in quantity.
 
 ---
-
-## If You Like This, Try
-
-- **[Prosecco Mojito](../../originals/prosecco-mojito.md)** — another bubbly, citrusy crowd-pleaser `BUBBLY` `HERBAL`
-- **[Paloma](../../classics/paloma.md)** — refreshing and citrusy with a bitter edge `CITRUS` `BUBBLY`

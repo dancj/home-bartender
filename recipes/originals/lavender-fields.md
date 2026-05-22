@@ -1,11 +1,45 @@
+---
+title: "Lavender Fields"
+blurb: "A floral, elegant gin cocktail with elderflower and a silky egg white foam."
+
+category: original
+publish: true
+
+glass: Coupe
+method: shaken
+method_note: "Dry shake first for egg white foam, then shake with ice"
+ice: none
+difficulty: medium
+
+spirits: [gin, liqueur]
+format: single
+serves: 1
+
+flavors: [floral, sour, citrus]
+styles: [shaken, floral]
+occasions: [showstopper]
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: []
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-03-19
+
+# TODO: review — method "Dry shake, then shaken" unmapped
+---
+
 # Lavender Fields
 
 > *A floral, elegant gin cocktail with elderflower and a silky egg white foam.*
-
-**Glass:** Coupe
-**Method:** Dry shake, then shaken
-**Ice:** None (served up)
-**Difficulty:** Medium
 
 ---
 

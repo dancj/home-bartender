@@ -1,11 +1,42 @@
+---
+title: "Coconut Strawberry Tequila"
+blurb: "A fruity, tropical tequila cocktail with a hint of smoke and heat — born at a house party."
+
+category: original
+publish: true
+
+glass: "Rocks or coupe"
+method: shaken
+ice: large-cube
+difficulty: easy
+
+spirits: [tequila, mezcal, liqueur]
+format: single
+serves: 1
+
+flavors: [fruity, sweet, refreshing]
+styles: [shaken, fruity]
+occasions: [weeknight]
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: []
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-03-19
+---
+
 # Coconut Strawberry Tequila
 
 > *A fruity, tropical tequila cocktail with a hint of smoke and heat — born at a house party.*
-
-**Glass:** Rocks or coupe
-**Method:** Shaken
-**Ice:** Cubed or large cube
-**Difficulty:** Easy
 
 ---
 

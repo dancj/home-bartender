@@ -1,11 +1,43 @@
-# Sea Legs
-> *A smoky, nutty, savory coupe — scotch and mezcal meet orgeat and celery, with a salt rim.*
+---
+title: "Sea Legs"
+blurb: "A smoky, nutty, savory coupe — scotch and mezcal meet orgeat and celery, with a salt rim."
 
-**Glass:** Coupe
-**Method:** Shaken
-**Ice:** None (served up)
-**Difficulty:** Medium
-**Flavors:** `SMOKY` `NUTTY` `CITRUS` `SAVORY`
+category: inbox
+publish: false
+
+glass: Coupe
+method: shaken
+ice: none
+ice_note: "(served up)"
+difficulty: medium
+
+spirits: [mezcal, scotch]
+format: single
+serves: 1
+
+flavors: [smoky, nutty, citrus, savory]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [oaxaca-old-fashioned, penicillin]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Sea Legs
+
+> *A smoky, nutty, savory coupe — scotch and mezcal meet orgeat and celery, with a salt rim.*
 
 ---
 
@@ -49,8 +81,3 @@ Combine and refrigerate. Shake each serving individually with ice and strain. Sa
 An original with a bold concept: two smoky spirits (scotch + mezcal), almond sweetness from orgeat, bright lime, and the unexpected vegetal savory note of celery bitters — finished with a salt rim. The salt rim echoes the Margarita/Paloma tradition but plays differently against smoke and almond. Celery bitters are the wildcard; Fee Brothers and The Bitter Truth both make good ones.
 
 ---
-
-## If You Like This, Try
-
-- **[Oaxaca Old Fashioned](../../classics/oaxaca-old-fashioned.md)** — the original scotch + mezcal split-base, spirit-forward and stirred `SMOKY` `SPIRIT-FORWARD`
-- **[Penicillin](../../classics/penicillin.md)** — scotch-forward, citrus-driven, smoky modern classic `SMOKY` `SOUR`

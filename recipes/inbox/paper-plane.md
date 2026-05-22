@@ -1,11 +1,43 @@
-# Paper Plane
-> *An equal-parts modern classic — bourbon, amaro, Aperol, and lemon in perfect balance.*
+---
+title: "Paper Plane"
+blurb: "An equal-parts modern classic — bourbon, amaro, Aperol, and lemon in perfect balance."
 
-**Glass:** Coupe (or rocks with a big cube)
-**Method:** Shaken
-**Ice:** None (served up) · or large cube in rocks variation
-**Difficulty:** Easy
-**Flavors:** `BITTER` `CITRUS` `HERBAL` `BRIGHT`
+category: inbox
+publish: false
+
+glass: "Coupe (or rocks with a big cube)"
+method: shaken
+ice: none
+ice_note: "(served up) · or large cube in rocks variation"
+difficulty: easy
+
+spirits: [bourbon, aperitif]
+format: single
+serves: 1
+
+flavors: [bitter, citrus, herbal, bright]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [penicillin]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Paper Plane
+
+> *An equal-parts modern classic — bourbon, amaro, Aperol, and lemon in perfect balance.*
 
 ---
 
@@ -48,8 +80,3 @@ Created by Sam Ross at Milk & Honey, NYC. The equal-parts template at its most e
 2. **"Naked and Famous"** — sub mezcal for bourbon *and* Yellow Chartreuse for Amaro Nonino; this is essentially the Naked & Famous recipe
 
 ---
-
-## If You Like This, Try
-
-- **[Naked & Famous](../../classics/naked-and-famous.md)** — the mezcal evolution of this template `SMOKY` `BITTER` `HERBAL`
-- **[Penicillin](../../classics/penicillin.md)** — another modern classic built on a spirit + citrus + something unexpected `SMOKY` `SOUR`

@@ -1,11 +1,42 @@
+---
+title: "Maple Bacon Old Fashioned"
+blurb: "A rich, smoky old fashioned with fat-washed bourbon and maple syrup — a showstopper."
+
+category: original
+publish: true
+
+glass: Rocks
+method: stirred
+ice: large-cube
+difficulty: advanced
+
+spirits: [bourbon, whiskey, scotch]
+format: single
+serves: 1
+
+flavors: [savory, smoky, spirit-forward, rich, sweet]
+styles: [stirred, spirit-forward]
+occasions: [showstopper]
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: []
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-03-19
+---
+
 # Maple Bacon Old Fashioned
 
 > *A rich, smoky old fashioned with fat-washed bourbon and maple syrup — a showstopper.*
-
-**Glass:** Rocks
-**Method:** Stirred
-**Ice:** Large cube
-**Difficulty:** Advanced
 
 ---
 

@@ -1,11 +1,43 @@
-# Bubbly Mojito
-> *A rum mojito finished with sparkling wine — fresh, minty, and celebratory.*
+---
+title: "Bubbly Mojito"
+blurb: "A rum mojito finished with sparkling wine — fresh, minty, and celebratory."
 
-**Glass:** Collins or highball
-**Method:** Shaken + built
-**Ice:** Crushed
-**Difficulty:** Easy
-**Flavors:** `HERBAL` `CITRUS` `FRUITY` `BUBBLY`
+category: inbox
+publish: false
+
+glass: "Collins or highball"
+method: shaken
+method_note: built
+ice: crushed
+difficulty: easy
+
+spirits: [rum, champagne]
+format: single
+serves: 1
+
+flavors: [herbal, citrus, fruity, bubbly]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [paloma, prosecco-mojito]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Bubbly Mojito
+
+> *A rum mojito finished with sparkling wine — fresh, minty, and celebratory.*
 
 ---
 
@@ -49,8 +81,3 @@ Muddle mint and lime in batches, combine with rum and syrup, refrigerate. Pour o
 The crushed ice + pour-everything-out technique keeps the drink integrated and well-diluted. Sparkling wine adds elegance; a light Prosecco works best to avoid overpowering the mint.
 
 ---
-
-## If You Like This, Try
-
-- **[Paloma](../../classics/paloma.md)** — another easy, refreshing highball with citrus and bubbles `CITRUS` `BUBBLY`
-- **[Prosecco Mojito](../../originals/prosecco-mojito.md)** — the existing version in the book; compare and reconcile

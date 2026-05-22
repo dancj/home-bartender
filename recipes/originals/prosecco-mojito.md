@@ -1,11 +1,45 @@
+---
+title: "Prosecco Mojito"
+blurb: "A bubbly, festive twist on the mojito — lighter on rum, topped with prosecco."
+
+category: original
+publish: true
+
+glass: "Highball or wine glass"
+method: built
+method_note: "Muddled in glass, then built and topped"
+ice: crushed
+difficulty: easy
+
+spirits: [rum, champagne]
+format: single
+serves: 1
+
+flavors: [bubbly, herbal, refreshing, citrus]
+styles: [built, bubbly]
+occasions: [weeknight]
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: []
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-03-19
+
+# TODO: review — method "Muddled, topped" unmapped
+---
+
 # Prosecco Mojito
 
 > *A bubbly, festive twist on the mojito — lighter on rum, topped with prosecco.*
-
-**Glass:** Highball or wine glass
-**Method:** Muddled, topped
-**Ice:** Crushed or cubed
-**Difficulty:** Easy
 
 ---
 

@@ -1,11 +1,44 @@
-# French 75
-> *A gin sour topped with Champagne — celebratory, bright, and dangerously drinkable.*
+---
+title: "French 75"
+blurb: "A gin sour topped with Champagne — celebratory, bright, and dangerously drinkable."
 
-**Glass:** Champagne flute or coupe
-**Method:** Shaken + built
-**Ice:** None (served up)
-**Difficulty:** Easy
-**Flavors:** `CITRUS` `BUBBLY` `BOTANICAL` `BRIGHT`
+category: inbox
+publish: false
+
+glass: "Champagne flute or coupe"
+method: shaken
+method_note: built
+ice: none
+ice_note: "(served up)"
+difficulty: easy
+
+spirits: [gin, champagne]
+format: single
+serves: 1
+
+flavors: [citrus, bubbly, botanical, bright]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [spritz, prosecco-mojito, gin-gimlet]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# French 75
+
+> *A gin sour topped with Champagne — celebratory, bright, and dangerously drinkable.*
 
 ---
 
@@ -45,9 +78,3 @@ Combine gin, lemon, and syrup and refrigerate. Pour ~2½ oz per serving into a f
 A WWI-era classic that has never gone out of style. Named for the French 75mm field gun — it's supposed to have a kick. A dry Champagne or Crémant works beautifully; Prosecco is sweeter but perfectly fine. London Dry gin is traditional; a contemporary gin with more citrus works well too. Don't over-sweet the base — the sparkling wine adds its own sugar.
 
 ---
-
-## If You Like This, Try
-
-- **[Spritz](spritz.md)** — also builds a shaken citrus base and tops with Prosecco `CITRUS` `BUBBLY`
-- **[Prosecco Mojito](../../originals/prosecco-mojito.md)** — rum + sparkling wine, mint-forward `BUBBLY` `HERBAL`
-- **[Gin Gimlet](gin-gimlet.md)** — the same gin + lemon + simple base, no bubbles `CITRUS` `BOTANICAL`

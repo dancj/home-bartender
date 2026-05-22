@@ -1,11 +1,43 @@
+---
+title: Paloma
+blurb: "Mexico's most popular cocktail — bright, citrusy, and infinitely refreshing."
+
+category: classic
+publish: true
+
+glass: Highball
+method: shaken
+method_note: topped
+ice: cubed
+difficulty: easy
+
+spirits: [tequila, mezcal]
+format: single
+serves: 1
+
+flavors: [citrus, refreshing, bubbly]
+styles: [highball, refreshing]
+occasions: [weeknight]
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: []
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-03-19
+---
+
 # Paloma
 
 > *Mexico's most popular cocktail — bright, citrusy, and infinitely refreshing.*
-
-**Glass:** Highball
-**Method:** Shaken, topped
-**Ice:** Cubed
-**Difficulty:** Easy
 
 ---
 

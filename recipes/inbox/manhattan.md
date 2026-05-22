@@ -1,11 +1,43 @@
-# Manhattan
-> *The stirred whiskey classic — rich, sweet, and bittersweet with a cherry.*
+---
+title: Manhattan
+blurb: "The stirred whiskey classic — rich, sweet, and bittersweet with a cherry."
 
-**Glass:** Coupe
-**Method:** Stirred
-**Ice:** None (served up)
-**Difficulty:** Easy
-**Flavors:** `SPIRIT-FORWARD` `SWEET` `BITTER` `RICH`
+category: inbox
+publish: false
+
+glass: Coupe
+method: stirred
+ice: none
+ice_note: "(served up)"
+difficulty: easy
+
+spirits: [bourbon, liqueur, wine]
+format: single
+serves: 1
+
+flavors: [spirit-forward, sweet, bitter, rich]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [maple-bacon-old-fashioned, oaxaca-old-fashioned]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Manhattan
+
+> *The stirred whiskey classic — rich, sweet, and bittersweet with a cherry.*
 
 ---
 
@@ -45,8 +77,3 @@ Combine and refrigerate. Stir each serving individually with ice and strain, or 
 One of the great stirred classics alongside the Old Fashioned and Negroni. Bourbon gives it sweetness and vanilla; rye gives it spice and dryness — both work, choose by mood. Carpano Antica Formula is a go-to sweet vermouth for richness; Dolin Rouge is lighter and more delicate. Use a Luxardo cherry, not the neon red kind.
 
 ---
-
-## If You Like This, Try
-
-- **[Maple Bacon Old Fashioned](../../originals/maple-bacon-old-fashioned.md)** — stirred, spirit-forward bourbon drink with a twist `SPIRIT-FORWARD` `SWEET`
-- **[Oaxaca Old Fashioned](../../classics/oaxaca-old-fashioned.md)** — the mezcal cousin, equally stirred and spirit-forward `SMOKY` `SPIRIT-FORWARD`

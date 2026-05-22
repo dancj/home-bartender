@@ -1,11 +1,42 @@
+---
+title: "Habanero Mango Margarita"
+blurb: "A sweet, spicy, citrusy margarita with house-made mango habanero syrup."
+
+category: original
+publish: true
+
+glass: "Margarita or rocks"
+method: shaken
+ice: cubed
+difficulty: medium
+
+spirits: [tequila, liqueur, mezcal]
+format: single
+serves: 1
+
+flavors: [citrus, spice, fruity, sweet]
+styles: [sour, spicy]
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: []
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-03-19
+---
+
 # Habanero Mango Margarita
 
 > *A sweet, spicy, citrusy margarita with house-made mango habanero syrup.*
-
-**Glass:** Margarita or rocks
-**Method:** Shaken
-**Ice:** Cubed
-**Difficulty:** Medium
 
 ---
 

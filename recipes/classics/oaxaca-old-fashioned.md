@@ -1,11 +1,42 @@
+---
+title: "Oaxaca Old Fashioned"
+blurb: "A smoky, spirit-forward riff on the classic — reposado and mezcal with cocoa bitters and a flamed orange peel."
+
+category: classic
+publish: true
+
+glass: Rocks
+method: stirred
+ice: large-cube
+difficulty: medium
+
+spirits: [tequila, mezcal]
+format: single
+serves: 1
+
+flavors: [smoky, spirit-forward, bitter]
+styles: [stirred, spirit-forward]
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: []
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-03-19
+---
+
 # Oaxaca Old Fashioned
 
 > *A smoky, spirit-forward riff on the classic — reposado and mezcal with cocoa bitters and a flamed orange peel.*
-
-**Glass:** Rocks
-**Method:** Stirred
-**Ice:** Large cube
-**Difficulty:** Medium
 
 ---
 

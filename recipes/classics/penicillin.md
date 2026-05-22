@@ -1,12 +1,42 @@
+---
+title: Penicillin
+blurb: "A modern classic — blended scotch with fresh lemon, honey-ginger syrup, and a smoky Laphroaig float."
+
+category: classic
+publish: true
+
+glass: Rocks
+method: shaken
+ice: large-cube
+difficulty: medium
+
+spirits: [scotch, whiskey]
+format: single
+serves: 1
+
+flavors: [smoky, sour, spice, herbal]
+styles: [shaken, smoky-sour]
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [sea-legs, paper-plane]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-03-19
+---
+
 # Penicillin
 
 > *A modern classic — blended scotch with fresh lemon, honey-ginger syrup, and a smoky Laphroaig float.*
-
-**Glass:** Rocks
-**Method:** Shaken
-**Ice:** Large cube
-**Difficulty:** Medium
-**Flavors:** `SMOKY` `SOUR` `SPICE` `HERBAL`
 
 ---
 
@@ -60,8 +90,3 @@ Combine and refrigerate. Shake each serving individually with ice and strain. Fl
 Created by Sam Ross at Milk & Honey, NYC in 2005. The Laphroaig float is non-negotiable — it sits on top and hits your nose before the first sip. Don't skip the fresh lemon; bottled juice won't do it justice. Blended scotch (Monkey Shoulder, Famous Grouse) in the base keeps the drink from getting too peaty throughout.
 
 ---
-
-## If You Like This, Try
-
-- **Sea Legs** — scotch + mezcal, citrus and almond, savory bitters
-- **Paper Plane** — another modern classic with citrus and bitter balance

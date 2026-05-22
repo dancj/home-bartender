@@ -1,11 +1,43 @@
-# Spice Trade
-> *A simple, crushable gin sour — cinnamon warmth meets bright basil and lemon.*
+---
+title: "Spice Trade"
+blurb: "A simple, crushable gin sour — cinnamon warmth meets bright basil and lemon."
 
-**Glass:** Coupe
-**Method:** Shaken
-**Ice:** None (served up)
-**Difficulty:** Easy
-**Flavors:** `HERBAL` `SPICE` `CITRUS` `FLORAL`
+category: inbox
+publish: false
+
+glass: Coupe
+method: shaken
+ice: none
+ice_note: "(served up)"
+difficulty: easy
+
+spirits: [gin]
+format: single
+serves: 1
+
+flavors: [herbal, spice, citrus, floral]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [lavender-fields, penicillin]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Spice Trade
+
+> *A simple, crushable gin sour — cinnamon warmth meets bright basil and lemon.*
 
 ---
 
@@ -53,8 +85,3 @@ Combine in a saucepan over medium heat, stirring until sugar dissolves. Simmer 1
 Created by bartender Nathan Howard at Cole's. Featured by @theeducatedbarfly, who called it "simple and crushable." The pairing of cinnamon and basil is the whole idea — warm spice and cool herb, both playing off the brightness of the lemon. Gin with enough body (London Dry or contemporary) works best; avoid anything too light or floral or the cinnamon will dominate.
 
 ---
-
-## If You Like This, Try
-
-- **[Lavender Fields](../../originals/lavender-fields.md)** — another gin sour built around an unexpected herb pairing `FLORAL` `HERBAL`
-- **[Penicillin](../../classics/penicillin.md)** — also plays a warming spice (ginger) against citrus in a spirit-forward sour `SPICE` `SOUR`

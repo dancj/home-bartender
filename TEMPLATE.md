@@ -1,13 +1,77 @@
-# [Recipe Name]
+# Recipe Template
 
-> *One-line description — spirit, style, occasion, or vibe.*
+Every recipe in `recipes/**/*.md` follows this shape. The frontmatter block is required and is what the site uses to render, filter, and search.
 
-**Glass:** [Rocks / Coupe / Highball / Nick & Nora / etc.]
-**Method:** [Stirred / Shaken / Built / Blended]
-**Ice:** [Large cube / Crushed / None / etc.]
-**Difficulty:** [Easy / Medium / Advanced]
+## Frontmatter Schema
 
+```yaml
 ---
+title: Recipe Name
+blurb: "One-line description — spirit, style, occasion, or vibe."
+
+# Categorization (category should match the parent directory)
+category: classic            # classic | original | seasonal | inbox
+publish: true                # false for inbox drafts — hidden from the site
+
+# The drink itself
+glass: Rocks                 # free-form display string (e.g. Highball, Coupe, Nick & Nora)
+method: shaken               # shaken | stirred | built | blended
+method_note: ""              # optional addendum (e.g. "topped", "dry shake first")
+ice: cubed                   # cubed | large-cube | crushed | none
+ice_note: ""                 # optional
+difficulty: easy             # easy | medium | advanced
+
+# Format / serving
+spirits: [tequila]           # canonical set (see below); empty for mocktails
+format: single               # single | batch | punch
+serves: 1
+
+# Filterable taxonomy
+flavors: [citrus, refreshing]
+styles: [highball]
+occasions: [weeknight]       # weeknight | batch-friendly | showstopper | brunch | nightcap | summer | winter
+
+# Attribution for borrowed recipes (leave empty for originals)
+attribution:
+  creator: ""                # e.g. "Sam Ross"
+  bar: ""                    # e.g. "Milk & Honey, NYC"
+  year: ""                   # e.g. "2005"
+  source_url: ""
+
+# Cross-linking
+related: []                  # slugs of related recipes — validated at build time
+aliases: []                  # previous slugs this recipe was known as (for redirects)
+
+# Reserved for Phase 2 (leave empty for now)
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-05-22          # ISO date; updated is derived from git
+---
+```
+
+## Canonical Taxonomy
+
+| Field        | Allowed values                                                                                                                                     |
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `category`   | `classic`, `original`, `seasonal`, `inbox`                                                                                                          |
+| `method`     | `shaken`, `stirred`, `built`, `blended`                                                                                                             |
+| `ice`        | `cubed`, `large-cube`, `crushed`, `none`                                                                                                            |
+| `difficulty` | `easy`, `medium`, `advanced`                                                                                                                        |
+| `format`     | `single`, `batch`, `punch`                                                                                                                          |
+| `spirits`    | `tequila`, `mezcal`, `whiskey`, `bourbon`, `rye`, `scotch`, `gin`, `vodka`, `rum`, `brandy`, `aperitif`, `liqueur`, `wine`, `champagne`             |
+| `flavors`    | `citrus`, `nutty`, `smoky`, `sour`, `spice`, `herbal`, `floral`, `botanical`, `bright`, `chocolate`, `rich`, `sweet`, `spirit-forward`, `bitter`, `fruity`, `tart`, `bubbly`, `savory`, `refreshing` |
+| `occasions`  | `weeknight`, `batch-friendly`, `showstopper`, `brunch`, `nightcap`, `summer`, `winter`                                                              |
+
+Add new values by editing `scripts/validate.mjs` and (eventually) `src/content.config.ts` together.
+
+## Body
+
+```markdown
+# Recipe Name
+
+> *One-line description — same as the blurb in frontmatter.*
 
 ## Ingredients
 
@@ -17,40 +81,47 @@
 - X oz [sweetener]
 - [Garnish], for garnish
 
----
-
-## House-Made [Syrup / Infusion / Prep]
+## House-Made [Syrup / Infusion]  (optional)
 
 *Makes ~X oz. Keeps X weeks refrigerated.*
 
-- X [ingredient]
-- X [ingredient]
+- ingredient
+- ingredient
 
-1. [Step]
-2. [Step]
-3. Strain into a jar and refrigerate.
-
----
+1. Step
+2. Step
 
 ## Steps
 
-1. [Step]
-2. [Step]
-3. [Step]
+1. Step
+2. Step
+3. Step
 
----
-
-## How to Batch It
+## How to Batch It  (optional)
 
 *Makes 8 servings:*
 
-- X oz [spirit]
-- X oz [modifier]
+- batch amounts...
 
 [Batch instructions — how to prep, store, and serve.]
 
----
-
 ## Notes
 
-*Optional: origin story, substitutions, variations, tips.*
+*Origin story, substitutions, variations, tips.*
+```
+
+## Validation
+
+```sh
+node scripts/validate.mjs
+```
+
+Run before committing. Fails on:
+- Invalid frontmatter
+- Non-canonical enum values
+- `related[]` entries that don't resolve to a recipe file
+- Duplicate slugs across directories
+
+## Migration
+
+The one-off `scripts/migrate-to-frontmatter.mjs` converts pre-frontmatter recipes (bold-fact prose headers) into this schema. It's idempotent — running it on already-migrated files is a no-op. Kept around in case future contributors want to bulk-import recipes that match the old format.

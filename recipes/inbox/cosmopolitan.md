@@ -1,11 +1,43 @@
-# Cosmopolitan
-> *The iconic vodka sour — citrusy, rosy, and effortlessly elegant.*
+---
+title: Cosmopolitan
+blurb: "The iconic vodka sour — citrusy, rosy, and effortlessly elegant."
 
-**Glass:** Coupe
-**Method:** Shaken
-**Ice:** None (served up)
-**Difficulty:** Easy
-**Flavors:** `CITRUS` `FRUITY` `TART` `BRIGHT`
+category: inbox
+publish: false
+
+glass: Coupe
+method: shaken
+ice: none
+ice_note: "(served up)"
+difficulty: easy
+
+spirits: [vodka, liqueur]
+format: single
+serves: 1
+
+flavors: [citrus, fruity, sour, bright]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [habanero-mango-margarita, paloma]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Cosmopolitan
+
+> *The iconic vodka sour — citrusy, rosy, and effortlessly elegant.*
 
 ---
 
@@ -47,8 +79,3 @@ Combine and refrigerate. Shake each serving individually with ice and strain. Ga
 Made iconic by Sex and the City but a genuinely well-balanced cocktail. The cranberry is color and a hint of tartness — not the star. Cointreau makes a noticeably better Cosmo than generic triple sec. Use just enough cranberry juice to turn it pink; too much makes it sweet and flat. The orange peel garnish is non-negotiable — that expressed oil ties the whole drink together.
 
 ---
-
-## If You Like This, Try
-
-- **[Habanero Mango Margarita](../../originals/habanero-mango-margarita.md)** — another citrus-forward shaken drink with a fruit element and a kick `CITRUS` `FRUITY`
-- **[Paloma](../../classics/paloma.md)** — simple, bright, and refreshing with grapefruit instead of cranberry `CITRUS` `BUBBLY`

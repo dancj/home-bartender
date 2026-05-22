@@ -1,11 +1,43 @@
-# Dead Man's Handle
-> *A tequila sour with orgeat and Aperol — bright, nutty, and just a little bitter.*
+---
+title: "Dead Man's Handle"
+blurb: "A tequila sour with orgeat and Aperol — bright, nutty, and just a little bitter."
 
-**Glass:** Coupe
-**Method:** Shaken
-**Ice:** None (served up)
-**Difficulty:** Easy
-**Flavors:** `CITRUS` `NUTTY` `BITTER` `BRIGHT`
+category: inbox
+publish: false
+
+glass: Coupe
+method: shaken
+ice: none
+ice_note: "(served up)"
+difficulty: easy
+
+spirits: [tequila, rum, aperitif]
+format: single
+serves: 1
+
+flavors: [citrus, nutty, bitter, bright]
+styles: []
+occasions: []
+
+attribution:
+  creator: ""
+  bar: ""
+  year: ""
+  source_url: ""
+
+related: [army-and-navy, habanero-mango-margarita]
+aliases: []
+
+hero_image: ""
+gallery: []
+preparations: []
+
+created: 2026-04-06
+---
+
+# Dead Man's Handle
+
+> *A tequila sour with orgeat and Aperol — bright, nutty, and just a little bitter.*
 
 ---
 
@@ -44,9 +76,3 @@ Combine and refrigerate. Shake each serving individually with ice and strain.
 An original built on the same orgeat-citrus template as the Army & Navy, but with tequila and lime instead of gin and lemon — the Aperol adds a bitter orange note that ties it together. Dan notes you can sub rum, which would push it toward a Mai Tai territory. The blanco tequila keeps it clean and agave-forward; a reposado would add more weight and vanilla.
 
 ---
-
-## If You Like This, Try
-
-- **[Army & Navy](army-and-navy.md)** — the gin version of this orgeat-citrus template `NUTTY` `BOTANICAL`
-- **[Habanero Mango Margarita](../../originals/habanero-mango-margarita.md)** — another tequila-forward shaken sour `CITRUS` `FRUITY`
-- **[Naked & Famous](../../classics/naked-and-famous.md)** — also uses Aperol in an equal-parts tequila/mezcal drink `BITTER` `CITRUS`
