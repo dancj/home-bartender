@@ -33,14 +33,6 @@ gallery: []
 preparations: []
 
 created: 2026-03-19
-
-# TODO: review — method "Muddled, topped" unmapped
----
-
-# Prosecco Mojito
-
-> *A bubbly, festive twist on the mojito — lighter on rum, topped with prosecco.*
-
 ---
 
 ## Ingredients

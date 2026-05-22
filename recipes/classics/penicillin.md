@@ -34,12 +34,6 @@ preparations: []
 created: 2026-03-19
 ---
 
-# Penicillin
-
-> *A modern classic — blended scotch with fresh lemon, honey-ginger syrup, and a smoky Laphroaig float.*
-
----
-
 ## Ingredients
 
 - 2 oz blended scotch

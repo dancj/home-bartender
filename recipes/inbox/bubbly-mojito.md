@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Bubbly Mojito
-
-> *A rum mojito finished with sparkling wine — fresh, minty, and celebratory.*
-
----
-
 ## Ingredients
 
 - 6 fresh mint leaves

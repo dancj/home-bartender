@@ -34,12 +34,6 @@ preparations: []
 created: 2026-03-19
 ---
 
-# Oaxaca Old Fashioned
-
-> *A smoky, spirit-forward riff on the classic — reposado and mezcal with cocoa bitters and a flamed orange peel.*
-
----
-
 ## Ingredients
 
 - 1½ oz reposado tequila

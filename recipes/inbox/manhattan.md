@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Manhattan
-
-> *The stirred whiskey classic — rich, sweet, and bittersweet with a cherry.*
-
----
-
 ## Ingredients
 
 - 2 oz bourbon

@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Paper Plane
-
-> *An equal-parts modern classic — bourbon, amaro, Aperol, and lemon in perfect balance.*
-
----
-
 ## Ingredients
 
 - ¾ oz bourbon

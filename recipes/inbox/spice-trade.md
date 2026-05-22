@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Spice Trade
-
-> *A simple, crushable gin sour — cinnamon warmth meets bright basil and lemon.*
-
----
-
 ## Ingredients
 
 - 2 oz gin

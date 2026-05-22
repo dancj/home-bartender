@@ -34,12 +34,6 @@ preparations: []
 created: 2026-03-19
 ---
 
-# Coconut Strawberry Tequila
-
-> *A fruity, tropical tequila cocktail with a hint of smoke and heat — born at a house party.*
-
----
-
 ## Ingredients
 
 - 1½ oz coconut tequila

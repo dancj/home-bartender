@@ -33,14 +33,6 @@ gallery: []
 preparations: []
 
 created: 2026-03-19
-
-# TODO: review — method "Dry shake, then shaken" unmapped
----
-
-# Lavender Fields
-
-> *A floral, elegant gin cocktail with elderflower and a silky egg white foam.*
-
 ---
 
 ## Ingredients

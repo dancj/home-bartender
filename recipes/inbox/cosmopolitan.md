@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Cosmopolitan
-
-> *The iconic vodka sour — citrusy, rosy, and effortlessly elegant.*
-
----
-
 ## Ingredients
 
 - 1½ oz vodka

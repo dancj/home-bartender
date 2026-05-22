@@ -34,12 +34,6 @@ preparations: []
 created: 2026-03-19
 ---
 
-# Maple Bacon Old Fashioned
-
-> *A rich, smoky old fashioned with fat-washed bourbon and maple syrup — a showstopper.*
-
----
-
 ## Ingredients
 
 - 2 oz bacon-washed bourbon

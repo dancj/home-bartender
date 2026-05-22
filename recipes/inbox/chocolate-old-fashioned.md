@@ -34,12 +34,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Chocolate Old Fashioned
-
-> *A rich, dessert-leaning Old Fashioned — bourbon deepened with chocolate liqueur and a whisper of maple.*
-
----
-
 ## Ingredients
 
 - 2 oz bourbon

@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Gin Gimlet
-
-> *A clean, tart classic — gin, lime, and just enough sweetness.*
-
----
-
 ## Ingredients
 
 - 2 oz gin

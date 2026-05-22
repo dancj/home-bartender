@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Dead Man's Handle
-
-> *A tequila sour with orgeat and Aperol — bright, nutty, and just a little bitter.*
-
----
-
 ## Ingredients
 
 - 1½ oz blanco tequila *(can sub rum)*

@@ -36,12 +36,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# French 75
-
-> *A gin sour topped with Champagne — celebratory, bright, and dangerously drinkable.*
-
----
-
 ## Ingredients
 
 - 1½ oz gin

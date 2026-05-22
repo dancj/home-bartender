@@ -35,12 +35,6 @@ preparations: []
 created: 2026-03-19
 ---
 
-# Paloma
-
-> *Mexico's most popular cocktail — bright, citrusy, and infinitely refreshing.*
-
----
-
 ## Ingredients
 
 - 2 oz tequila reposado (or mezcal for a smokier variation)

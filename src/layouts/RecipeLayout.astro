@@ -1,0 +1,109 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { Recipe } from '../lib/recipes';
+
+interface Props {
+  recipe: Recipe;
+}
+const { recipe } = Astro.props;
+const { data } = recipe;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const hasAttribution = data.attribution.creator || data.attribution.bar || data.attribution.year;
+---
+<BaseLayout title={`${data.title} — Home Bartender`} description={data.blurb}>
+  <article data-pagefind-body>
+    <header class="recipe-header">
+      <h1>{data.title}</h1>
+      <p class="blurb">{data.blurb}</p>
+
+      <dl class="facts">
+        <div><dt>Glass</dt><dd>{data.glass}</dd></div>
+        <div><dt>Method</dt><dd>{data.method}{data.method_note && <span class="note"> · {data.method_note}</span>}</dd></div>
+        <div><dt>Ice</dt><dd>{data.ice}{data.ice_note && <span class="note"> · {data.ice_note}</span>}</dd></div>
+        <div><dt>Difficulty</dt><dd>{data.difficulty}</dd></div>
+      </dl>
+
+      {data.flavors.length > 0 && (
+        <ul class="tags" aria-label="Flavors">
+          {data.flavors.map((f: string) => <li><a href={`${base}/by-flavor/${f}/`}>{f}</a></li>)}
+        </ul>
+      )}
+    </header>
+
+    <slot />
+
+    {hasAttribution && (
+      <aside class="attribution" data-pagefind-ignore>
+        <h2>Attribution</h2>
+        <p>
+          {data.attribution.creator && <>Created by <strong>{data.attribution.creator}</strong></>}
+          {data.attribution.bar && <> at <strong>{data.attribution.bar}</strong></>}
+          {data.attribution.year && <> in {data.attribution.year}</>}.
+          {data.attribution.source_url && <> <a href={data.attribution.source_url} rel="noopener">Source</a></>}
+        </p>
+      </aside>
+    )}
+
+    {data.related.length > 0 && (
+      <aside class="related">
+        <h2>Related</h2>
+        <ul>
+          {data.related.map((slug: string) => <li><a href={`${base}/recipes/${slug}/`}>{slug.replace(/-/g, ' ')}</a></li>)}
+        </ul>
+      </aside>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .blurb {
+    font-style: italic;
+    color: var(--color-muted);
+    font-size: 1.125rem;
+    margin-block: 0 1rem;
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.75rem 1.5rem;
+    margin: 1rem 0 0.5rem;
+    padding: 1rem;
+    background: var(--color-soft);
+    border-radius: 4px;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+  }
+  .facts div { display: flex; flex-direction: column; }
+  .facts dt {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-muted);
+    font-weight: 600;
+  }
+  .facts dd { margin: 0.2rem 0 0; text-transform: capitalize; }
+  .facts .note { color: var(--color-muted); font-style: italic; text-transform: none; }
+  .tags { list-style: none; padding: 0; margin: 0.75rem 0 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tags li a {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    font-family: var(--font-sans);
+  }
+  .tags li a:hover { background: var(--color-soft); }
+  .attribution, .related {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-rule);
+    font-size: 0.95rem;
+  }
+  .attribution h2, .related h2 { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.1em; margin-block: 0 0.5rem; }
+  .related ul { list-style: none; padding: 0; }
+  .related li a { text-transform: capitalize; }
+</style>

@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { publishedRecipes } from '../lib/recipes';
+
+const recipes = (await publishedRecipes()).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title)
+);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title="Home Bartender" description="Personal cocktail recipe collection.">
+  <h1>Home Bartender</h1>
+  <p class="lede">Personal cocktail recipe collection — {recipes.length} recipes across classics, originals, and seasonal experiments.</p>
+
+  <ul class="recipe-grid">
+    {recipes.map(r => (
+      <li>
+        <a href={`${base}/recipes/${r.id.split('/').pop()}/`}>
+          <h2>{r.data.title}</h2>
+          <p class="blurb">{r.data.blurb}</p>
+          <ul class="meta">
+            <li>{r.data.method}</li>
+            <li>{r.data.difficulty}</li>
+            {r.data.spirits[0] && <li>{r.data.spirits[0]}</li>}
+          </ul>
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .lede {
+    font-style: italic;
+    color: var(--color-muted);
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+  }
+  .recipe-grid {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1rem;
+  }
+  .recipe-grid > li > a {
+    display: block;
+    padding: 1.25rem;
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+    text-decoration: none;
+    color: inherit;
+    background: var(--color-bg);
+    transition: border-color 150ms, transform 150ms;
+  }
+  .recipe-grid > li > a:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+  .recipe-grid h2 {
+    font-size: 1.125rem;
+    margin: 0 0 0.5rem;
+  }
+  .recipe-grid .blurb {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    font-style: italic;
+    margin: 0 0 0.75rem;
+    line-height: 1.4;
+  }
+  .recipe-grid .meta {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+  }
+  .recipe-grid .meta li {
+    padding: 0.2rem 0.5rem;
+    background: var(--color-soft);
+    border-radius: 3px;
+  }
+</style>

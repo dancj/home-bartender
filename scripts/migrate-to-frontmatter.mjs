@@ -60,8 +60,9 @@ const OCCASION_NORMALIZE = {
 const args = process.argv.slice(2);
 const DRY = args.includes('--dry-run');
 const WRITE = args.includes('--write');
+const FORCE = args.includes('--force');
 if (!DRY && !WRITE) {
-  console.error('Pass --dry-run or --write');
+  console.error('Pass --dry-run or --write (add --force to re-process files that already have frontmatter)');
   process.exit(1);
 }
 
@@ -288,8 +289,13 @@ function buildFrontmatter(data) {
 }
 
 async function migrate(file, indexBySlug) {
-  const raw = await readFile(file, 'utf8');
-  if (raw.startsWith('---\n')) return { skipped: true };
+  let raw = await readFile(file, 'utf8');
+  if (raw.startsWith('---\n')) {
+    if (!FORCE) return { skipped: true };
+    const end = raw.indexOf('\n---\n', 4);
+    if (end === -1) return { error: true };
+    raw = raw.slice(end + 5).replace(/^\n+/, '');
+  }
 
   const rel = path.relative(ROOT, file);
   const todos = [];
@@ -381,7 +387,8 @@ async function migrate(file, indexBySlug) {
     related, created, todos,
   });
 
-  const newContent = `${fm}\n\n# ${title}\n${blurb ? `\n> *${blurb}*\n` : ''}${bodyOut.startsWith('\n') ? bodyOut : '\n' + bodyOut}`;
+  const cleanBody = bodyOut.replace(/^\s*---\s*\n+/, '').replace(/^\n+/, '');
+  const newContent = `${fm}\n\n${cleanBody}`;
 
   return { newContent, todos };
 }

@@ -36,12 +36,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Spritz
-
-> *A limoncello-Aperol spritz — bright citrus and gentle bitterness with bubbles.*
-
----
-
 ## Ingredients
 
 - 1 oz limoncello

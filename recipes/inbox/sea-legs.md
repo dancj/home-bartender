@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Sea Legs
-
-> *A smoky, nutty, savory coupe — scotch and mezcal meet orgeat and celery, with a salt rim.*
-
----
-
 ## Ingredients
 
 - 1 oz scotch

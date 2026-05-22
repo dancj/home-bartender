@@ -35,12 +35,6 @@ preparations: []
 created: 2026-04-06
 ---
 
-# Army & Navy
-
-> *A vintage gin sour with orgeat — bright, nutty, and deceptively simple.*
-
----
-
 ## Ingredients
 
 - 2 oz gin

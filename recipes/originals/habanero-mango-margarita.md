@@ -34,12 +34,6 @@ preparations: []
 created: 2026-03-19
 ---
 
-# Habanero Mango Margarita
-
-> *A sweet, spicy, citrusy margarita with house-made mango habanero syrup.*
-
----
-
 ## Ingredients
 
 - 2 oz tequila blanco
