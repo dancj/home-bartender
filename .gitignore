@@ -1,6 +1,3 @@
-# Typst output (kept until Phase 8 cleanup)
-book.pdf
-
 # Node / Astro
 node_modules/
 dist/
