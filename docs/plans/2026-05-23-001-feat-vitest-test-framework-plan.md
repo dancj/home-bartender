@@ -1,7 +1,7 @@
 ---
 title: "feat: Add Vitest test framework"
 type: feat
-status: active
+status: completed
 created: 2026-05-23
 origin: "GitHub issue #3 — Add Vitest test framework"
 ---
