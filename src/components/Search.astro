@@ -27,7 +27,9 @@ const { mode = 'compact' } = Astro.props;
 </script>
 
 <style is:global>
-  :root {
+  /* Override at .pagefind-ui scope, not :root — Pagefind's own CSS defines
+     its variables on .pagefind-ui so root overrides get shadowed. */
+  .pagefind-ui {
     --pagefind-ui-scale: 0.9;
     --pagefind-ui-primary: var(--color-accent);
     --pagefind-ui-text: var(--color-text);
@@ -38,6 +40,19 @@ const { mode = 'compact' } = Astro.props;
     --pagefind-ui-border-radius: 4px;
     --pagefind-ui-font: var(--font-serif);
   }
+  /* Pagefind's input doesn't inherit colors cleanly in some themes. */
+  .pagefind-ui input,
+  .pagefind-ui .pagefind-ui__search-input {
+    background: var(--color-bg);
+    color: var(--color-text);
+    border-color: var(--color-rule);
+  }
+  .pagefind-ui input::placeholder { color: var(--color-muted); }
+  .pagefind-ui .pagefind-ui__search-clear {
+    background: var(--color-soft);
+    color: var(--color-text);
+  }
+  .pagefind-ui mark { background: var(--color-accent); color: var(--color-bg); }
   #search.compact { max-width: 18rem; }
   #search.full { max-width: 100%; }
 </style>
