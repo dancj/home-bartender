@@ -128,10 +128,17 @@ When you receive an email containing a cocktail recipe (look for ingredients wit
    - If the email mentions an original creator/bar/year, populate the `attribution` block
    - If measurements are missing, leave them blank rather than guessing
    - Add a House-Made section in the body if the recipe includes a syrup or infusion
-3. Write the file to `recipes/inbox/{slug}.md`
-4. Confirm to the user what was saved and where
+3. Write the file to `recipes/inbox/{slug}.md`.
+4. Ship it as a PR per the Contributing rules — do not commit on `main`:
+   - `git checkout -b feat-inbox-{slug}` (no issue ref needed for ingest)
+   - `git add recipes/inbox/{slug}.md && git commit -m "feat(inbox): add {Recipe Title}"`
+   - `git push -u origin feat-inbox-{slug}`
+   - `gh pr create --title "feat(inbox): add {Recipe Title}" --body "..."` — body should summarize what was parsed, flag any missing measurements or guessed values, and link the source email if available.
+5. Confirm to the user what was saved, the branch name, and the PR URL.
 
-Inbox recipes do not appear on the public site until they're promoted (stages 2–4 of the Recipe Pipeline section above).
+If `gh pr create` fails with a token-permission error, still complete steps 1–4 above (file + branch + push) and report the GitHub "create PR" URL from the push output so the user can open the PR manually.
+
+Inbox recipes do not appear on the public site until they're promoted (stages 2–4 of the Recipe Pipeline section above), which happens after the PR is merged.
 
 ## Recipe Template Quick Reference
 
