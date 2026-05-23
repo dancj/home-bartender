@@ -8,12 +8,69 @@ All changes ship via pull request — **never push directly to `main`**. This ap
 
 Standard flow:
 
-1. Create a feature branch (`git checkout -b <short-name>`).
+1. Create a feature branch (see Branch naming below).
 2. Commit there.
 3. Push the branch and open a PR with `gh pr create`.
 4. Wait for human review and merge. Do not merge your own PRs unless the user explicitly says so.
 
 If you find yourself on `main` with uncommitted changes, stash or move them to a branch before committing.
+
+### Branch naming
+
+Pattern: `{type}-{ISSUE-REF}-{short-description}`
+
+| Type    | Pattern                          | Example                 |
+| ------- | -------------------------------- | ----------------------- |
+| Feature | `feat-{ISSUE-REF}-short-desc`    | `feat-50-member-export` |
+| Bug fix | `fix-{ISSUE-REF}-short-desc`     | `fix-90-login-redirect` |
+| Chore   | `chore-{ISSUE-REF}-short-desc`   | `chore-84-upgrade-ampx` |
+| Script  | `script-{ISSUE-REF}-short-desc`  | `script-318-backfill`   |
+
+If no issue exists, file one first or use a short slug instead of the ref (`chore-typo-readme`).
+
+### Test-driven development
+
+**All feature and bug fix work MUST follow TDD red-green-refactor discipline.** This applies to all implementation — whether initiated by `/ce:work`, `/ce:plan`, subagents, or direct coding.
+
+When implementing any plan task:
+
+1. Write a failing test that describes the expected behavior.
+2. Run the test suite and confirm it fails.
+3. Write the minimum code to make it pass.
+4. Run the full suite to confirm nothing else broke.
+5. Refactor if needed, keeping tests green.
+6. Repeat for the next behavioral increment.
+
+**Skip TDD only for:** configuration changes, boilerplate wiring, pure styling/layout, trivial renames, and exploratory spikes.
+
+> Note: this repo does not currently have a test framework wired up — only `astro check` (TypeScript) and `npm run validate` (frontmatter). When a change calls for TDD per the rules above, set up the appropriate test runner as part of that change rather than skipping the discipline.
+
+### Closing issues via PRs
+
+Always reference related GitHub issues in PR descriptions using GitHub's closing keywords so issues are auto-closed on merge:
+
+- Use `Closes #123` or `Fixes #123` in the PR **body** (not title).
+- For multiple issues, list each on its own line (`Closes #123`, `Closes #456`).
+- If a PR partially addresses an issue but doesn't fully resolve it, use `Related to #123` — links but does not auto-close.
+- Bare `#123` references do **not** trigger auto-close; the keyword is required.
+
+### Release PRs (staging → main)
+
+When a `staging` branch is in use, releases roll up via a PR with the standardized title:
+
+```
+Release: staging to main (YYYY-MM-DD)
+```
+
+The PR body MUST include a `## Closes` section enumerating every issue resolved by PRs included in the release. GitHub only auto-closes issues when the **merge commit** on the **default branch** (`main`) contains the keyword, so the release PR body is where they belong — not the individual staging PRs.
+
+```markdown
+## Closes
+
+Closes #90, Closes #137, Closes #204
+```
+
+Scan merged staging PRs for issue refs when assembling this list.
 
 ## Directory Structure
 
