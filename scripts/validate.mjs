@@ -5,6 +5,7 @@
 
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
@@ -48,7 +49,7 @@ async function walk(dir) {
   return out;
 }
 
-function parseFrontmatter(raw) {
+export function parseFrontmatter(raw) {
   if (!raw.startsWith('---\n')) return null;
   const end = raw.indexOf('\n---\n', 4);
   if (end === -1) return null;
@@ -81,7 +82,7 @@ function parseFrontmatter(raw) {
   return fm;
 }
 
-function parseScalar(v) {
+export function parseScalar(v) {
   if (v.startsWith('[') && v.endsWith(']')) {
     const inner = v.slice(1, -1).trim();
     if (!inner) return [];
@@ -150,4 +151,6 @@ async function main() {
   if (errors.length) process.exit(1);
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
+  main().catch(e => { console.error(e); process.exit(1); });
+}
