@@ -76,7 +76,12 @@ export async function autoReleasePrRun({ gh, exec, now, repo, headSha } = {}) {
 }
 
 async function execAhead(exec) {
-  const { stdout } = await exec('git', ['rev-list', '--count', 'main..staging']);
+  // origin/main..HEAD instead of main..staging — the workflow runs in a CI
+  // checkout where `main` is only available as the remote-tracking ref
+  // (actions/checkout@v4 doesn't create a local branch for non-checkout
+  // refs). HEAD is the checked-out staging tip in CI; the comparison is
+  // semantically identical to main..staging locally.
+  const { stdout } = await exec('git', ['rev-list', '--count', 'origin/main..HEAD']);
   return parseInt(stdout.trim(), 10) || 0;
 }
 

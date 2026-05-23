@@ -10,7 +10,7 @@ function makeDeps({ ahead = 1, tags = [], tagCommitDate = '2026-05-22T00:00:00Z'
 
   const exec = async (cmd, args) => {
     calls.exec.push({ cmd, args });
-    if (cmd === 'git' && args[0] === 'rev-list' && args[1] === '--count') {
+    if (cmd === 'git' && args[0] === 'rev-list' && args[1] === '--count' && args[2] === 'origin/main..HEAD') {
       return { stdout: `${ahead}\n`, stderr: '' };
     }
     if (cmd === 'git' && args[0] === 'tag' && args[1] === '--list') {
