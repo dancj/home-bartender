@@ -56,21 +56,33 @@ Always reference related GitHub issues in PR descriptions using GitHub's closing
 
 ### Release PRs (staging → main)
 
-When a `staging` branch is in use, releases roll up via a PR with the standardized title:
+Releases roll up via a PR with the standardized title:
 
 ```
 Release: staging to main (YYYY-MM-DD)
 ```
 
-The PR body MUST include a `## Closes` section enumerating every issue resolved by PRs included in the release. GitHub only auto-closes issues when the **merge commit** on the **default branch** (`main`) contains the keyword, so the release PR body is where they belong — not the individual staging PRs.
+The release PR body is **bot-maintained** by `.github/workflows/auto-release-pr.yml`. Every push to `staging` re-renders a managed block — wrapped in HTML comment delimiters — containing the categorised PR breakdown and the aggregated `## Closes` list. Human notes go **outside** the managed block; the workflow won't touch them.
 
 ```markdown
+Optional human prose above the block.
+
+<!-- release-pr:start -->
+
 ## Closes
 
 Closes #90, Closes #137, Closes #204
+
+## Recipes
+- ...
+
+<!-- managed by .github/workflows/auto-release-pr.yml — do not edit between markers -->
+<!-- release-pr:end -->
+
+Optional human prose below the block.
 ```
 
-Scan merged staging PRs for issue refs when assembling this list.
+The aggregated `## Closes` list inside the managed block is the **only** place auto-closing issues land — every other interpolated `Closes|Fixes|Resolves #N` reference (PR titles in bullets, prose around the block) is backtick-wrapped so it doesn't trigger GitHub's auto-close. See `docs/release-pipeline.md` for the full contract, recovery procedures, and the per-release manual-merge ritual for the bot-opened `docs: update CHANGELOG for release <version>` PR.
 
 ## Directory Structure
 
