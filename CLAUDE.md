@@ -43,7 +43,7 @@ When implementing any plan task:
 
 **Skip TDD only for:** configuration changes, boilerplate wiring, pure styling/layout, trivial renames, and exploratory spikes.
 
-> Note: this repo does not currently have a test framework wired up — only `astro check` (TypeScript) and `npm run validate` (frontmatter). When a change calls for TDD per the rules above, set up the appropriate test runner as part of that change rather than skipping the discipline.
+Tests are written with [Vitest](https://vitest.dev/) and run via `npm test`. CI gates them on every PR via `.github/workflows/test.yml`, and the production deploy in `.github/workflows/deploy.yml` runs them as a build step so a test failure aborts before any pages artifact is uploaded. `astro check` and `npm run validate` continue to cover TypeScript and recipe-frontmatter checks.
 
 ### Closing issues via PRs
 
