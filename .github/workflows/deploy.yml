@@ -35,6 +35,9 @@ jobs:
       - name: Validate recipe frontmatter
         run: npm run validate
 
+      - name: Run tests
+        run: npm test
+
       - name: Build site
         run: npm run build
 
