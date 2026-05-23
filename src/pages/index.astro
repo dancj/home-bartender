@@ -4,50 +4,90 @@ import RecipeCard from '../components/RecipeCard.astro';
 import { publishedRecipes } from '../lib/recipes';
 import { label, groupByTax } from '../lib/taxonomy';
 
-const recipes = (await publishedRecipes()).sort((a, b) => a.data.title.localeCompare(b.data.title));
+const recipes = (await publishedRecipes()).sort((a, b) =>
+  a.data.title.localeCompare(b.data.title)
+);
 
-const spirits = [...new Set(recipes.flatMap(r => r.data.spirits))].sort();
+const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
 const flavors = [...groupByTax(recipes, 'flavors').keys()];
 const difficulties = ['easy', 'medium', 'advanced'];
-const methods = ['shaken', 'stirred', 'built', 'blended'].filter(m => recipes.some(r => r.data.method === m));
+const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
+  recipes.some((r) => r.data.method === m)
+);
 ---
-<BaseLayout title="Home Bartender" description="Personal cocktail recipe collection.">
-  <h1>Home Bartender</h1>
-  <p class="lede">Personal cocktail recipe collection — {recipes.length} recipes across classics, originals, and seasonal experiments.</p>
+<BaseLayout
+  title="Home Bartender"
+  description="Personal cocktail recipe collection."
+  width="wide"
+>
+  <section class="page-head">
+    <p class="kicker eyebrow">Recipe collection</p>
+    <h1>Home Bartender</h1>
+    <p class="lede">
+      {recipes.length} recipes across classics, originals, and seasonal experiments.
+    </p>
+  </section>
 
   <details class="filter-bar">
-    <summary>Filter <span class="count" id="filter-count"></span></summary>
+    <summary>
+      <span class="filter-label">Filters</span>
+      <span class="filter-count" id="filter-count"></span>
+    </summary>
     <div class="filter-groups">
       <div class="filter-group">
-        <h3>Spirit</h3>
+        <h3 class="eyebrow">Spirit</h3>
         <ul>
-          {spirits.map(s => <li><button type="button" data-filter="spirit" data-value={s}>{label('spirits', s)}</button></li>)}
+          {spirits.map((s) => (
+            <li>
+              <button type="button" class="chip" data-filter="spirit" data-value={s}>
+                {label('spirits', s)}
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
       <div class="filter-group">
-        <h3>Difficulty</h3>
+        <h3 class="eyebrow">Difficulty</h3>
         <ul>
-          {difficulties.map(d => <li><button type="button" data-filter="difficulty" data-value={d}>{label('difficulty', d)}</button></li>)}
+          {difficulties.map((d) => (
+            <li>
+              <button type="button" class="chip" data-filter="difficulty" data-value={d}>
+                {label('difficulty', d)}
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
       <div class="filter-group">
-        <h3>Method</h3>
+        <h3 class="eyebrow">Method</h3>
         <ul>
-          {methods.map(m => <li><button type="button" data-filter="method" data-value={m}>{label('method', m)}</button></li>)}
+          {methods.map((m) => (
+            <li>
+              <button type="button" class="chip" data-filter="method" data-value={m}>
+                {label('method', m)}
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
       <div class="filter-group">
-        <h3>Flavor</h3>
+        <h3 class="eyebrow">Flavor</h3>
         <ul>
-          {flavors.map(f => <li><button type="button" data-filter="flavor" data-value={f}>{label('flavor', f)}</button></li>)}
+          {flavors.map((f) => (
+            <li>
+              <button type="button" class="chip" data-filter="flavor" data-value={f}>
+                {label('flavor', f)}
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
     </div>
-    <button type="button" id="clear-filters" class="clear">Clear filters</button>
+    <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
   </details>
 
   <ul class="recipe-grid" id="recipe-grid">
-    {recipes.map(r => <RecipeCard recipe={r} />)}
+    {recipes.map((r) => <RecipeCard recipe={r} />)}
   </ul>
 
   <p id="empty-state" class="empty" hidden>No recipes match the current filters.</p>
@@ -100,10 +140,11 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter(m => recipes.so
         }
         emptyEl.hidden = visible > 0;
         const active = Object.keys(filters).length;
-        countEl.textContent = active ? `(${active} active, ${visible}/${cards.length} shown)` : '';
+        countEl.textContent = active ? `${active} active · ${visible}/${cards.length}` : '';
         for (const b of buttons) {
-          const active = filters[b.dataset.filter] === b.dataset.value;
-          b.classList.toggle('active', active);
+          const on = filters[b.dataset.filter] === b.dataset.value;
+          b.classList.toggle('chip-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
         if (active > 0 && summary) summary.parentElement.open = true;
       }
@@ -126,57 +167,60 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter(m => recipes.so
 </BaseLayout>
 
 <style>
-  .lede {
-    font-style: italic;
-    color: var(--color-muted);
-    font-size: 1.125rem;
-    margin-bottom: 1.5rem;
+  .kicker {
+    margin: 0 0 0.5rem;
   }
+
   .filter-bar {
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--color-rule);
-    border-radius: 6px;
-    padding: 0 1rem;
+    margin-bottom: 2rem;
+    border: 1px solid hsl(var(--rule));
+    border-radius: var(--radius-md);
+    background: hsl(var(--surface));
   }
   .filter-bar > summary {
     cursor: pointer;
-    padding: 0.75rem 0;
+    padding: 0.85rem 1rem;
     font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-accent);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: hsl(var(--fg));
     list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
   }
   .filter-bar > summary::-webkit-details-marker { display: none; }
   .filter-bar > summary::before {
-    content: '+ ';
-    display: inline-block;
-    width: 1rem;
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 1.5px solid hsl(var(--fg-muted));
+    border-bottom: 1.5px solid hsl(var(--fg-muted));
+    transform: rotate(-45deg);
+    transition: transform 150ms ease;
+    margin-right: 0.25rem;
   }
-  .filter-bar[open] > summary::before { content: '− '; }
-  .filter-bar .count {
-    color: var(--color-muted);
-    font-weight: normal;
-    text-transform: none;
-    letter-spacing: normal;
-    margin-left: 0.5rem;
+  .filter-bar[open] > summary::before {
+    transform: rotate(45deg);
   }
+  .filter-label {
+    flex: 0 0 auto;
+  }
+  .filter-count {
+    color: hsl(var(--fg-muted));
+    font-weight: 400;
+    font-size: 0.75rem;
+  }
+
   .filter-groups {
-    padding-block: 0.5rem 1rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
     gap: 1.5rem;
+    padding: 0.5rem 1rem 1.25rem;
+    border-top: 1px solid hsl(var(--rule));
   }
   .filter-group h3 {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-muted);
-    font-family: var(--font-sans);
-    margin: 0 0 0.5rem;
-    font-weight: 600;
+    margin: 0 0 0.65rem;
   }
   .filter-group ul {
     list-style: none;
@@ -187,44 +231,32 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter(m => recipes.so
     gap: 0.35rem;
   }
   .filter-group button {
-    cursor: pointer;
-    padding: 0.25rem 0.6rem;
-    border: 1px solid var(--color-rule);
-    border-radius: 999px;
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
     text-transform: capitalize;
   }
-  .filter-group button:hover { border-color: var(--color-accent); }
-  .filter-group button.active {
-    background: var(--color-accent);
-    color: var(--color-bg);
-    border-color: var(--color-accent);
-  }
-  .clear {
-    margin: 0 0 1rem;
+
+  .clear-btn {
+    display: block;
+    margin: 0 1rem 1rem auto;
     background: none;
     border: none;
-    color: var(--color-muted);
+    color: hsl(var(--fg-muted));
     font-family: var(--font-sans);
     font-size: 0.75rem;
     text-decoration: underline;
+    text-decoration-color: hsl(var(--rule));
+    text-underline-offset: 2px;
     cursor: pointer;
     padding: 0;
   }
-  .recipe-grid {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-    gap: 1rem;
+  .clear-btn:hover {
+    color: hsl(var(--fg));
   }
+
   .empty {
     text-align: center;
-    color: var(--color-muted);
+    color: hsl(var(--fg-muted));
     font-style: italic;
-    padding: 2rem;
+    font-family: var(--font-serif);
+    padding: 3rem 1rem;
   }
 </style>

@@ -9,44 +9,65 @@ interface Props {
 const { recipe } = Astro.props;
 const { data } = recipe;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const hasAttribution = data.attribution.creator || data.attribution.bar || data.attribution.year;
+const hasAttribution =
+  data.attribution.creator || data.attribution.bar || data.attribution.year;
 ---
 <BaseLayout title={`${data.title} — Home Bartender`} description={data.blurb}>
   <article data-pagefind-body>
     <header class="recipe-header">
-      <p class="eyebrow"><a href={`${base}/`}>← All recipes</a></p>
+      <p class="back">
+        <a href={`${base}/`}>← All recipes</a>
+      </p>
       <h1>{data.title}</h1>
       <p class="blurb">{data.blurb}</p>
 
       <dl class="facts">
-        <div><dt>Glass</dt><dd>{data.glass}</dd></div>
         <div>
-          <dt>Method</dt>
+          <dt class="eyebrow">Glass</dt>
+          <dd>{data.glass}</dd>
+        </div>
+        <div>
+          <dt class="eyebrow">Method</dt>
           <dd>
             {label('method', data.method)}
             {data.method_note && <span class="note">· {data.method_note}</span>}
           </dd>
         </div>
         <div>
-          <dt>Ice</dt>
+          <dt class="eyebrow">Ice</dt>
           <dd>
             {label('ice', data.ice)}
             {data.ice_note && <span class="note">· {data.ice_note}</span>}
           </dd>
         </div>
-        <div><dt>Difficulty</dt><dd>{label('difficulty', data.difficulty)}</dd></div>
+        <div>
+          <dt class="eyebrow">Difficulty</dt>
+          <dd>{label('difficulty', data.difficulty)}</dd>
+        </div>
       </dl>
 
       {(data.flavors.length > 0 || data.spirits.length > 0) && (
         <div class="taxonomy">
           {data.spirits.length > 0 && (
-            <ul class="tags spirits" aria-label="Spirits">
-              {data.spirits.map((s: string) => <li><a href={`${base}/by-spirit/${s}/`}>{label('spirits', s)}</a></li>)}
+            <ul class="tags" aria-label="Spirits">
+              {data.spirits.map((s: string) => (
+                <li>
+                  <a href={`${base}/by-spirit/${s}/`} class="chip chip-spirit">
+                    {label('spirits', s)}
+                  </a>
+                </li>
+              ))}
             </ul>
           )}
           {data.flavors.length > 0 && (
-            <ul class="tags flavors" aria-label="Flavors">
-              {data.flavors.map((f: string) => <li><a href={`${base}/by-flavor/${f}/`}>{f}</a></li>)}
+            <ul class="tags" aria-label="Flavors">
+              {data.flavors.map((f: string) => (
+                <li>
+                  <a href={`${base}/by-flavor/${f}/`} class="chip">
+                    {f}
+                  </a>
+                </li>
+              ))}
             </ul>
           )}
         </div>
@@ -59,7 +80,7 @@ const hasAttribution = data.attribution.creator || data.attribution.bar || data.
 
     {hasAttribution && (
       <aside class="attribution" data-pagefind-ignore>
-        <h2>Attribution</h2>
+        <h2 class="aside-title">Attribution</h2>
         <p>
           {data.attribution.creator && <>Created by <strong>{data.attribution.creator}</strong></>}
           {data.attribution.bar && <> at <strong>{data.attribution.bar}</strong></>}
@@ -71,9 +92,11 @@ const hasAttribution = data.attribution.creator || data.attribution.bar || data.
 
     {data.related.length > 0 && (
       <aside class="related">
-        <h2>Related</h2>
+        <h2 class="aside-title">Related</h2>
         <ul>
-          {data.related.map((slug: string) => <li><a href={`${base}/recipes/${slug}/`}>{slug.replace(/-/g, ' ')}</a></li>)}
+          {data.related.map((slug: string) => (
+            <li><a href={`${base}/recipes/${slug}/`}>{slug.replace(/-/g, ' ')}</a></li>
+          ))}
         </ul>
       </aside>
     )}
@@ -81,58 +104,69 @@ const hasAttribution = data.attribution.creator || data.attribution.bar || data.
 </BaseLayout>
 
 <style>
-  .recipe-header { margin-bottom: 1.75rem; }
-
-  .eyebrow {
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-muted);
-    margin: 0 0 0.75rem;
+  .recipe-header {
+    margin-bottom: 2rem;
   }
-  .eyebrow a { color: var(--color-muted); text-decoration: none; }
-  .eyebrow a:hover { color: var(--color-accent); }
+
+  .back {
+    margin-bottom: 1rem;
+  }
+  .back a {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: hsl(var(--fg-muted));
+    text-decoration: none;
+  }
+  .back a:hover {
+    color: hsl(var(--fg));
+  }
+
+  .recipe-header h1 {
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    margin-bottom: 0.5rem;
+  }
 
   .blurb {
+    font-family: var(--font-serif);
     font-style: italic;
-    color: var(--color-muted);
     font-size: 1.1875rem;
+    color: hsl(var(--fg-muted));
     line-height: 1.4;
-    margin: 0.25rem 0 1.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .facts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-    gap: 0.75rem 1.75rem;
+    gap: 0.85rem 1.5rem;
     margin: 0;
-    padding: 1.125rem 1.25rem;
-    background: var(--color-soft);
-    border-radius: var(--radius);
-    border: 1px solid var(--color-rule);
+    padding: 1rem 1.25rem;
+    background: hsl(var(--surface));
+    border: 1px solid hsl(var(--rule));
+    border-radius: var(--radius-md);
   }
-  .facts > div { display: flex; flex-direction: column; gap: 0.15rem; }
-  .facts dt {
-    font-family: var(--font-sans);
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-muted);
-    font-weight: 600;
+  .facts > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
   }
   .facts dd {
     margin: 0;
-    font-size: 0.95rem;
-    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: hsl(var(--fg));
   }
-  .facts .note { color: var(--color-muted); margin-left: 0.25rem; font-style: italic; }
+  .facts .note {
+    color: hsl(var(--fg-muted));
+    margin-left: 0.25rem;
+    font-style: italic;
+  }
 
   .taxonomy {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem 1.25rem;
-    margin: 1rem 0 0;
+    gap: 0.5rem 1rem;
+    margin-top: 1.25rem;
   }
   .tags {
     list-style: none;
@@ -140,88 +174,109 @@ const hasAttribution = data.attribution.creator || data.attribution.bar || data.
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 0.4rem;
   }
-  .tags li a {
-    display: inline-block;
-    padding: 0.2rem 0.65rem;
-    border: 1px solid var(--color-rule);
-    border-radius: 999px;
-    font-size: 0.7rem;
-    color: var(--color-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    text-decoration: none;
-    font-family: var(--font-sans);
-    transition: border-color 150ms, color 150ms;
-  }
-  .tags li a:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
-  }
-  .tags.spirits li a {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
+  .chip-spirit {
+    background: hsl(var(--surface-muted));
+    color: hsl(var(--fg));
+    border-color: hsl(var(--rule-strong));
     font-weight: 600;
   }
 
   .recipe-body :global(h2) {
-    font-size: 0.8125rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--color-accent);
-    font-weight: 600;
-    margin-block: 2.25rem 0.75rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid var(--color-rule);
+    letter-spacing: 0.12em;
+    color: hsl(var(--fg-muted));
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid hsl(var(--rule));
   }
-  .recipe-body :global(h2:first-child) { margin-top: 1.5rem; }
+  .recipe-body :global(h2:first-child) {
+    margin-top: 1.5rem;
+  }
   .recipe-body :global(h3) {
-    font-size: 1rem;
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
     font-weight: 600;
-    margin-block: 1.25rem 0.5rem;
+    margin: 1.25rem 0 0.5rem;
   }
-  .recipe-body :global(p) { margin-block: 0.65rem; }
-  .recipe-body :global(ul), .recipe-body :global(ol) {
+  .recipe-body :global(p),
+  .recipe-body :global(li) {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: hsl(var(--fg));
+  }
+  .recipe-body :global(p) {
+    margin-block: 0.75rem;
+  }
+  .recipe-body :global(ul),
+  .recipe-body :global(ol) {
     margin-block: 0.5rem;
     padding-inline-start: 1.25rem;
   }
-  .recipe-body :global(li) { margin-block: 0.25rem; }
-  .recipe-body :global(ul) :global(li) { padding-left: 0.25rem; }
-  .recipe-body :global(em) { color: var(--color-muted); }
-  .recipe-body :global(strong) { color: var(--color-accent); }
-  .recipe-body :global(hr) { display: none; }
-
-  .attribution, .related {
-    margin-top: 2.5rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--color-rule);
-    font-size: 0.95rem;
+  .recipe-body :global(li) {
+    margin-block: 0.3rem;
   }
-  .attribution h2, .related h2 {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    margin-block: 0 0.65rem;
-    color: var(--color-muted);
+  .recipe-body :global(em) {
+    color: hsl(var(--fg-muted));
+  }
+  .recipe-body :global(strong) {
+    color: hsl(var(--fg));
     font-weight: 600;
-    border: none;
-    padding: 0;
   }
-  .attribution p, .related p { margin: 0; }
+  .recipe-body :global(hr) {
+    display: none;
+  }
+
+  .attribution,
+  .related {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid hsl(var(--rule));
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: hsl(var(--fg-muted));
+  }
+  .aside-title {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: hsl(var(--fg-muted));
+    margin: 0 0 0.5rem;
+  }
+  .attribution strong {
+    color: hsl(var(--fg));
+    font-weight: 600;
+  }
   .related ul {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.25rem;
+    gap: 0.4rem;
   }
   .related li a {
     text-transform: capitalize;
     text-decoration: none;
-    color: var(--color-accent);
-    border-bottom: 1px solid var(--color-rule);
   }
-  .related li a:hover { border-color: var(--color-accent); }
+  .related li a {
+    display: inline-flex;
+    padding: 0.25rem 0.7rem;
+    border: 1px solid hsl(var(--rule));
+    border-radius: 999px;
+    font-size: 0.75rem;
+    color: hsl(var(--fg-muted));
+    transition: border-color 120ms ease, color 120ms ease;
+  }
+  .related li a:hover {
+    border-color: hsl(var(--rule-strong));
+    color: hsl(var(--fg));
+  }
 </style>

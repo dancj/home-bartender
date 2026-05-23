@@ -4,29 +4,75 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
   const sections = await getCollection('sections');
-  return sections.map(section => ({ params: { slug: section.id }, props: { section } }));
+  return sections.map((section) => ({
+    params: { slug: section.id },
+    props: { section },
+  }));
 }
 
 const { section } = Astro.props;
 const { Content } = await render(section);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<BaseLayout title={`${section.data.title} — Home Bartender`} description={section.data.summary}>
+<BaseLayout
+  title={`${section.data.title} — Home Bartender`}
+  description={section.data.summary}
+>
+  <p class="back">
+    <a href={`${base}/learn/`}>← Learn</a>
+  </p>
   <article data-pagefind-body class="prose">
     <Content />
   </article>
 </BaseLayout>
 
 <style>
-  .prose :global(h1) { font-size: clamp(1.75rem, 4vw, 2.5rem); margin-block: 0 1rem; }
-  .prose :global(h2) { font-size: 1.25rem; margin-block-start: 2rem; }
-  .prose :global(p) { margin-block: 0.75rem; }
-  .prose :global(strong) { color: var(--color-accent); }
-  .prose :global(ul), .prose :global(ol) { margin-block: 0.75rem; padding-inline-start: 1.5rem; }
-  .prose :global(li) { margin-block: 0.25rem; }
-  .prose :global(code) {
-    background: var(--color-soft);
-    padding: 0.1rem 0.3rem;
-    border-radius: 3px;
-    font-size: 0.9em;
+  .back {
+    margin-bottom: 1.25rem;
   }
+  .back a {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: hsl(var(--fg-muted));
+    text-decoration: none;
+  }
+  .back a:hover { color: hsl(var(--fg)); }
+
+  .prose :global(h1) {
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    margin: 0 0 1rem;
+  }
+  .prose :global(h2) {
+    font-family: var(--font-serif);
+    font-size: 1.375rem;
+    font-weight: 600;
+    margin-top: 2.25rem;
+    margin-bottom: 0.75rem;
+    color: hsl(var(--fg));
+  }
+  .prose :global(h3) {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose :global(p),
+  .prose :global(li) {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: hsl(var(--fg));
+  }
+  .prose :global(p) { margin-block: 0.75rem; }
+  .prose :global(ul),
+  .prose :global(ol) {
+    margin-block: 0.75rem;
+    padding-inline-start: 1.5rem;
+  }
+  .prose :global(li) { margin-block: 0.35rem; }
+  .prose :global(strong) {
+    color: hsl(var(--fg));
+    font-weight: 600;
+  }
+  .prose :global(em) { color: hsl(var(--fg-muted)); }
 </style>

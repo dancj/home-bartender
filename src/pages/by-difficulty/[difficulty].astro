@@ -11,21 +11,28 @@ export async function getStaticPaths() {
     const d = r.data.difficulty;
     buckets.set(d, [...(buckets.get(d) ?? []), r]);
   }
-  return [...buckets].map(([difficulty, items]) => ({ params: { difficulty }, props: { difficulty, items } }));
+  return [...buckets].map(([difficulty, items]) => ({
+    params: { difficulty },
+    props: { difficulty, items },
+  }));
 }
 
 const { difficulty, items } = Astro.props;
 const displayName = label('difficulty', difficulty);
 ---
-<BaseLayout title={`${displayName} cocktails — Home Bartender`} description={`${items.length} ${displayName.toLowerCase()} cocktails.`}>
-  <h1>{displayName} cocktails</h1>
-  <p class="lede">{items.length} {items.length === 1 ? 'recipe' : 'recipes'}.</p>
+<BaseLayout
+  title={`${displayName} cocktails — Home Bartender`}
+  description={`${items.length} ${displayName.toLowerCase()} cocktails.`}
+  width="wide"
+>
+  <section class="page-head">
+    <p class="eyebrow">By difficulty</p>
+    <h1>{displayName}</h1>
+    <p class="lede">{items.length} {items.length === 1 ? 'recipe' : 'recipes'}.</p>
+  </section>
   <ul class="recipe-grid">
-    {items.sort((a, b) => a.data.title.localeCompare(b.data.title)).map(r => <RecipeCard recipe={r} />)}
+    {items
+      .sort((a, b) => a.data.title.localeCompare(b.data.title))
+      .map((r) => <RecipeCard recipe={r} />)}
   </ul>
 </BaseLayout>
-
-<style>
-  .lede { font-style: italic; color: var(--color-muted); margin-bottom: 2rem; }
-  .recipe-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; }
-</style>

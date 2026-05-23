@@ -18,74 +18,62 @@ const primarySpirit = data.spirits[0];
   data-method={data.method}
   data-difficulty={data.difficulty}
 >
-  <a href={`${base}/recipes/${slug}/`}>
-    {primarySpirit && <p class="card-eyebrow">{label('spirits', primarySpirit)}</p>}
-    <h2>{data.title}</h2>
-    <p class="blurb">{data.blurb}</p>
-    <p class="meta">
+  <a href={`${base}/recipes/${slug}/`} class="card">
+    {primarySpirit && <p class="card-eyebrow eyebrow">{label('spirits', primarySpirit)}</p>}
+    <h2 class="card-title">{data.title}</h2>
+    <p class="card-blurb">{data.blurb}</p>
+    <p class="card-meta">
       <span>{label('method', data.method)}</span>
-      <span class="dot">·</span>
+      <span aria-hidden="true">·</span>
       <span>{label('difficulty', data.difficulty)}</span>
-      {data.format !== 'single' && <><span class="dot">·</span><span>{data.format}</span></>}
+      {data.format !== 'single' && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>{data.format}</span>
+        </>
+      )}
     </p>
   </a>
 </li>
 
 <style>
-  .recipe-card > a {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 1.5rem 1.375rem 1.375rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius);
-    text-decoration: none;
-    color: inherit;
-    background: var(--color-card);
-    box-shadow: var(--shadow-card);
-    transition: border-color 200ms, transform 200ms, box-shadow 200ms;
-    height: 100%;
-  }
-  .recipe-card > a:hover {
-    border-color: var(--color-accent);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-card-hover);
+  .recipe-card {
+    list-style: none;
   }
   .card-eyebrow {
-    font-family: var(--font-sans);
-    font-size: 0.6875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-accent);
-    font-weight: 600;
     margin: 0;
+    color: hsl(var(--fg-muted));
   }
-  .recipe-card h2 {
+  .card-title {
+    font-family: var(--font-serif);
     font-size: 1.25rem;
     font-weight: 600;
-    margin: 0;
     line-height: 1.2;
-    color: var(--color-text);
-  }
-  .recipe-card .blurb {
-    font-size: 0.9375rem;
-    color: var(--color-muted);
-    font-style: italic;
+    color: hsl(var(--fg));
     margin: 0;
-    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+  .card-blurb {
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    font-style: italic;
+    color: hsl(var(--fg-muted));
+    line-height: 1.45;
+    margin: 0;
     flex: 1;
   }
-  .meta {
-    margin: 0.5rem 0 0;
+  .card-meta {
+    margin-top: 0.5rem;
     font-family: var(--font-sans);
-    font-size: 0.7rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--color-muted);
+    letter-spacing: 0.08em;
+    color: hsl(var(--fg-subtle));
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
     align-items: center;
   }
-  .meta .dot { opacity: 0.5; }
+  .card-meta span[aria-hidden] { opacity: 0.5; }
 </style>

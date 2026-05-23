@@ -3,14 +3,17 @@ import '@fontsource/newsreader/400.css';
 import '@fontsource/newsreader/400-italic.css';
 import '@fontsource/newsreader/600.css';
 import '@fontsource/newsreader/700.css';
+import '../styles/global.css';
 import Search from '../components/Search.astro';
 
 interface Props {
   title: string;
   description?: string;
+  width?: 'prose' | 'wide';
 }
-const { title, description } = Astro.props;
+const { title, description, width = 'prose' } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const containerClass = width === 'wide' ? 'container-wide' : 'container-prose';
 ---
 <!doctype html>
 <html lang="en">
@@ -26,166 +29,112 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <meta name="twitter:card" content="summary" />
   </head>
   <body>
-    <header>
-      <nav>
+    <header class="site-header">
+      <div class="container-wide site-header-row">
         <a href={`${base}/`} class="brand">Home Bartender</a>
-        <div class="nav-links">
+        <nav class="nav-links" aria-label="Primary">
+          <a href={`${base}/`}>Recipes</a>
           <a href={`${base}/learn/`}>Learn</a>
-          <a href={`${base}/search/`}>Search</a>
+        </nav>
+        <div class="header-search">
+          <Search mode="compact" />
         </div>
-        <div class="header-search"><Search mode="compact" /></div>
-      </nav>
+      </div>
     </header>
-    <main>
+    <main class={containerClass}>
       <slot />
     </main>
-    <footer>
-      <p>Recipes shared under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. <a href="https://github.com/dancj/home-bartender">Framework on GitHub</a>.</p>
+    <footer class="site-footer">
+      <div class="container-wide">
+        <p>
+          Recipes shared under
+          <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+          <a href="https://github.com/dancj/home-bartender">Framework on GitHub</a>.
+        </p>
+      </div>
     </footer>
   </body>
 </html>
 
-<style is:global>
-  :root {
-    --color-accent: #2c4a3e;
-    --color-accent-soft: #3a5e51;
-    --color-soft: #f5f0e8;
-    --color-muted: #8c7b6b;
-    --color-rule: #ddd8cf;
-    --color-text: #1a1a1a;
-    --color-bg: #fefcf7;
-    --color-card: #ffffff;
-    --shadow-card: 0 1px 2px rgba(28, 30, 25, 0.04);
-    --shadow-card-hover: 0 6px 16px rgba(28, 30, 25, 0.08);
-
-    --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
-    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-
-    --measure: 65ch;
-    --radius: 6px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --color-accent: #98c7b3;
-      --color-accent-soft: #b9d8c8;
-      --color-soft: #2a2925;
-      --color-muted: #968b7c;
-      --color-rule: #383530;
-      --color-text: #ece6da;
-      --color-bg: #1a1916;
-      --color-card: #21201c;
-      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
-      --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.5);
-    }
-  }
-
-  *, *::before, *::after { box-sizing: border-box; }
-
-  html {
-    font-family: var(--font-serif);
-    color: var(--color-text);
-    background: var(--color-bg);
-    line-height: 1.55;
-    font-feature-settings: 'liga', 'kern', 'onum';
-    -webkit-text-size-adjust: 100%;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
+<style>
   main {
     flex: 1;
-    max-width: var(--measure);
-    margin: 0 auto;
-    padding: 2rem 1.25rem 3rem;
     width: 100%;
+    padding-block: 2.5rem 4rem;
   }
 
-  header {
-    border-bottom: 1px solid var(--color-rule);
-    padding: 1rem 1.25rem;
-    background: var(--color-bg);
+  .site-header {
+    border-bottom: 1px solid hsl(var(--rule));
+    background: hsl(var(--bg));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: saturate(180%) blur(8px);
   }
-  header nav {
-    max-width: var(--measure);
-    margin: 0 auto;
-    display: flex;
+  .site-header-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
+    gap: 1.25rem;
+    padding-block: 0.875rem;
   }
-  header .brand {
+
+  .brand {
     font-family: var(--font-serif);
     font-weight: 600;
-    font-style: italic;
-    color: var(--color-accent);
+    font-size: 1.0625rem;
+    color: hsl(var(--fg));
     text-decoration: none;
-    font-size: 1.125rem;
-    letter-spacing: 0;
-  }
-  header .nav-links { display: flex; gap: 1.25rem; }
-  header .nav-links a {
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--color-muted);
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  header .nav-links a:hover { color: var(--color-accent); }
-  header .header-search { flex: 0 1 16rem; min-width: 0; }
-  @media (max-width: 38rem) {
-    header .header-search { flex-basis: 100%; }
+    letter-spacing: -0.01em;
   }
 
-  footer {
-    border-top: 1px solid var(--color-rule);
-    padding: 2rem 1.25rem;
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+  }
+  .nav-links a {
+    font-family: var(--font-sans);
     font-size: 0.8125rem;
-    color: var(--color-muted);
+    font-weight: 500;
+    color: hsl(var(--fg-muted));
+    text-decoration: none;
+    padding: 0.4rem 0.7rem;
+    border-radius: var(--radius-md);
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  .nav-links a:hover {
+    color: hsl(var(--fg));
+    background: hsl(var(--surface-muted));
+  }
+
+  .header-search {
+    justify-self: end;
+    width: min(18rem, 100%);
+  }
+
+  @media (max-width: 42rem) {
+    .site-header-row {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "brand nav"
+        "search search";
+      row-gap: 0.5rem;
+    }
+    .brand { grid-area: brand; }
+    .nav-links { grid-area: nav; justify-content: flex-end; }
+    .header-search { grid-area: search; width: 100%; }
+  }
+
+  .site-footer {
+    border-top: 1px solid hsl(var(--rule));
+    padding-block: 2rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    color: hsl(var(--fg-muted));
     text-align: center;
   }
-  footer a { color: var(--color-muted); text-decoration: underline; text-decoration-color: var(--color-rule); text-underline-offset: 2px; }
-  footer a:hover { color: var(--color-accent); text-decoration-color: currentColor; }
-
-  h1, h2, h3 {
-    color: var(--color-accent);
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    margin-block: 0;
+  .site-footer a {
+    text-decoration-color: hsl(var(--rule));
   }
-  h1 {
-    font-size: clamp(2rem, 5vw, 2.875rem);
-    font-weight: 700;
-    margin-block: 0.25rem 0.5rem;
-  }
-  h2 {
-    font-size: 1.375rem;
-    font-weight: 600;
-    margin-block-start: 2rem;
-    margin-block-end: 0.5rem;
-  }
-  h3 {
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-
-  a {
-    color: var(--color-accent);
-    text-decoration: underline;
-    text-decoration-color: var(--color-rule);
-    text-underline-offset: 3px;
-    transition: text-decoration-color 150ms;
-  }
-  a:hover { text-decoration-color: currentColor; }
-
-  ::selection { background: var(--color-accent); color: var(--color-bg); }
 </style>

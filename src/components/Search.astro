@@ -21,38 +21,49 @@ const { mode = 'compact' } = Astro.props;
       });
     } catch (e) {
       const el = document.getElementById('search');
-      if (el) el.innerHTML = '<p style="color:var(--color-muted); font-size:0.875rem;">Search index not built yet. Run <code>npm run build</code>.</p>';
+      if (el) el.innerHTML = '<p class="search-fallback">Search index not built yet. Run <code>npm run build</code>.</p>';
     }
   })();
 </script>
 
 <style is:global>
-  /* Override at .pagefind-ui scope, not :root — Pagefind's own CSS defines
-     its variables on .pagefind-ui so root overrides get shadowed. */
+  /* Scope tokens at .pagefind-ui — Pagefind defines its own vars here. */
   .pagefind-ui {
     --pagefind-ui-scale: 0.9;
-    --pagefind-ui-primary: var(--color-accent);
-    --pagefind-ui-text: var(--color-text);
-    --pagefind-ui-background: var(--color-bg);
-    --pagefind-ui-border: var(--color-rule);
-    --pagefind-ui-tag: var(--color-soft);
+    --pagefind-ui-primary: hsl(var(--accent));
+    --pagefind-ui-text: hsl(var(--fg));
+    --pagefind-ui-background: hsl(var(--surface));
+    --pagefind-ui-border: hsl(var(--rule));
+    --pagefind-ui-tag: hsl(var(--surface-muted));
     --pagefind-ui-border-width: 1px;
-    --pagefind-ui-border-radius: 4px;
-    --pagefind-ui-font: var(--font-serif);
+    --pagefind-ui-border-radius: 6px;
+    --pagefind-ui-font: var(--font-sans);
   }
-  /* Pagefind's input doesn't inherit colors cleanly in some themes. */
   .pagefind-ui input,
   .pagefind-ui .pagefind-ui__search-input {
-    background: var(--color-bg);
-    color: var(--color-text);
-    border-color: var(--color-rule);
+    background: hsl(var(--surface));
+    color: hsl(var(--fg));
+    border-color: hsl(var(--rule));
   }
-  .pagefind-ui input::placeholder { color: var(--color-muted); }
+  .pagefind-ui input::placeholder { color: hsl(var(--fg-subtle)); }
+  .pagefind-ui input:focus {
+    border-color: hsl(var(--accent));
+    box-shadow: 0 0 0 3px hsl(var(--accent-ring));
+    outline: none;
+  }
   .pagefind-ui .pagefind-ui__search-clear {
-    background: var(--color-soft);
-    color: var(--color-text);
+    background: hsl(var(--surface-muted));
+    color: hsl(var(--fg));
   }
-  .pagefind-ui mark { background: var(--color-accent); color: var(--color-bg); }
-  #search.compact { max-width: 18rem; }
+  .pagefind-ui mark {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-fg));
+  }
+  #search.compact { width: 100%; }
   #search.full { max-width: 100%; }
+  .search-fallback {
+    color: hsl(var(--fg-muted));
+    font-size: 0.875rem;
+    font-family: var(--font-sans);
+  }
 </style>

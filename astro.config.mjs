@@ -1,5 +1,7 @@
 import { defineConfig } from 'astro/config';
 
+import tailwindcss from '@tailwindcss/vite';
+
 const ghRepo = process.env.GITHUB_REPOSITORY;
 const [ghOwner, ghName] = ghRepo ? ghRepo.split('/') : [];
 
@@ -10,4 +12,8 @@ export default defineConfig({
   site,
   base,
   trailingSlash: 'always',
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
 });
