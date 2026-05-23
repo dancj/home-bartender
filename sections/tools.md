@@ -8,7 +8,7 @@ summary: What you actually need on the bar — basics first, then the nice-to-ha
 
 ## The Basics
 
-You can make every recipe in this book with these six things:
+You can make every recipe in this collection with these six things:
 
 **Shaker** — A two-piece cocktail shaker (tin + tin, or tin + glass). The Boston shaker is the professional standard; a cobbler shaker with a built-in strainer works fine at home. Shake without spilling, give it a good whack and pull apart.
 

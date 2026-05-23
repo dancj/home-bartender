@@ -40,7 +40,7 @@ created: 2026-04-06
 - ¾ oz bourbon
 - ¾ oz Amaro Nonino
 - ¾ oz Aperol
-- ½ oz fresh lemon juice *(card notes ¾ oz is standard; Dan prefers ½ oz)*
+- ½ oz fresh lemon juice *(¾ oz is standard; I prefer ½ oz)*
 
 ---
 

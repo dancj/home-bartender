@@ -67,6 +67,6 @@ Combine and refrigerate. Shake each serving individually with ice and strain.
 
 ## Notes
 
-An original built on the same orgeat-citrus template as the Army & Navy, but with tequila and lime instead of gin and lemon — the Aperol adds a bitter orange note that ties it together. Dan notes you can sub rum, which would push it toward a Mai Tai territory. The blanco tequila keeps it clean and agave-forward; a reposado would add more weight and vanilla.
+An original built on the same orgeat-citrus template as the Army & Navy, but with tequila and lime instead of gin and lemon — the Aperol adds a bitter orange note that ties it together. You can sub rum, which would push it toward Mai Tai territory. The blanco tequila keeps it clean and agave-forward; a reposado would add more weight and vanilla.
 
 ---

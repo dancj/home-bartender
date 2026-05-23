@@ -70,7 +70,7 @@ Muddle mint and lime in batches, combine with rum and syrup, refrigerate. Pour o
 
 ## Notes
 
-📝 *This card may be a revised version of the Prosecco Mojito already in the book (`recipes/originals/prosecco-mojito.md`). Review and merge if appropriate — the key differences here are explicit simple syrup (½ oz) and the muddling method (mint + lime wedges together with the rum and syrup before shaking).*
+📝 *This card may be a revised version of the Prosecco Mojito already in the collection (`recipes/originals/prosecco-mojito.md`). Review and merge if appropriate — the key differences here are explicit simple syrup (½ oz) and the muddling method (mint + lime wedges together with the rum and syrup before shaking).*
 
 The crushed ice + pour-everything-out technique keeps the drink integrated and well-diluted. Sparkling wine adds elegance; a light Prosecco works best to avoid overpowering the mint.
 

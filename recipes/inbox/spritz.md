@@ -58,7 +58,7 @@ created: 2026-04-06
 
 ## How to Batch It
 
-*Dan's 6x batch from the card:*
+*My 6x batch from the card:*
 
 - 6 oz limoncello
 - 3 oz Aperol
@@ -71,6 +71,6 @@ Combine and refrigerate. Pour ~2 oz of mix per serving over ice, top with Prosec
 
 ## Notes
 
-A more composed, cocktail-forward take on the Aperol Spritz — the limoncello and fresh lemon juice add real citrus depth that the classic recipe lacks. The shaken-then-built method integrates the base flavors before adding the bubbles. Dan wrote the 6x batch directly on the card, which suggests this gets made in quantity.
+A more composed, cocktail-forward take on the Aperol Spritz — the limoncello and fresh lemon juice add real citrus depth that the classic recipe lacks. The shaken-then-built method integrates the base flavors before adding the bubbles. I scaled this to 6x on the card — it gets made in quantity.
 
 ---
