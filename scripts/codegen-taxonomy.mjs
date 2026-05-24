@@ -7,7 +7,7 @@
 // Edit data/taxonomy.yaml, then run `npm run codegen` to regenerate the
 // artifacts above. CI verifies they stay in sync.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
@@ -67,9 +67,75 @@ export function emitValidatorModule(parsed) {
   return HEADER + '\n' + sections.join('\n') + '\n';
 }
 
-function main() {
+// YAML keys are plural collection names (methods, glasses, ...) but the
+// frontmatter field names mix singular (scalar fields: method, glass, ...) and
+// plural (array fields: spirits, flavors, occasions). The TEMPLATE.md table's
+// `Field` column displays the frontmatter name, so we singularize for scalar
+// fields and keep these three plural by exception.
+const ARRAY_FRONTMATTER_FIELDS = new Set(['spirits', 'flavors', 'occasions']);
+
+function toFrontmatterField(yamlKey) {
+  if (ARRAY_FRONTMATTER_FIELDS.has(yamlKey)) return yamlKey;
+  return singularize(yamlKey);
+}
+
+export function emitTemplateTable(parsed) {
+  const rows = Object.entries(parsed).map(([field, entries]) => {
+    const fieldName = toFrontmatterField(field);
+    const values = entries.map((e) => `\`${e.slug}\``).join(', ');
+    return `| \`${fieldName}\` | ${values} |`;
+  });
+  return [
+    '| Field | Allowed values |',
+    '|-------|----------------|',
+    ...rows,
+  ].join('\n');
+}
+
+export function rewriteMarkerRegion(source, startMarker, endMarker, replacement) {
+  const startIdx = source.indexOf(startMarker);
+  const endIdx = source.indexOf(endMarker);
+  if (startIdx === -1) {
+    throw new Error(`rewriteMarkerRegion: start marker not found: ${startMarker}`);
+  }
+  if (endIdx === -1) {
+    throw new Error(`rewriteMarkerRegion: end marker not found: ${endMarker}`);
+  }
+  if (endIdx < startIdx) {
+    throw new Error(`rewriteMarkerRegion: markers out of order (${endMarker} appears before ${startMarker})`);
+  }
+  const before = source.slice(0, startIdx + startMarker.length);
+  const after = source.slice(endIdx);
+  return `${before}\n${replacement}\n${after}`;
+}
+
+export const TAXONOMY_MARKER_START = '<!-- taxonomy:start -->';
+export const TAXONOMY_MARKER_END = '<!-- taxonomy:end -->';
+
+export function generate({ rootDir = ROOT } = {}) {
   const taxonomy = loadTaxonomy();
-  console.log(emitZodModule(taxonomy));
+
+  const zodPath = path.join(rootDir, 'src/taxonomy.generated.ts');
+  writeFileSync(zodPath, emitZodModule(taxonomy));
+
+  const validatorPath = path.join(rootDir, 'scripts/taxonomy.generated.mjs');
+  writeFileSync(validatorPath, emitValidatorModule(taxonomy));
+
+  const templatePath = path.join(rootDir, 'TEMPLATE.md');
+  const template = readFileSync(templatePath, 'utf8');
+  const table = emitTemplateTable(taxonomy);
+  const next = rewriteMarkerRegion(template, TAXONOMY_MARKER_START, TAXONOMY_MARKER_END, table);
+  writeFileSync(templatePath, next);
+
+  return { zodPath, validatorPath, templatePath };
+}
+
+function main() {
+  const { zodPath, validatorPath, templatePath } = generate();
+  const rel = (p) => path.relative(ROOT, p);
+  console.log(`Wrote ${rel(zodPath)}`);
+  console.log(`Wrote ${rel(validatorPath)}`);
+  console.log(`Updated ${rel(templatePath)} between marker comments`);
 }
 
 if (fileURLToPath(import.meta.url) === process.argv[1]) {

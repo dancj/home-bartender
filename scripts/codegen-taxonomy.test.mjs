@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { loadTaxonomy, emitZodModule, emitValidatorModule } from './codegen-taxonomy.mjs';
+import {
+  loadTaxonomy,
+  emitZodModule,
+  emitValidatorModule,
+  emitTemplateTable,
+  rewriteMarkerRegion,
+} from './codegen-taxonomy.mjs';
 
 describe('loadTaxonomy', () => {
   it('parses data/taxonomy.yaml into an object keyed by field name', () => {
@@ -104,5 +110,66 @@ describe('emitValidatorModule', () => {
     expect(out).toContain("export const OCCASIONS = [];");
   });
 });
+
+describe('emitTemplateTable', () => {
+  const fixture = {
+    methods: [{ slug: 'shaken', label: 'Shaken' }, { slug: 'stirred', label: 'Stirred' }],
+    glasses: [{ slug: 'coupe', label: 'Coupe' }, { slug: 'rocks', label: 'Rocks' }],
+    spirits: [{ slug: 'tequila', label: 'Tequila' }, { slug: 'mezcal', label: 'Mezcal' }],
+    families: [
+      { slug: 'old-fashioned', label: 'Old Fashioned', source: 'Cocktail Codex' },
+    ],
+  };
+
+  it('emits a markdown table with the canonical header', () => {
+    const out = emitTemplateTable(fixture);
+    expect(out).toMatch(/\| Field +\| Allowed values/);
+  });
+
+  it('uses singular frontmatter field names for scalar fields (methods → method)', () => {
+    const out = emitTemplateTable(fixture);
+    expect(out).toContain('| `method`');
+    expect(out).toContain('| `glass`');
+    expect(out).toContain('| `family`');
+  });
+
+  it('keeps plural frontmatter field names for array fields (spirits stays spirits)', () => {
+    const out = emitTemplateTable(fixture);
+    expect(out).toContain('| `spirits`');
+  });
+
+  it('lists slugs comma-separated and backtick-wrapped', () => {
+    const out = emitTemplateTable(fixture);
+    expect(out).toContain('`shaken`, `stirred`');
+    expect(out).toContain('`tequila`, `mezcal`');
+  });
+});
+
+describe('rewriteMarkerRegion', () => {
+  const markerStart = '<!-- taxonomy:start -->';
+  const markerEnd = '<!-- taxonomy:end -->';
+
+  it('replaces content between markers and preserves surrounding text', () => {
+    const original = `# Header\n\nBefore prose.\n\n${markerStart}\nOLD CONTENT\n${markerEnd}\n\nAfter prose.\n`;
+    const next = rewriteMarkerRegion(original, markerStart, markerEnd, 'NEW CONTENT');
+    expect(next).toBe(`# Header\n\nBefore prose.\n\n${markerStart}\nNEW CONTENT\n${markerEnd}\n\nAfter prose.\n`);
+  });
+
+  it('throws when start marker is missing', () => {
+    const original = `# Header\n\n${markerEnd}\n`;
+    expect(() => rewriteMarkerRegion(original, markerStart, markerEnd, 'X')).toThrow(/taxonomy:start/);
+  });
+
+  it('throws when end marker is missing', () => {
+    const original = `# Header\n\n${markerStart}\n`;
+    expect(() => rewriteMarkerRegion(original, markerStart, markerEnd, 'X')).toThrow(/taxonomy:end/);
+  });
+
+  it('throws when end marker precedes start marker', () => {
+    const original = `# Header\n${markerEnd}\nstuff\n${markerStart}\n`;
+    expect(() => rewriteMarkerRegion(original, markerStart, markerEnd, 'X')).toThrow(/order/);
+  });
+});
+
 
 

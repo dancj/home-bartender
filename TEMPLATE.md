@@ -53,18 +53,13 @@ created: 2026-05-22          # ISO date; updated is derived from git
 
 ## Canonical Taxonomy
 
-| Field        | Allowed values                                                                                                                                     |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `category`   | `classic`, `original`, `seasonal`, `inbox`                                                                                                          |
-| `method`     | `shaken`, `stirred`, `built`, `blended`                                                                                                             |
-| `ice`        | `cubed`, `large-cube`, `crushed`, `none`                                                                                                            |
-| `difficulty` | `easy`, `medium`, `advanced`                                                                                                                        |
-| `format`     | `single`, `batch`, `punch`                                                                                                                          |
-| `spirits`    | `tequila`, `mezcal`, `whiskey`, `bourbon`, `rye`, `scotch`, `gin`, `vodka`, `rum`, `brandy`, `aperitif`, `liqueur`, `wine`, `champagne`             |
-| `flavors`    | `citrus`, `nutty`, `smoky`, `sour`, `spice`, `herbal`, `floral`, `botanical`, `bright`, `chocolate`, `rich`, `sweet`, `spirit-forward`, `bitter`, `fruity`, `tart`, `bubbly`, `savory`, `refreshing` |
-| `occasions`  | `weeknight`, `batch-friendly`, `showstopper`, `brunch`, `nightcap`, `summer`, `winter`                                                              |
+Add new values by editing `data/taxonomy.yaml` and running `npm run codegen` — the table below regenerates automatically (along with `src/taxonomy.generated.ts` and `scripts/taxonomy.generated.mjs`). CI fails if any generated artifact is stale.
 
-Add new values by editing `scripts/validate.mjs` and (eventually) `src/content.config.ts` together.
+<!-- taxonomy:start -->
+| Field | Allowed values |
+|-------|----------------|
+| `method` | `shaken` |
+<!-- taxonomy:end -->
 
 ## Body
 
