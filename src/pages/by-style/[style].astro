@@ -10,13 +10,12 @@
 // for a reasonable window the entire src/pages/by-style/ directory
 // can be removed.
 
-const OLD_STYLES = [
-  'built', 'bubbly', 'floral', 'fruity', 'highball', 'refreshing',
-  'shaken', 'smoky-sour', 'sour', 'spicy', 'spirit-forward', 'stirred',
-];
-
 export function getStaticPaths() {
-  return OLD_STYLES.map((style) => ({ params: { style } }));
+  const oldStyles = [
+    'built', 'bubbly', 'floral', 'fruity', 'highball', 'refreshing',
+    'shaken', 'smoky-sour', 'sour', 'spicy', 'spirit-forward', 'stirred',
+  ];
+  return oldStyles.map((style) => ({ params: { style } }));
 }
 
 const { style } = Astro.params;
