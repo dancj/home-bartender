@@ -57,6 +57,16 @@ export function emitZodModule(parsed) {
   return HEADER + '\n' + sections.join('\n\n') + '\n';
 }
 
+export function emitValidatorModule(parsed) {
+  const sections = [];
+  for (const [field, entries] of Object.entries(parsed)) {
+    const constName = field.toUpperCase();
+    const slugs = entries.map((e) => `'${e.slug}'`).join(', ');
+    sections.push(`export const ${constName} = [${slugs}];`);
+  }
+  return HEADER + '\n' + sections.join('\n') + '\n';
+}
+
 function main() {
   const taxonomy = loadTaxonomy();
   console.log(emitZodModule(taxonomy));

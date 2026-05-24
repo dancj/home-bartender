@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { loadTaxonomy, emitZodModule } from './codegen-taxonomy.mjs';
+import { loadTaxonomy, emitZodModule, emitValidatorModule } from './codegen-taxonomy.mjs';
 
 describe('loadTaxonomy', () => {
   it('parses data/taxonomy.yaml into an object keyed by field name', () => {
@@ -75,4 +75,34 @@ describe('emitZodModule', () => {
     expect(out).toContain("export const OCCASIONS = [] as const;");
   });
 });
+
+describe('emitValidatorModule', () => {
+  const fixture = {
+    methods: [{ slug: 'shaken', label: 'Shaken' }],
+    spirits: [
+      { slug: 'tequila', label: 'Tequila' },
+      { slug: 'mezcal', label: 'Mezcal' },
+    ],
+  };
+
+  it('emits an AUTO-GENERATED header', () => {
+    const out = emitValidatorModule(fixture);
+    expect(out).toMatch(/AUTO-GENERATED/);
+    expect(out).toMatch(/data\/taxonomy\.yaml/);
+  });
+
+  it('emits plain JS exports (no `as const`, no type aliases)', () => {
+    const out = emitValidatorModule(fixture);
+    expect(out).toContain("export const METHODS = ['shaken'];");
+    expect(out).toContain("export const SPIRITS = ['tequila', 'mezcal'];");
+    expect(out).not.toContain('as const');
+    expect(out).not.toContain('export type');
+  });
+
+  it('handles empty fields', () => {
+    const out = emitValidatorModule({ occasions: [] });
+    expect(out).toContain("export const OCCASIONS = [];");
+  });
+});
+
 
