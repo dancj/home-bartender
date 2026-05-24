@@ -14,12 +14,16 @@ category: classic            # classic | original | seasonal | inbox
 publish: true                # false for inbox drafts — hidden from the site
 
 # The drink itself
-glass: Rocks                 # free-form display string (e.g. Highball, Coupe, Nick & Nora)
+glass: rocks                 # canonical slug (see Canonical Taxonomy table below)
+glass_note: ""               # optional addendum (e.g. "or coupe", "with a big cube")
 method: shaken               # shaken | stirred | built | blended
 method_note: ""              # optional addendum (e.g. "topped", "dry shake first")
 ice: cubed                   # cubed | large-cube | crushed | none
 ice_note: ""                 # optional
 difficulty: easy             # easy | medium | advanced
+
+# Cocktail Codex root family — optional, populated intentionally per recipe
+family: old-fashioned        # old-fashioned | martini | daiquiri | sidecar | whiskey-highball | flip
 
 # Format / serving
 spirits: [tequila]           # canonical set (see below); empty for mocktails
@@ -28,7 +32,7 @@ serves: 1
 
 # Filterable taxonomy
 flavors: [citrus, refreshing]
-styles: [highball]
+tags: []                     # free-form descriptors that don't fit any canonical surface (e.g. "smoky-sour", "spicy")
 occasions: [weeknight]       # weeknight | batch-friendly | showstopper | brunch | nightcap | summer | winter
 
 # Attribution for borrowed recipes (leave empty for originals)
@@ -53,18 +57,22 @@ created: 2026-05-22          # ISO date; updated is derived from git
 
 ## Canonical Taxonomy
 
-| Field        | Allowed values                                                                                                                                     |
-|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `category`   | `classic`, `original`, `seasonal`, `inbox`                                                                                                          |
-| `method`     | `shaken`, `stirred`, `built`, `blended`                                                                                                             |
-| `ice`        | `cubed`, `large-cube`, `crushed`, `none`                                                                                                            |
-| `difficulty` | `easy`, `medium`, `advanced`                                                                                                                        |
-| `format`     | `single`, `batch`, `punch`                                                                                                                          |
-| `spirits`    | `tequila`, `mezcal`, `whiskey`, `bourbon`, `rye`, `scotch`, `gin`, `vodka`, `rum`, `brandy`, `aperitif`, `liqueur`, `wine`, `champagne`             |
-| `flavors`    | `citrus`, `nutty`, `smoky`, `sour`, `spice`, `herbal`, `floral`, `botanical`, `bright`, `chocolate`, `rich`, `sweet`, `spirit-forward`, `bitter`, `fruity`, `tart`, `bubbly`, `savory`, `refreshing` |
-| `occasions`  | `weeknight`, `batch-friendly`, `showstopper`, `brunch`, `nightcap`, `summer`, `winter`                                                              |
+Add new values by editing `data/taxonomy.yaml` and running `npm run codegen` — the table below regenerates automatically (along with `src/taxonomy.generated.ts` and `scripts/taxonomy.generated.mjs`). CI fails if any generated artifact is stale.
 
-Add new values by editing `scripts/validate.mjs` and (eventually) `src/content.config.ts` together.
+<!-- taxonomy:start -->
+| Field | Allowed values |
+|-------|----------------|
+| `category` | `classic`, `original`, `seasonal`, `inbox` |
+| `method` | `shaken`, `stirred`, `built`, `blended` |
+| `ice` | `cubed`, `large-cube`, `crushed`, `none` |
+| `difficulty` | `easy`, `medium`, `advanced` |
+| `format` | `single`, `batch`, `punch` |
+| `family` | `old-fashioned`, `martini`, `daiquiri`, `sidecar`, `whiskey-highball`, `flip` |
+| `glass` | `coupe`, `nick-and-nora`, `rocks`, `double-rocks`, `highball`, `collins`, `flute`, `wine`, `margarita`, `martini`, `mug`, `snifter`, `julep-tin` |
+| `spirits` | `tequila`, `mezcal`, `whiskey`, `bourbon`, `rye`, `scotch`, `gin`, `vodka`, `rum`, `brandy`, `aperitif`, `liqueur`, `wine`, `champagne` |
+| `flavors` | `citrus`, `nutty`, `smoky`, `sour`, `spice`, `herbal`, `floral`, `botanical`, `bright`, `chocolate`, `rich`, `sweet`, `spirit-forward`, `bitter`, `fruity`, `tart`, `bubbly`, `savory`, `refreshing` |
+| `occasions` | `weeknight`, `batch-friendly`, `showstopper`, `brunch`, `nightcap`, `summer`, `winter` |
+<!-- taxonomy:end -->
 
 ## Body
 

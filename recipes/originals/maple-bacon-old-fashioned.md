@@ -5,7 +5,7 @@ blurb: "A rich, smoky old fashioned with fat-washed bourbon and maple syrup — 
 category: original
 publish: true
 
-glass: Rocks
+glass: rocks
 method: stirred
 ice: large-cube
 difficulty: advanced
@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [savory, smoky, spirit-forward, rich, sweet]
-styles: [stirred, spirit-forward]
+tags: []
 occasions: [showstopper]
 
 attribution:

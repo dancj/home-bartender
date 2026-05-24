@@ -5,7 +5,7 @@ blurb: "The stirred whiskey classic — rich, sweet, and bittersweet with a cher
 category: inbox
 publish: false
 
-glass: Coupe
+glass: coupe
 method: stirred
 ice: none
 ice_note: "(served up)"
@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [spirit-forward, sweet, bitter, rich]
-styles: []
+tags: []
 occasions: []
 
 attribution:

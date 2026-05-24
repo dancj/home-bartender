@@ -24,7 +24,10 @@ const hasAttribution =
       <dl class="facts">
         <div>
           <dt class="eyebrow">Glass</dt>
-          <dd>{data.glass}</dd>
+          <dd>
+            {label('glass', data.glass)}
+            {data.glass_note && <span class="note">· {data.glass_note}</span>}
+          </dd>
         </div>
         <div>
           <dt class="eyebrow">Method</dt>

@@ -1,34 +1,36 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import RecipeCard from '../../components/RecipeCard.astro';
-import { publishedRecipes } from '../../lib/recipes';
-import { groupByTax, label } from '../../lib/taxonomy';
+// Legacy /by-style/[style]/ URL — the field was renamed to `tags` and
+// the route to /by-tag/[tag]/. This page issues a meta-refresh redirect
+// for the small set of old `styles` values that existed before the
+// migration. Values that mapped to canonical fields (methods like
+// `shaken`, glasses like `highball`) were dedup'd out of `tags` during
+// the styles → tags migration, so those redirects may land on a 404
+// at the new URL — acceptable for a personal site with no external
+// links to the old paths. After this redirect file has been deployed
+// for a reasonable window the entire src/pages/by-style/ directory
+// can be removed.
 
-export async function getStaticPaths() {
-  const recipes = await publishedRecipes();
-  const grouped = groupByTax(recipes, 'styles');
-  return [...grouped].map(([style, items]) => ({
-    params: { style },
-    props: { style, items },
-  }));
+export function getStaticPaths() {
+  const oldStyles = [
+    'built', 'bubbly', 'floral', 'fruity', 'highball', 'refreshing',
+    'shaken', 'smoky-sour', 'sour', 'spicy', 'spirit-forward', 'stirred',
+  ];
+  return oldStyles.map((style) => ({ params: { style } }));
 }
 
-const { style, items } = Astro.props;
-const displayName = label('style', style);
+const { style } = Astro.params;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const target = `${base}/by-tag/${style}/`;
 ---
-<BaseLayout
-  title={`${displayName} cocktails — Home Bartender`}
-  description={`${items.length} ${displayName.toLowerCase()} cocktails.`}
-  width="wide"
->
-  <section class="page-head">
-    <p class="eyebrow">By style</p>
-    <h1>{displayName}</h1>
-    <p class="lede">{items.length} {items.length === 1 ? 'recipe' : 'recipes'}.</p>
-  </section>
-  <ul class="recipe-grid">
-    {items
-      .sort((a, b) => a.data.title.localeCompare(b.data.title))
-      .map((r) => <RecipeCard recipe={r} />)}
-  </ul>
-</BaseLayout>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content={`0;url=${target}`} />
+  <link rel="canonical" href={target} />
+  <title>Moved — Home Bartender</title>
+</head>
+<body>
+  <p>This page moved to <a href={target}>{target}</a>.</p>
+</body>
+</html>
