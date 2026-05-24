@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "validate": "node scripts/validate.mjs",
+    "codegen": "node scripts/codegen-taxonomy.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -22,6 +23,7 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.7",
+    "yaml": "^2.9.0"
   }
 }

@@ -1,0 +1,18 @@
+# Canonical taxonomy for recipe frontmatter.
+#
+# Edit this file, then run `npm run codegen` to regenerate:
+#   - src/taxonomy.generated.ts (Zod schema source)
+#   - scripts/taxonomy.generated.mjs (validator source)
+#   - the marker-bounded "Canonical Taxonomy" region of TEMPLATE.md
+#
+# CI fails if any generated artifact is out of sync with this file.
+#
+# Entry shape: { slug, label, [source], [note], [aliases] }
+# - slug: kebab-case identifier used in frontmatter
+# - label: human-readable display string
+# - source: optional citation (e.g., "Cocktail Codex")
+# - note: optional one-line description
+# - aliases: optional array of alternate names; documentation only in v1
+
+methods:
+  - { slug: shaken, label: Shaken }
