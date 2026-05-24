@@ -14,12 +14,16 @@ category: classic            # classic | original | seasonal | inbox
 publish: true                # false for inbox drafts — hidden from the site
 
 # The drink itself
-glass: Rocks                 # free-form display string (e.g. Highball, Coupe, Nick & Nora)
+glass: rocks                 # canonical slug (see Canonical Taxonomy table below)
+glass_note: ""               # optional addendum (e.g. "or coupe", "with a big cube")
 method: shaken               # shaken | stirred | built | blended
 method_note: ""              # optional addendum (e.g. "topped", "dry shake first")
 ice: cubed                   # cubed | large-cube | crushed | none
 ice_note: ""                 # optional
 difficulty: easy             # easy | medium | advanced
+
+# Cocktail Codex root family — optional, populated intentionally per recipe
+family: old-fashioned        # old-fashioned | martini | daiquiri | sidecar | whiskey-highball | flip
 
 # Format / serving
 spirits: [tequila]           # canonical set (see below); empty for mocktails
@@ -28,7 +32,7 @@ serves: 1
 
 # Filterable taxonomy
 flavors: [citrus, refreshing]
-styles: [highball]
+tags: []                     # free-form descriptors that don't fit any canonical surface (e.g. "smoky-sour", "spicy")
 occasions: [weeknight]       # weeknight | batch-friendly | showstopper | brunch | nightcap | summer | winter
 
 # Attribution for borrowed recipes (leave empty for originals)
