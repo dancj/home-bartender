@@ -1,5 +1,17 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import {
+  CATEGORIES,
+  METHODS,
+  ICES,
+  DIFFICULTIES,
+  FORMATS,
+  GLASSES,
+  FAMILIES,
+  SPIRITS,
+  FLAVORS,
+  OCCASIONS,
+} from './taxonomy.generated';
 
 const recipes = defineCollection({
   loader: glob({ pattern: '**/[^_]*.md', base: './recipes' }),
@@ -7,23 +19,26 @@ const recipes = defineCollection({
     title: z.string(),
     blurb: z.string(),
 
-    category: z.enum(['classic', 'original', 'seasonal', 'inbox']),
+    category: z.enum(CATEGORIES),
     publish: z.boolean().default(true),
 
-    glass: z.string(),
-    method: z.enum(['shaken', 'stirred', 'built', 'blended']),
+    glass: z.enum(GLASSES),
+    glass_note: z.string().optional().default(''),
+    method: z.enum(METHODS),
     method_note: z.string().optional().default(''),
-    ice: z.enum(['cubed', 'large-cube', 'crushed', 'none']),
+    ice: z.enum(ICES),
     ice_note: z.string().optional().default(''),
-    difficulty: z.enum(['easy', 'medium', 'advanced']),
+    difficulty: z.enum(DIFFICULTIES),
 
-    spirits: z.array(z.string()).default([]),
-    format: z.enum(['single', 'batch', 'punch']).default('single'),
+    family: z.enum(FAMILIES).optional(),
+
+    spirits: z.array(z.enum(SPIRITS)).default([]),
+    format: z.enum(FORMATS).default('single'),
     serves: z.number().default(1),
 
-    flavors: z.array(z.string()).default([]),
-    styles: z.array(z.string()).default([]),
-    occasions: z.array(z.string()).default([]),
+    flavors: z.array(z.enum(FLAVORS)).default([]),
+    tags: z.array(z.string()).default([]),
+    occasions: z.array(z.enum(OCCASIONS)).default([]),
 
     attribution: z.object({
       creator: z.string().default(''),

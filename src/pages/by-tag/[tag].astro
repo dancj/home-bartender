@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RecipeCard from '../../components/RecipeCard.astro';
+import { publishedRecipes } from '../../lib/recipes';
+import { groupByTax, label } from '../../lib/taxonomy';
+
+export async function getStaticPaths() {
+  const recipes = await publishedRecipes();
+  const grouped = groupByTax(recipes, 'tags');
+  return [...grouped].map(([tag, items]) => ({
+    params: { tag },
+    props: { tag, items },
+  }));
+}
+
+const { tag, items } = Astro.props;
+const displayName = label('tag', tag);
+---
+<BaseLayout
+  title={`${displayName} cocktails — Home Bartender`}
+  description={`${items.length} ${displayName.toLowerCase()} cocktails.`}
+  width="wide"
+>
+  <section class="page-head">
+    <p class="eyebrow">By tag</p>
+    <h1>{displayName}</h1>
+    <p class="lede">{items.length} {items.length === 1 ? 'recipe' : 'recipes'}.</p>
+  </section>
+  <ul class="recipe-grid">
+    {items
+      .sort((a, b) => a.data.title.localeCompare(b.data.title))
+      .map((r) => <RecipeCard recipe={r} />)}
+  </ul>
+</BaseLayout>
