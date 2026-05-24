@@ -5,7 +5,7 @@ blurb: "A smoky, nutty, savory coupe — scotch and mezcal meet orgeat and celer
 category: inbox
 publish: false
 
-glass: Coupe
+glass: coupe
 method: shaken
 ice: none
 ice_note: "(served up)"

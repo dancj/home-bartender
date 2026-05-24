@@ -5,7 +5,8 @@ blurb: "A clean, tart classic — gin, lime, and just enough sweetness."
 category: inbox
 publish: false
 
-glass: "Coupe (or Collins with sparkling water)"
+glass: coupe
+glass_note: "or Collins with sparkling water"
 method: shaken
 ice: none
 ice_note: "(served up) · or rocks in Collins variation"

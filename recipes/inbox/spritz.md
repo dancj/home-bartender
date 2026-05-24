@@ -5,7 +5,8 @@ blurb: "A limoncello-Aperol spritz — bright citrus and gentle bitterness with 
 category: inbox
 publish: false
 
-glass: "Wine glass or spritz glass"
+glass: wine
+glass_note: "or spritz glass"
 method: shaken
 method_note: built
 ice: cubed

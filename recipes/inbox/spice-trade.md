@@ -5,7 +5,7 @@ blurb: "A simple, crushable gin sour — cinnamon warmth meets bright basil and 
 category: inbox
 publish: false
 
-glass: Coupe
+glass: coupe
 method: shaken
 ice: none
 ice_note: "(served up)"

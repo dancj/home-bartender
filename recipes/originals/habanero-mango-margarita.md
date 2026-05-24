@@ -5,7 +5,8 @@ blurb: "A sweet, spicy, citrusy margarita with house-made mango habanero syrup."
 category: original
 publish: true
 
-glass: "Margarita or rocks"
+glass: margarita
+glass_note: "or rocks"
 method: shaken
 ice: cubed
 difficulty: medium

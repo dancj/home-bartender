@@ -5,7 +5,7 @@ blurb: "Mexico's most popular cocktail — bright, citrusy, and infinitely refre
 category: classic
 publish: true
 
-glass: Highball
+glass: highball
 method: shaken
 method_note: topped
 ice: cubed

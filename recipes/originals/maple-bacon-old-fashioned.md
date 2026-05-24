@@ -5,7 +5,7 @@ blurb: "A rich, smoky old fashioned with fat-washed bourbon and maple syrup — 
 category: original
 publish: true
 
-glass: Rocks
+glass: rocks
 method: stirred
 ice: large-cube
 difficulty: advanced

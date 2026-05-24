@@ -5,7 +5,8 @@ blurb: "An equal-parts modern classic — bourbon, amaro, Aperol, and lemon in p
 category: inbox
 publish: false
 
-glass: "Coupe (or rocks with a big cube)"
+glass: coupe
+glass_note: "or rocks with a big cube"
 method: shaken
 ice: none
 ice_note: "(served up) · or large cube in rocks variation"

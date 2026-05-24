@@ -5,7 +5,8 @@ blurb: "A rum mojito finished with sparkling wine — fresh, minty, and celebrat
 category: inbox
 publish: false
 
-glass: "Collins or highball"
+glass: collins
+glass_note: "or highball"
 method: shaken
 method_note: built
 ice: crushed

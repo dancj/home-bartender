@@ -5,7 +5,7 @@ blurb: "A vintage gin sour with orgeat — bright, nutty, and deceptively simple
 category: inbox
 publish: false
 
-glass: Coupe
+glass: coupe
 method: shaken
 ice: none
 ice_note: "(served up)"

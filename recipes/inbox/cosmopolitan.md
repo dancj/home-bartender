@@ -5,7 +5,7 @@ blurb: "The iconic vodka sour — citrusy, rosy, and effortlessly elegant."
 category: inbox
 publish: false
 
-glass: Coupe
+glass: coupe
 method: shaken
 ice: none
 ice_note: "(served up)"

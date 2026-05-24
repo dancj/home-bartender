@@ -5,7 +5,7 @@ blurb: "A tequila sour with orgeat and Aperol — bright, nutty, and just a litt
 category: inbox
 publish: false
 
-glass: Coupe
+glass: coupe
 method: shaken
 ice: none
 ice_note: "(served up)"

@@ -5,7 +5,8 @@ blurb: "A gin sour topped with Champagne — celebratory, bright, and dangerousl
 category: inbox
 publish: false
 
-glass: "Champagne flute or coupe"
+glass: flute
+glass_note: "or coupe"
 method: shaken
 method_note: built
 ice: none
