@@ -5,7 +5,7 @@ blurb: "A modern classic — blended scotch with fresh lemon, honey-ginger syrup
 category: classic
 publish: true
 
-glass: Rocks
+glass: rocks
 method: shaken
 ice: large-cube
 difficulty: medium
@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [smoky, sour, spice, herbal]
-styles: [shaken, smoky-sour]
+tags: [smoky-sour]
 occasions: []
 
 attribution:

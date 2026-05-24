@@ -5,7 +5,7 @@ blurb: "A smoky, spirit-forward riff on the classic — reposado and mezcal with
 category: classic
 publish: true
 
-glass: Rocks
+glass: rocks
 method: stirred
 ice: large-cube
 difficulty: medium
@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [smoky, spirit-forward, bitter]
-styles: [stirred, spirit-forward]
+tags: []
 occasions: []
 
 attribution:

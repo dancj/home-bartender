@@ -5,7 +5,7 @@ blurb: "A floral, elegant gin cocktail with elderflower and a silky egg white fo
 category: original
 publish: true
 
-glass: Coupe
+glass: coupe
 method: shaken
 method_note: "Dry shake first for egg white foam, then shake with ice"
 ice: none
@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [floral, sour, citrus]
-styles: [shaken, floral]
+tags: []
 occasions: [showstopper]
 
 attribution:

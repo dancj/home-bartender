@@ -5,7 +5,8 @@ blurb: "A bubbly, festive twist on the mojito — lighter on rum, topped with pr
 category: original
 publish: true
 
-glass: "Highball or wine glass"
+glass: highball
+glass_note: "or wine glass"
 method: built
 method_note: "Muddled in glass, then built and topped"
 ice: crushed
@@ -16,7 +17,7 @@ format: single
 serves: 1
 
 flavors: [bubbly, herbal, refreshing, citrus]
-styles: [built, bubbly]
+tags: []
 occasions: [weeknight]
 
 attribution:

@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -30,3 +30,9 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Verify generated taxonomy is current
+        run: |
+          npm run codegen
+          git diff --exit-code src/taxonomy.generated.ts scripts/taxonomy.generated.mjs TEMPLATE.md \
+            || { echo "::error::generated taxonomy artifacts are out of sync with data/taxonomy.yaml. Run 'npm run codegen' locally and commit the regenerated files."; exit 1; }

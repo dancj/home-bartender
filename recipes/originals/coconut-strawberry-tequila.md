@@ -5,7 +5,8 @@ blurb: "A fruity, tropical tequila cocktail with a hint of smoke and heat — bo
 category: original
 publish: true
 
-glass: "Rocks or coupe"
+glass: rocks
+glass_note: "or coupe"
 method: shaken
 ice: large-cube
 difficulty: easy
@@ -15,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [fruity, sweet, refreshing]
-styles: [shaken, fruity]
+tags: []
 occasions: [weeknight]
 
 attribution:

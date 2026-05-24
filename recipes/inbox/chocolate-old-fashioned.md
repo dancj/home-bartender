@@ -5,7 +5,7 @@ blurb: "A rich, dessert-leaning Old Fashioned — bourbon deepened with chocolat
 category: inbox
 publish: false
 
-glass: Rocks
+glass: rocks
 method: stirred
 ice: large-cube
 difficulty: easy
@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [chocolate, rich, sweet, spirit-forward]
-styles: []
+tags: []
 occasions: []
 
 attribution:

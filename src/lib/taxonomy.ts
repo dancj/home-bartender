@@ -1,43 +1,54 @@
 import type { Recipe } from './recipes';
+import {
+  SPIRIT_LABELS,
+  DIFFICULTY_LABELS,
+  METHOD_LABELS,
+  GLASS_LABELS,
+  FAMILY_LABELS,
+  ICE_LABELS,
+  CATEGORY_LABELS,
+  FORMAT_LABELS,
+  FLAVOR_LABELS,
+  OCCASION_LABELS,
+} from '../taxonomy.generated';
 
-export const SPIRIT_LABELS: Record<string, string> = {
-  tequila: 'Tequila',
-  mezcal: 'Mezcal',
-  whiskey: 'Whiskey',
-  bourbon: 'Bourbon',
-  rye: 'Rye',
-  scotch: 'Scotch',
-  gin: 'Gin',
-  vodka: 'Vodka',
-  rum: 'Rum',
-  brandy: 'Brandy',
-  aperitif: 'Aperitif',
-  liqueur: 'Liqueur',
-  wine: 'Wine',
-  champagne: 'Champagne',
+// Re-export the generated label maps so existing callers keep working.
+export {
+  SPIRIT_LABELS,
+  DIFFICULTY_LABELS,
+  METHOD_LABELS,
+  GLASS_LABELS,
+  FAMILY_LABELS,
+  ICE_LABELS,
+  CATEGORY_LABELS,
+  FORMAT_LABELS,
+  FLAVOR_LABELS,
+  OCCASION_LABELS,
 };
 
-export const DIFFICULTY_LABELS: Record<string, string> = {
-  easy: 'Easy',
-  medium: 'Medium',
-  advanced: 'Advanced',
-};
-
-export const METHOD_LABELS: Record<string, string> = {
-  shaken: 'Shaken',
-  stirred: 'Stirred',
-  built: 'Built',
-  blended: 'Blended',
+const LABEL_MAPS: Record<string, Record<string, string>> = {
+  spirit: SPIRIT_LABELS,
+  spirits: SPIRIT_LABELS,
+  difficulty: DIFFICULTY_LABELS,
+  method: METHOD_LABELS,
+  glass: GLASS_LABELS,
+  family: FAMILY_LABELS,
+  ice: ICE_LABELS,
+  category: CATEGORY_LABELS,
+  format: FORMAT_LABELS,
+  flavor: FLAVOR_LABELS,
+  flavors: FLAVOR_LABELS,
+  occasion: OCCASION_LABELS,
+  occasions: OCCASION_LABELS,
 };
 
 export function label(field: string, value: string): string {
-  if (field === 'spirit' || field === 'spirits') return SPIRIT_LABELS[value] ?? value;
-  if (field === 'difficulty') return DIFFICULTY_LABELS[value] ?? value;
-  if (field === 'method') return METHOD_LABELS[value] ?? value;
+  const map = LABEL_MAPS[field];
+  if (map && map[value]) return map[value];
   return value.charAt(0).toUpperCase() + value.slice(1).replace(/-/g, ' ');
 }
 
-type TaxField = 'spirits' | 'flavors' | 'styles' | 'occasions';
+type TaxField = 'spirits' | 'flavors' | 'tags' | 'occasions';
 
 export function groupByTax(recipes: Recipe[], field: TaxField): Map<string, Recipe[]> {
   const map = new Map<string, Recipe[]>();
