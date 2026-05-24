@@ -12,7 +12,122 @@
 # - label: human-readable display string
 # - source: optional citation (e.g., "Cocktail Codex")
 # - note: optional one-line description
-# - aliases: optional array of alternate names; documentation only in v1
+# - aliases: optional alternate names; documentation only in v1
+#
+# Adding a value is an intentional decision: edit here, run codegen, commit
+# the YAML and all regenerated artifacts together.
+
+categories:
+  - { slug: classic, label: Classic }
+  - { slug: original, label: Original }
+  - { slug: seasonal, label: Seasonal }
+  - { slug: inbox, label: Inbox }
 
 methods:
   - { slug: shaken, label: Shaken }
+  - { slug: stirred, label: Stirred }
+  - { slug: built, label: Built }
+  - { slug: blended, label: Blended }
+
+ices:
+  - { slug: cubed, label: Cubed }
+  - { slug: large-cube, label: Large cube }
+  - { slug: crushed, label: Crushed }
+  - { slug: none, label: None }
+
+difficulties:
+  - { slug: easy, label: Easy }
+  - { slug: medium, label: Medium }
+  - { slug: advanced, label: Advanced }
+
+formats:
+  - { slug: single, label: Single }
+  - { slug: batch, label: Batch }
+  - { slug: punch, label: Punch }
+
+families:
+  - slug: old-fashioned
+    label: Old Fashioned
+    source: Cocktail Codex
+    note: Spirit + sugar + bitters + water (dilution)
+  - slug: martini
+    label: Martini
+    source: Cocktail Codex
+    note: Spirit + fortified wine + flavoring (stirred)
+  - slug: daiquiri
+    label: Daiquiri
+    source: Cocktail Codex
+    note: Spirit + citrus + sweetener (shaken)
+  - slug: sidecar
+    label: Sidecar
+    source: Cocktail Codex
+    note: Spirit + citrus + orange liqueur
+  - slug: whiskey-highball
+    label: Whiskey Highball
+    source: Cocktail Codex
+    note: Spirit + bubbly modifier (built tall)
+  - slug: flip
+    label: Flip
+    source: Cocktail Codex
+    note: Spirit + sugar + whole egg
+
+glasses:
+  - { slug: coupe, label: Coupe }
+  - { slug: nick-and-nora, label: Nick & Nora }
+  - { slug: rocks, label: Rocks }
+  - { slug: double-rocks, label: Double rocks }
+  - { slug: highball, label: Highball }
+  - { slug: collins, label: Collins }
+  - { slug: flute, label: Champagne flute }
+  - { slug: wine, label: Wine glass }
+  - { slug: margarita, label: Margarita }
+  - { slug: martini, label: Martini }
+  - { slug: mug, label: Mug }
+  - { slug: snifter, label: Snifter }
+  - { slug: julep-tin, label: Julep tin }
+
+spirits:
+  - { slug: tequila, label: Tequila }
+  - { slug: mezcal, label: Mezcal }
+  - { slug: whiskey, label: Whiskey }
+  - { slug: bourbon, label: Bourbon }
+  - { slug: rye, label: Rye }
+  - { slug: scotch, label: Scotch }
+  - { slug: gin, label: Gin }
+  - { slug: vodka, label: Vodka }
+  - { slug: rum, label: Rum }
+  - { slug: brandy, label: Brandy }
+  - { slug: aperitif, label: Aperitif }
+  - { slug: liqueur, label: Liqueur }
+  - { slug: wine, label: Wine }
+  - { slug: champagne, label: Champagne }
+
+flavors:
+  - { slug: citrus, label: Citrus }
+  - { slug: nutty, label: Nutty }
+  - { slug: smoky, label: Smoky }
+  - { slug: sour, label: Sour }
+  - { slug: spice, label: Spice }
+  - { slug: herbal, label: Herbal }
+  - { slug: floral, label: Floral }
+  - { slug: botanical, label: Botanical }
+  - { slug: bright, label: Bright }
+  - { slug: chocolate, label: Chocolate }
+  - { slug: rich, label: Rich }
+  - { slug: sweet, label: Sweet }
+  - { slug: spirit-forward, label: Spirit-forward }
+  - { slug: bitter, label: Bitter }
+  - { slug: fruity, label: Fruity }
+  - { slug: tart, label: Tart }
+  - { slug: bubbly, label: Bubbly }
+  - { slug: savory, label: Savory }
+  - { slug: refreshing, label: Refreshing }
+
+occasions:
+  - { slug: weeknight, label: Weeknight }
+  - { slug: batch-friendly, label: Batch-friendly }
+  - { slug: showstopper, label: Showstopper }
+  - { slug: brunch, label: Brunch }
+  - { slug: nightcap, label: Nightcap }
+  - { slug: summer, label: Summer }
+  - { slug: winter, label: Winter }

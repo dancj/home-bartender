@@ -58,7 +58,16 @@ Add new values by editing `data/taxonomy.yaml` and running `npm run codegen` —
 <!-- taxonomy:start -->
 | Field | Allowed values |
 |-------|----------------|
-| `method` | `shaken` |
+| `category` | `classic`, `original`, `seasonal`, `inbox` |
+| `method` | `shaken`, `stirred`, `built`, `blended` |
+| `ice` | `cubed`, `large-cube`, `crushed`, `none` |
+| `difficulty` | `easy`, `medium`, `advanced` |
+| `format` | `single`, `batch`, `punch` |
+| `family` | `old-fashioned`, `martini`, `daiquiri`, `sidecar`, `whiskey-highball`, `flip` |
+| `glass` | `coupe`, `nick-and-nora`, `rocks`, `double-rocks`, `highball`, `collins`, `flute`, `wine`, `margarita`, `martini`, `mug`, `snifter`, `julep-tin` |
+| `spirits` | `tequila`, `mezcal`, `whiskey`, `bourbon`, `rye`, `scotch`, `gin`, `vodka`, `rum`, `brandy`, `aperitif`, `liqueur`, `wine`, `champagne` |
+| `flavors` | `citrus`, `nutty`, `smoky`, `sour`, `spice`, `herbal`, `floral`, `botanical`, `bright`, `chocolate`, `rich`, `sweet`, `spirit-forward`, `bitter`, `fruity`, `tart`, `bubbly`, `savory`, `refreshing` |
+| `occasions` | `weeknight`, `batch-friendly`, `showstopper`, `brunch`, `nightcap`, `summer`, `winter` |
 <!-- taxonomy:end -->
 
 ## Body
