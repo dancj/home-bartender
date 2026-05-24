@@ -1,6 +1,16 @@
 #!/usr/bin/env node
-// Validate recipe frontmatter — enum values, related[] slug resolution,
-// category/dir consistency, duplicate slugs.
+// Structural validation for recipe frontmatter that Zod cannot express:
+//   - directory ↔ category coherence (recipes/classics/foo.md must have
+//     category: classic, etc.)
+//   - publish flag ↔ directory coherence (inbox/ vs published dirs)
+//   - related[] slug resolution against the rest of the corpus
+//   - duplicate slug detection across directories
+//   - alias-vs-slug collision warnings
+//
+// Enum membership for category, method, ice, difficulty, format, glass,
+// family, spirits, flavors, occasions is delegated entirely to Zod (see
+// src/content.config.ts, populated from data/taxonomy.yaml).
+//
 //   node scripts/validate.mjs
 
 import { readFile, readdir } from 'node:fs/promises';
@@ -9,27 +19,6 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
-
-const METHODS = new Set(['shaken', 'stirred', 'built', 'blended']);
-const ICES = new Set(['cubed', 'large-cube', 'crushed', 'none']);
-const DIFFICULTIES = new Set(['easy', 'medium', 'advanced']);
-const CATEGORIES = new Set(['classic', 'original', 'seasonal', 'inbox']);
-const FORMATS = new Set(['single', 'batch', 'punch']);
-
-const SPIRITS = new Set([
-  'tequila', 'mezcal', 'whiskey', 'bourbon', 'rye', 'scotch',
-  'gin', 'vodka', 'rum', 'brandy', 'aperitif', 'liqueur', 'wine', 'champagne',
-]);
-
-const FLAVORS = new Set([
-  'citrus', 'nutty', 'smoky', 'sour', 'spice', 'herbal', 'floral', 'botanical',
-  'bright', 'chocolate', 'rich', 'sweet', 'spirit-forward', 'bitter', 'fruity',
-  'tart', 'bubbly', 'savory', 'refreshing',
-]);
-
-const OCCASIONS = new Set([
-  'weeknight', 'batch-friendly', 'showstopper', 'brunch', 'nightcap', 'summer', 'winter',
-]);
 
 const CATEGORY_BY_DIR = {
   classics: 'classic',
@@ -115,21 +104,13 @@ async function main() {
     slugs.set(slug, rel);
 
     if (!fm.title) errors.push(`${rel}: missing title`);
-    if (fm.category !== expectedCategory) errors.push(`${rel}: category="${fm.category}" but dir says "${expectedCategory}"`);
-    if (!CATEGORIES.has(fm.category)) errors.push(`${rel}: category="${fm.category}" not in ${[...CATEGORIES]}`);
-
-    if (fm.method && !METHODS.has(fm.method)) errors.push(`${rel}: method="${fm.method}" not canonical`);
-    if (fm.ice && !ICES.has(fm.ice)) errors.push(`${rel}: ice="${fm.ice}" not canonical`);
-    if (fm.difficulty && !DIFFICULTIES.has(fm.difficulty)) errors.push(`${rel}: difficulty="${fm.difficulty}" not canonical`);
-    if (fm.format && !FORMATS.has(fm.format)) errors.push(`${rel}: format="${fm.format}" not canonical`);
+    if (expectedCategory && fm.category !== expectedCategory) {
+      errors.push(`${rel}: category="${fm.category}" but dir says "${expectedCategory}"`);
+    }
 
     if (fm.publish !== true && fm.publish !== false) errors.push(`${rel}: publish must be true/false, got ${fm.publish}`);
     if (dirName === 'inbox' && fm.publish !== false) warnings.push(`${rel}: inbox recipe has publish: true`);
     if (dirName !== 'inbox' && fm.publish === false) warnings.push(`${rel}: non-inbox recipe has publish: false`);
-
-    for (const s of fm.spirits ?? []) if (!SPIRITS.has(s)) warnings.push(`${rel}: spirit "${s}" not in canonical set`);
-    for (const f of fm.flavors ?? []) if (!FLAVORS.has(f)) warnings.push(`${rel}: flavor "${f}" not in canonical set`);
-    for (const o of fm.occasions ?? []) if (!OCCASIONS.has(o)) warnings.push(`${rel}: occasion "${o}" not in canonical set`);
   }
 
   for (const file of files) {
