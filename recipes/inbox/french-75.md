@@ -17,7 +17,7 @@ format: single
 serves: 1
 
 flavors: [citrus, bubbly, botanical, bright]
-styles: []
+tags: []
 occasions: []
 
 attribution:

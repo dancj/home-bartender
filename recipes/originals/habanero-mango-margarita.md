@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [citrus, spice, fruity, sweet]
-styles: [sour, spicy]
+tags: [spicy]
 occasions: []
 
 attribution:

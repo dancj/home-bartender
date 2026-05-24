@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [herbal, citrus, fruity, bubbly]
-styles: []
+tags: []
 occasions: []
 
 attribution:

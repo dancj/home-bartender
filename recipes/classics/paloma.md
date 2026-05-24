@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [citrus, refreshing, bubbly]
-styles: [highball, refreshing]
+tags: []
 occasions: [weeknight]
 
 attribution:

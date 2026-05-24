@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [citrus, botanical, sour]
-styles: []
+tags: []
 occasions: []
 
 attribution:

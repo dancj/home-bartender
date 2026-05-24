@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [smoky, sour, spice, herbal]
-styles: [shaken, smoky-sour]
+tags: [smoky-sour]
 occasions: []
 
 attribution:

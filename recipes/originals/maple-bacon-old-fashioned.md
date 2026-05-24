@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [savory, smoky, spirit-forward, rich, sweet]
-styles: [stirred, spirit-forward]
+tags: []
 occasions: [showstopper]
 
 attribution:

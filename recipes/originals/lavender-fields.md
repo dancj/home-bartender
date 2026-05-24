@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [floral, sour, citrus]
-styles: [shaken, floral]
+tags: []
 occasions: [showstopper]
 
 attribution:

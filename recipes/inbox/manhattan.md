@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [spirit-forward, sweet, bitter, rich]
-styles: []
+tags: []
 occasions: []
 
 attribution:

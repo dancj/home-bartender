@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [smoky, nutty, citrus, savory]
-styles: []
+tags: []
 occasions: []
 
 attribution:

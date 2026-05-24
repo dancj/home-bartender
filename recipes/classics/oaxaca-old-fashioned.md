@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [smoky, spirit-forward, bitter]
-styles: [stirred, spirit-forward]
+tags: []
 occasions: []
 
 attribution:

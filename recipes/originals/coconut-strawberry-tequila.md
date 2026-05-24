@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [fruity, sweet, refreshing]
-styles: [shaken, fruity]
+tags: []
 occasions: [weeknight]
 
 attribution:

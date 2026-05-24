@@ -15,7 +15,7 @@ format: single
 serves: 1
 
 flavors: [chocolate, rich, sweet, spirit-forward]
-styles: []
+tags: []
 occasions: []
 
 attribution:

@@ -16,7 +16,7 @@ format: single
 serves: 1
 
 flavors: [citrus, fruity, sour, bright]
-styles: []
+tags: []
 occasions: []
 
 attribution:
