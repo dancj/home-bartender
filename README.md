@@ -34,7 +34,7 @@ Pushing to `main` deploys via GitHub Actions.
 
 Two licenses, one repo:
 
-- **[`LICENSE-CODE`](LICENSE-CODE)** — MIT for the framework code (Astro app, scripts, workflow, configs)
-- **[`LICENSE-CONTENT`](LICENSE-CONTENT)** — CC BY 4.0 for the recipe prose and section writeups
+- **[`LICENSE-CODE`](LICENSE-CODE)** — MIT for the framework code (Astro app, scripts, workflow, configs). Modify and reuse freely with attribution.
+- **[`LICENSE-CONTENT`](LICENSE-CONTENT)** — CC BY-NC 4.0 (Attribution-NonCommercial 4.0 International) for the recipe prose and section writeups. Credit required, non-commercial use only.
 
-Recipe specs (ingredients, ratios, methods) aren't copyrightable — those are facts and techniques. Borrowed recipes credit their original creator via the per-recipe `attribution` frontmatter block.
+Recipe specs themselves (ingredients, ratios, methods) aren't copyrightable — those are facts and techniques. But the recipe **prose**, **headnotes**, and the **compilation as a whole** are copyrightable, and that's what CC BY-NC protects. Borrowed recipes credit their original creator via the per-recipe `attribution` frontmatter block.
