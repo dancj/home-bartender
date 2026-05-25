@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import path from 'node:path';
 import {
   assertValidCategory,
@@ -382,6 +382,103 @@ describe('promote — subprocess discipline', () => {
         expect(arg).not.toMatch(/[;&|`$()<>]/);
       }
     }
+  });
+});
+
+describe('promote — pre-flight body lint (U4)', () => {
+  // Body-invalid inbox: ## Steps removed. The publish:true flip during promote
+  // activates the body rule, which would otherwise only surface after the
+  // git mv + npm run validate. Pre-flight must surface this BEFORE any
+  // side effects (no writeFile, no exec).
+  const INBOX_MISSING_STEPS = [
+    '---',
+    'title: Body Broken',
+    'category: inbox',
+    'publish: false',
+    'glass: coupe',
+    'method: shaken',
+    '---',
+    '',
+    '## Ingredients',
+    '- 2 oz spirit',
+    '',
+  ].join('\n');
+
+  // Body-valid but soft-rule trigger (format: batch, no ## How to Batch It).
+  // Should produce a warning but NOT block promotion.
+  const INBOX_BATCH_NO_BATCH_HEADING = [
+    '---',
+    'title: Batched Drink',
+    'category: inbox',
+    'publish: false',
+    'glass: coupe',
+    'method: shaken',
+    'format: batch',
+    '---',
+    '',
+    '## Ingredients',
+    '- 2 oz spirit',
+    '',
+    '## Steps',
+    '1. Combine.',
+    '',
+  ].join('\n');
+
+  it('rejects body-invalid inbox before any side effects (no writeFile, no exec)', async () => {
+    const deps = makeDeps({ inboxContent: INBOX_MISSING_STEPS });
+    await expect(
+      promote({ slug: 'test-recipe', category: 'classic', ...deps }),
+    ).rejects.toThrow(/Body validation failed|## Steps/i);
+    expect(deps.calls.writeFile).toHaveLength(0);
+    expect(deps.calls.exec).toHaveLength(0);
+  });
+
+  it('rejects body-invalid inbox even in --dry-run mode (pre-flight runs before dryRun guard)', async () => {
+    const deps = makeDeps({ inboxContent: INBOX_MISSING_STEPS });
+    await expect(
+      promote({ slug: 'test-recipe', category: 'classic', dryRun: true, ...deps }),
+    ).rejects.toThrow(/Body validation failed|## Steps/i);
+    expect(deps.calls.writeFile).toHaveLength(0);
+    expect(deps.calls.exec).toHaveLength(0);
+  });
+
+  it('does not block promotion on body warnings; proceeds and emits stderr WARN', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const deps = makeDeps({ inboxContent: INBOX_BATCH_NO_BATCH_HEADING });
+    const result = await promote({
+      slug: 'test-recipe',
+      category: 'classic',
+      ...deps,
+    });
+    expect(result.changed).toBe(true);
+    expect(deps.calls.exec).toHaveLength(2); // git mv + npm run validate
+    expect(deps.calls.writeFile).toHaveLength(1);
+    const warningOutput = warnSpy.mock.calls.flat().join('\n');
+    expect(warningOutput).toMatch(/How to Batch It/i);
+    warnSpy.mockRestore();
+  });
+
+  it('happy path unchanged: pre-flight passes on canonical body without new DI calls', async () => {
+    // SG-001 fix: pre-flight operates on in-memory newContent; no extra readFile.
+    // Expected readFile calls remain exactly: inbox src + dst collision check = 2.
+    const deps = makeDeps();
+    await promote({ slug: 'test-recipe', category: 'classic', ...deps });
+    expect(deps.calls.readFile).toHaveLength(2);
+    expect(deps.calls.readFile[0]).toBe('/repo/recipes/inbox/test-recipe.md');
+    expect(deps.calls.readFile[1]).toBe('/repo/recipes/classics/test-recipe.md');
+  });
+
+  it('pre-flight runs after collision check (collision wins when both fire)', async () => {
+    // SG-003 ordering: collision is the cheaper, more specific failure mode.
+    const deps = makeDeps({
+      inboxContent: INBOX_MISSING_STEPS,
+      dstExists: true,
+    });
+    await expect(
+      promote({ slug: 'test-recipe', category: 'classic', ...deps }),
+    ).rejects.toThrow(/collision|already exists/i);
+    expect(deps.calls.writeFile).toHaveLength(0);
+    expect(deps.calls.exec).toHaveLength(0);
   });
 });
 
