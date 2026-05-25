@@ -123,8 +123,8 @@ CI re-runs codegen on every PR and fails if any generated artifact is stale.
 
 1. **Draft** — file lands in `recipes/inbox/<slug>.md` with `category: inbox` and `publish: false`. Hidden from the site index; visible only at `/inbox/?preview=1`.
 2. **Review** — fill in missing measurements, fix taxonomy, add attribution if borrowed, verify the body has at minimum `## Ingredients` and `## Steps` (plus `## House-Made …`, `## How to Batch It`, `## Notes` where relevant).
-3. **Publish** — manually: (a) move the file to the matching category dir (`recipes/classics/`, `recipes/originals/`, or `recipes/seasonal/`), (b) change `category:` to the singular form (`classic`, `original`, `seasonal`), (c) flip `publish: true`. There is no `npm run publish` script despite what `src/pages/inbox.astro` currently claims.
-4. **Validate** — `npm run validate` before committing. `npm run build` re-validates via `astro check` and rebuilds the Pagefind index.
+3. **Publish** — run `npm run promote -- <slug> --category=<classic|original|seasonal>`. The script rewrites frontmatter (singular `category`, `publish: true`), `git mv`s the file into the matching category dir, and re-runs `npm run validate`. Add `--dry-run` to preview. On validation failure the script rolls back atomically. If you'd rather hand-edit, the manual ritual is: (a) move the file to the matching category dir (`recipes/classics/`, `recipes/originals/`, or `recipes/seasonal/`), (b) change `category:` to the singular form, (c) flip `publish: true`.
+4. **Validate** — `npm run validate` runs automatically as part of `npm run promote`. Run it manually before committing if you used the hand-edit path. `npm run build` re-validates via `astro check` and rebuilds the Pagefind index.
 
 ### Conventions agents should know
 

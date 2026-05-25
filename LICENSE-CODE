@@ -26,4 +26,4 @@ Scope: this license covers the framework code in this repository — the Astro
 application, build scripts, GitHub Actions workflow, and configuration files.
 
 The content of this repository (recipe prose, section writeups, blurbs, notes)
-is licensed separately under CC BY 4.0. See LICENSE-CONTENT.
+is licensed separately under CC BY-NC 4.0. See LICENSE-CONTENT.

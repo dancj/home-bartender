@@ -23,10 +23,11 @@ const recipes = (await unpublishedRecipes()).sort(
       <p class="eyebrow">Drafts</p>
       <h1>Inbox <span class="count">({recipes.length})</span></h1>
       <p class="lede">
-        Pending recipes. To promote: move the file from <code>recipes/inbox/</code>
-        into the matching category dir (<code>classics/</code>, <code>originals/</code>, <code>seasonal/</code>),
-        change <code>category:</code> to the singular form, and flip <code>publish: true</code>.
-        Then run <code>npm run validate</code>.
+        Pending recipes. To promote one, run
+        <code>npm run promote -- &lt;slug&gt; --category=&lt;classic|original|seasonal&gt;</code>
+        — the script rewrites the frontmatter, <code>git mv</code>s the file into the
+        matching category dir, and re-runs <code>npm run validate</code>.
+        Add <code>--dry-run</code> to preview without mutating anything.
       </p>
     </section>
     <ul class="recipe-grid">

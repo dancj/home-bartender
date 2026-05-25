@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "validate": "node scripts/validate.mjs",
+    "promote": "node scripts/promote.mjs",
     "codegen": "node scripts/codegen-taxonomy.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
