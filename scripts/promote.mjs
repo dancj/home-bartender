@@ -17,7 +17,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
-import { CATEGORY_BY_DIR } from './validate.mjs';
+import { CATEGORY_BY_DIR, lintBody, parseFrontmatter } from './validate.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const execFile = promisify(execFileCb);
@@ -154,6 +154,23 @@ export async function promote({
   }
   if (dstExists) {
     throw new Error(`Slug collision: ${dstPath} already exists. Cannot promote.`);
+  }
+
+  // Pre-flight body lint against the post-promotion frontmatter. Operates on
+  // the already-in-memory newContent string — no DI readFile call. Runs after
+  // the collision check (cheaper failure mode wins) and before the dryRun
+  // early-return so that --dry-run also surfaces body errors.
+  const fenceEnd = newContent.indexOf('\n---\n', 4);
+  const newBody = fenceEnd === -1 ? '' : newContent.slice(fenceEnd + 5);
+  const synthesizedFm = { ...parseFrontmatter(original), category, publish: true };
+  const { errors: bodyErrors, warnings: bodyWarnings } = lintBody(newBody, synthesizedFm);
+  if (bodyErrors.length > 0) {
+    throw new Error(
+      `Body validation failed for ${slug}; cannot promote. ${bodyErrors.join('; ')}`,
+    );
+  }
+  for (const w of bodyWarnings) {
+    console.warn(`WARN: ${slug}: ${w}`);
   }
 
   if (dryRun) {

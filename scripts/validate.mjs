@@ -71,6 +71,105 @@ export function parseFrontmatter(raw) {
   return fm;
 }
 
+// Extract H2 heading titles (text after `## `) from a body string. Returns an
+// array of titles in source order; `### H3` and deeper levels are ignored.
+export function extractH2Headings(body) {
+  const out = [];
+  for (const line of body.split('\n')) {
+    const m = line.match(/^##\s+(.+?)\s*$/);
+    if (m) out.push(m[1]);
+  }
+  return out;
+}
+
+// Return the lines under the H2 heading `title` up to (but not including) the
+// next H2 heading or EOF. Returns [] when the heading is not found.
+export function linesUnderHeading(body, title) {
+  const lines = body.split('\n');
+  const start = lines.findIndex((l) => l.match(/^##\s+(.+?)\s*$/)?.[1] === title);
+  if (start === -1) return [];
+  const out = [];
+  for (let i = start + 1; i < lines.length; i++) {
+    if (/^##\s+/.test(lines[i])) break;
+    out.push(lines[i]);
+  }
+  return out;
+}
+
+// Trigger predicate for the House-Made soft rule. Returns true when the
+// ingredient line names a craft preparation likely to need a `## House-Made …`
+// section. Bare `simple syrup` and `maple syrup` are intentionally excluded —
+// they are store-bought and would generate noise on day one.
+export function mentionsHouseMadeWorthyPrep(line) {
+  if (/\b(shrub|tincture|cordial|infusion)\b/i.test(line)) return true;
+  if (/\b\w+-washed\b/i.test(line)) return true;
+  if (/\bsyrup\b/i.test(line)) {
+    if (/\b(simple|maple)\s+syrup\b/i.test(line)) return false;
+    return true;
+  }
+  return false;
+}
+
+// Body-structure linter for published recipes. Returns { errors, warnings }
+// with raw messages (no file path prefix; the caller adds that).
+//
+// Hard rules (errors) for recipes with frontmatter.publish === true:
+//   - ## Ingredients heading must exist
+//   - ## Steps heading must exist
+//   - ## Ingredients section must contain at least one `- ` list item before
+//     the next H2 or EOF
+//
+// Soft rules (warnings):
+//   - When an ingredient line mentions a House-Made-worthy prep (per
+//     mentionsHouseMadeWorthyPrep), a heading starting with `House-Made`
+//     must exist.
+//   - When frontmatter.format is `batch` or `punch`, a `## How to Batch It`
+//     heading must exist.
+//
+// Inbox drafts and any frontmatter where publish !== true are skipped (no
+// rules applied).
+export function lintBody(body, frontmatter) {
+  const errors = [];
+  const warnings = [];
+
+  if (frontmatter?.publish !== true) return { errors, warnings };
+
+  const headings = extractH2Headings(body);
+
+  if (!headings.includes('Ingredients')) {
+    errors.push('missing required heading: ## Ingredients');
+  }
+  if (!headings.includes('Steps')) {
+    errors.push('missing required heading: ## Steps');
+  }
+
+  if (headings.includes('Ingredients')) {
+    const ingredientLines = linesUnderHeading(body, 'Ingredients');
+    const hasListItem = ingredientLines.some((l) => /^\s*-\s+\S/.test(l));
+    if (!hasListItem) {
+      errors.push('## Ingredients section is empty or has no list items');
+    }
+
+    const triggersHouseMade = ingredientLines.some(mentionsHouseMadeWorthyPrep);
+    const hasHouseMadeHeading = headings.some((h) => /^House-Made\b/.test(h));
+    if (triggersHouseMade && !hasHouseMadeHeading) {
+      warnings.push(
+        'ingredient line references a House-Made-worthy prep but no ## House-Made … section found',
+      );
+    }
+  }
+
+  if (frontmatter.format === 'batch' || frontmatter.format === 'punch') {
+    if (!headings.includes('How to Batch It')) {
+      warnings.push(
+        'format is batch/punch but no ## How to Batch It section found',
+      );
+    }
+  }
+
+  return { errors, warnings };
+}
+
 export function parseScalar(v) {
   if (v.startsWith('[') && v.endsWith(']')) {
     const inner = v.slice(1, -1).trim();
@@ -111,6 +210,14 @@ async function main() {
     if (fm.publish !== true && fm.publish !== false) errors.push(`${rel}: publish must be true/false, got ${fm.publish}`);
     if (dirName === 'inbox' && fm.publish !== false) warnings.push(`${rel}: inbox recipe has publish: true`);
     if (dirName !== 'inbox' && fm.publish === false) warnings.push(`${rel}: non-inbox recipe has publish: false`);
+
+    if (fm.publish === true) {
+      const fenceEnd = raw.indexOf('\n---\n', 4);
+      const body = fenceEnd === -1 ? '' : raw.slice(fenceEnd + 5);
+      const { errors: be, warnings: bw } = lintBody(body, fm);
+      for (const e of be) errors.push(`${rel}: ${e}`);
+      for (const w of bw) warnings.push(`${rel}: ${w}`);
+    }
   }
 
   for (const file of files) {
