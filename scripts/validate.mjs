@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
 
-const CATEGORY_BY_DIR = {
+export const CATEGORY_BY_DIR = {
   classics: 'classic',
   originals: 'original',
   seasonal: 'seasonal',
