@@ -1,7 +1,7 @@
 ---
 title: "feat: Repo identity and content licensing"
 type: feat
-status: active
+status: completed
 date: 2026-05-24
 origin: docs/brainstorms/2026-05-24-repo-identity-and-content-licensing-requirements.md
 ---
