@@ -66,4 +66,26 @@ const { mode = 'compact' } = Astro.props;
     font-size: 0.875rem;
     font-family: var(--font-sans);
   }
+
+  /* Compact mode (in-header) — input chrome flips to dark to read on the
+     header slab. Results area inherits the global cream theming since it
+     renders below the input against the page bg. */
+  #search.compact .pagefind-ui input,
+  #search.compact .pagefind-ui .pagefind-ui__search-input {
+    background: rgb(255 255 255 / 0.06);
+    color: var(--color-header-fg);
+    border-color: rgb(255 255 255 / 0.1);
+  }
+  #search.compact .pagefind-ui input::placeholder {
+    color: var(--color-header-fg-muted);
+  }
+  #search.compact .pagefind-ui input:focus,
+  #search.compact .pagefind-ui .pagefind-ui__search-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-ring);
+  }
+  #search.compact .pagefind-ui .pagefind-ui__search-clear {
+    background: rgb(255 255 255 / 0.08);
+    color: var(--color-header-fg);
+  }
 </style>

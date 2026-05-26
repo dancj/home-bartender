@@ -40,7 +40,7 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
     <meta name="twitter:card" content="summary" />
   </head>
   <body>
-    <header class="site-header sticky top-0 z-10 border-b border-rule bg-bg">
+    <header class="site-header sticky top-0 z-10 bg-header-bg">
       <div class="container-wide site-header-row">
         <a href={`${base}/`} class="brand inline-flex items-center no-underline" aria-label="Home Bartender">
           <picture>
@@ -86,13 +86,14 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
   }
   .brand { border-radius: var(--radius-md); }
 
-  /* Nav links — short scoped block keeps the hover/transition decisions
-     in one place rather than spraying 6 utilities on each <a>. */
+  /* Nav links — light-on-dark inside the dark header chrome.
+     Short scoped block keeps the hover/transition decisions in one place
+     rather than spraying 6 utilities on each <a>. */
   .nav-links a {
     font-family: var(--font-sans);
     font-size: 0.8125rem;
     font-weight: 500;
-    color: var(--color-fg-muted);
+    color: var(--color-header-fg-muted);
     text-decoration: none;
     padding: 0.4rem 0.7rem;
     border-radius: var(--radius-md);
@@ -100,8 +101,8 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
       color var(--transition-base);
   }
   .nav-links a:hover {
-    color: var(--color-fg);
-    background: var(--color-surface-muted);
+    color: var(--color-header-fg);
+    background: rgb(255 255 255 / 0.06);
   }
 
   /* Softer footer underlines — global default uses --color-rule-strong */

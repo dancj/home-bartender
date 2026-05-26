@@ -36,6 +36,11 @@
   --color-accent-ring: rgb(156 63 42 / 0.18);
   --color-ring: rgb(31 26 20 / 0.35);
 
+  /* Header chrome — dark slab so the dark-themed logo PNGs merge into it */
+  --color-header-bg: #1A1810;
+  --color-header-fg: #FBF8F2;
+  --color-header-fg-muted: #A89B89;
+
   /* Radius */
   --radius-sm: 4px;
   --radius-md: 8px;

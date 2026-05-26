@@ -111,6 +111,43 @@ Re-verify in U2 with an actual contrast tool (Chrome devtools or [WebAIM contras
 
 ---
 
+## Header chrome
+
+The site header gets its own dark slab — not the page bg.
+
+The brand mark PNGs (`logo-full.png`, `logo-coupe.png`) were drawn for a dark surround; they ship with a near-black bg baked in (sampled at `#181810` for the full logo, `#282826` for the coupe). Floating those on a cream header reads as "dark cards on cream" — exactly the kind of visual mismatch the rest of the redesign is trying to fix. Pulling the header bg dark merges the logo into the chrome and lets the cream + terracotta page identity sit cleanly below.
+
+| Token | Hex | Role |
+|---|---|---|
+| `--color-header-bg` | `#1A1810` | Header bar background (matches `logo-full.png` corner color) |
+| `--color-header-fg` | `#FBF8F2` | Brand text fallbacks, nav link hover, search input text |
+| `--color-header-fg-muted` | `#A89B89` | Nav link default, search input placeholder |
+
+### WCAG AA contrast (dark surface)
+
+| Pair | Ratio | Verdict |
+|---|---|---|
+| `--color-header-fg` on `--color-header-bg` | 16.5:1 | AAA ✓ |
+| `--color-header-fg-muted` on `--color-header-bg` | 7.5:1 | AAA ✓ |
+| `--color-accent` on `--color-header-bg` (focus ring) | 4.1:1 | AA UI ✓ |
+
+### What changes
+
+- Site header: `bg-header-bg`, no bottom border (the color step IS the divider against the cream page below).
+- Nav links: `header-fg-muted` default, `header-fg` on hover, with a tinted-dark hover background (`rgb(255 255 255 / 0.06)`).
+- Search input (compact mode, in-header): dark fill, light placeholder, light text. The dropdown panel renders below the header against the cream page, so it stays in the light Pagefind theming.
+- Brand logos: no PNG change — their existing dark bg now merges into the header rather than reading as a floating dark card on cream.
+
+### What does NOT change
+
+- Recipe pages, learn pages, taxonomy pages, inbox — all body chrome remains warm cream + terracotta accent per [Palette](#palette).
+- Footer keeps the cream + muted-warm text treatment (quiet endcap, not load-bearing chrome).
+- Brand mark itself — the coupe + full logos are unchanged; this is just chrome around them.
+
+The coupe logo's bg (`#282826`) is slightly lighter than `--color-header-bg` (`#1A1810`); the seam is mostly imperceptible at mobile-logo size and against the dark surround, but a follow-up could re-export the coupe to match.
+
+---
+
 ## Radius + surface vocabulary
 
 The Firefox / Apple inspirations both run in the 20–28px range for content cards. We pick the friendly end of that band.
