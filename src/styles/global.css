@@ -110,23 +110,35 @@
     padding-inline: 1.25rem;
   }
 
-  /* Card — radius/shadow vocabulary repainted by U3 */
+  /* Card — lifted soft-shadow surface; padding scales per direction §Responsive */
   .card {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    padding: 1.25rem 1.25rem 1.125rem;
+    padding: 1rem;
     background: var(--color-surface);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
     color: inherit;
     text-decoration: none;
-    transition: border-color 150ms ease, background-color 150ms ease;
-    height: 100%;
+    transition: box-shadow var(--transition-lift),
+      transform var(--transition-lift);
   }
-  .card:hover {
-    border-color: var(--color-rule-strong);
-    background: var(--color-surface-muted);
+  @media (min-width: 40rem) {
+    .card { padding: 1.25rem; }
+  }
+  @media (min-width: 72rem) {
+    .card { padding: 1.5rem; }
+  }
+  @media (hover: hover) {
+    .card:hover {
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-2px);
+    }
+  }
+  .card:active {
+    transform: translateY(1px);
+    box-shadow: var(--shadow-card);
   }
 
   /* Button */

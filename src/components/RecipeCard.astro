@@ -18,11 +18,11 @@ const primarySpirit = data.spirits[0];
   data-method={data.method}
   data-difficulty={data.difficulty}
 >
-  <a href={`${base}/recipes/${slug}/`} class="card">
-    {primarySpirit && <p class="card-eyebrow eyebrow">{label('spirits', primarySpirit)}</p>}
-    <h2 class="card-title">{data.title}</h2>
-    <p class="card-blurb">{data.blurb}</p>
-    <p class="card-meta">
+  <a href={`${base}/recipes/${slug}/`} class="card h-full">
+    {primarySpirit && <p class="eyebrow">{label('spirits', primarySpirit)}</p>}
+    <h2 class="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.01em] text-fg">{data.title}</h2>
+    <p class="font-serif italic text-[0.95rem] leading-[1.45] text-fg-muted flex-1">{data.blurb}</p>
+    <p class="recipe-card-meta">
       <span>{label('method', data.method)}</span>
       <span aria-hidden="true">·</span>
       <span>{label('difficulty', data.difficulty)}</span>
@@ -37,32 +37,11 @@ const primarySpirit = data.spirits[0];
 </li>
 
 <style>
-  .recipe-card {
-    list-style: none;
-  }
-  .card-eyebrow {
-    margin: 0;
-    color: var(--color-fg-muted);
-  }
-  .card-title {
-    font-family: var(--font-serif);
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--color-fg);
-    margin: 0;
-    letter-spacing: -0.01em;
-  }
-  .card-blurb {
-    font-family: var(--font-serif);
-    font-size: 0.95rem;
-    font-style: italic;
-    color: var(--color-fg-muted);
-    line-height: 1.45;
-    margin: 0;
-    flex: 1;
-  }
-  .card-meta {
+  /* Meta row: small caps mini-badge. Kept as a scoped class so the
+     descendant span[aria-hidden] opacity selector stays clean — the
+     equivalent Tailwind arbitrary variant string is noisy enough to
+     hurt readability for one selector. */
+  .recipe-card-meta {
     margin-top: 0.5rem;
     font-family: var(--font-sans);
     font-size: 0.6875rem;
@@ -75,5 +54,5 @@ const primarySpirit = data.spirits[0];
     gap: 0.4rem;
     align-items: center;
   }
-  .card-meta span[aria-hidden] { opacity: 0.5; }
+  .recipe-card-meta span[aria-hidden] { opacity: 0.5; }
 </style>
