@@ -33,10 +33,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   .back a {
     font-family: var(--font-sans);
     font-size: 0.8125rem;
-    color: hsl(var(--fg-muted));
+    color: var(--color-fg-muted);
     text-decoration: none;
   }
-  .back a:hover { color: hsl(var(--fg)); }
+  .back a:hover { color: var(--color-fg); }
 
   .prose :global(h1) {
     font-size: clamp(2rem, 5vw, 2.75rem);
@@ -48,7 +48,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     font-weight: 600;
     margin-top: 2.25rem;
     margin-bottom: 0.75rem;
-    color: hsl(var(--fg));
+    color: var(--color-fg);
   }
   .prose :global(h3) {
     font-family: var(--font-serif);
@@ -61,7 +61,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     font-family: var(--font-serif);
     font-size: 1.0625rem;
     line-height: 1.65;
-    color: hsl(var(--fg));
+    color: var(--color-fg);
   }
   .prose :global(p) { margin-block: 0.75rem; }
   .prose :global(ul),
@@ -71,8 +71,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   }
   .prose :global(li) { margin-block: 0.35rem; }
   .prose :global(strong) {
-    color: hsl(var(--fg));
+    color: var(--color-fg);
     font-weight: 600;
   }
-  .prose :global(em) { color: hsl(var(--fg-muted)); }
+  .prose :global(em) { color: var(--color-fg-muted); }
 </style>
