@@ -2,7 +2,8 @@
 import '@fontsource/newsreader/400.css';
 import '@fontsource/newsreader/400-italic.css';
 import '@fontsource/newsreader/600.css';
-import '@fontsource/newsreader/700.css';
+import '@fontsource/fraunces/500.css';
+import '@fontsource/fraunces/600.css';
 import '../styles/global.css';
 import Search from '../components/Search.astro';
 import { getImage } from 'astro:assets';
@@ -39,27 +40,27 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
     <meta name="twitter:card" content="summary" />
   </head>
   <body>
-    <header class="site-header">
+    <header class="site-header sticky top-0 z-10 bg-header-bg">
       <div class="container-wide site-header-row">
-        <a href={`${base}/`} class="brand" aria-label="Home Bartender">
+        <a href={`${base}/`} class="brand inline-flex items-center no-underline" aria-label="Home Bartender">
           <picture>
-            <source media="(max-width: 42rem)" srcset={logoCoupe.src} />
-            <img src={logoFull.src} alt="" width={logoFull.attributes.width} height={logoFull.attributes.height} />
+            <source media="(max-width: 40rem)" srcset={logoCoupe.src} />
+            <img src={logoFull.src} alt="" width={logoFull.attributes.width} height={logoFull.attributes.height} class="block h-10 w-auto" />
           </picture>
         </a>
-        <nav class="nav-links" aria-label="Primary">
+        <nav class="nav-links flex gap-1 justify-center" aria-label="Primary">
           <a href={`${base}/`}>Recipes</a>
           <a href={`${base}/learn/`}>Learn</a>
         </nav>
-        <div class="header-search">
+        <div class="header-search justify-self-end w-[min(18rem,100%)]">
           <Search mode="compact" />
         </div>
       </div>
     </header>
-    <main class={containerClass}>
+    <main class={`${containerClass} flex-1 w-full pt-10 pb-16 lg:pt-12 lg:pb-20`}>
       <slot />
     </main>
-    <footer class="site-footer">
+    <footer class="site-footer border-t border-rule py-8 font-sans text-[0.8125rem] text-fg-muted text-center">
       <div class="container-wide">
         <p>
           Recipes shared under
@@ -72,18 +73,8 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
 </html>
 
 <style>
-  main {
-    flex: 1;
-    width: 100%;
-    padding-block: 2.5rem 4rem;
-  }
-
+  /* Sticky-blur header — backdrop-filter values are non-default in Tailwind */
   .site-header {
-    border-bottom: 1px solid hsl(var(--rule));
-    background: hsl(var(--bg));
-    position: sticky;
-    top: 0;
-    z-index: 10;
     backdrop-filter: saturate(180%) blur(8px);
   }
   .site-header-row {
@@ -93,49 +84,34 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
     gap: 1.25rem;
     padding-block: 0.875rem;
   }
+  .brand { border-radius: var(--radius-md); }
 
-  .brand {
-    display: inline-flex;
-    align-items: center;
-    text-decoration: none;
-    border-radius: var(--radius-md);
-  }
-  .brand:focus-visible {
-    outline: 2px solid hsl(var(--fg));
-    outline-offset: 3px;
-  }
-  .brand img {
-    display: block;
-    height: 2.5rem;
-    width: auto;
-  }
-
-  .nav-links {
-    display: flex;
-    gap: 0.25rem;
-    justify-content: center;
-  }
+  /* Nav links — light-on-dark inside the dark header chrome.
+     Short scoped block keeps the hover/transition decisions in one place
+     rather than spraying 6 utilities on each <a>. */
   .nav-links a {
     font-family: var(--font-sans);
     font-size: 0.8125rem;
     font-weight: 500;
-    color: hsl(var(--fg-muted));
+    color: var(--color-header-fg-muted);
     text-decoration: none;
     padding: 0.4rem 0.7rem;
     border-radius: var(--radius-md);
-    transition: background-color 120ms ease, color 120ms ease;
+    transition: background-color var(--transition-base),
+      color var(--transition-base);
   }
   .nav-links a:hover {
-    color: hsl(var(--fg));
-    background: hsl(var(--surface-muted));
+    color: var(--color-header-fg);
+    background: rgb(255 255 255 / 0.06);
   }
 
-  .header-search {
-    justify-self: end;
-    width: min(18rem, 100%);
+  /* Softer footer underlines — global default uses --color-rule-strong */
+  .site-footer a {
+    text-decoration-color: var(--color-rule);
   }
 
-  @media (max-width: 42rem) {
+  /* Mobile layout: grid-template-areas can't be expressed cleanly in Tailwind */
+  @media (max-width: 40rem) {
     .site-header-row {
       grid-template-columns: 1fr auto;
       grid-template-areas:
@@ -146,17 +122,5 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
     .brand { grid-area: brand; }
     .nav-links { grid-area: nav; justify-content: flex-end; }
     .header-search { grid-area: search; width: 100%; }
-  }
-
-  .site-footer {
-    border-top: 1px solid hsl(var(--rule));
-    padding-block: 2rem;
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    color: hsl(var(--fg-muted));
-    text-align: center;
-  }
-  .site-footer a {
-    text-decoration-color: hsl(var(--rule));
   }
 </style>
