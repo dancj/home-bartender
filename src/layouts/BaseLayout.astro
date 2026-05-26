@@ -5,6 +5,9 @@ import '@fontsource/newsreader/600.css';
 import '@fontsource/newsreader/700.css';
 import '../styles/global.css';
 import Search from '../components/Search.astro';
+import { getImage } from 'astro:assets';
+import logoFullSrc from '../assets/brand/logo-full.png';
+import logoCoupeSrc from '../assets/brand/logo-coupe.png';
 
 interface Props {
   title: string;
@@ -14,6 +17,9 @@ interface Props {
 const { title, description, width = 'prose' } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const containerClass = width === 'wide' ? 'container-wide' : 'container-prose';
+
+const logoFull = await getImage({ src: logoFullSrc, width: 228, height: 80, format: 'webp' });
+const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, format: 'webp' });
 ---
 <!doctype html>
 <html lang="en">
@@ -22,7 +28,11 @@ const containerClass = width === 'wide' ? 'container-wide' : 'container-prose';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+    <link rel="icon" type="image/x-icon" href={`${base}/favicon.ico`} />
+    <link rel="icon" type="image/png" sizes="16x16" href={`${base}/favicon-16.png`} />
+    <link rel="icon" type="image/png" sizes="32x32" href={`${base}/favicon-32.png`} />
+    <link rel="apple-touch-icon" sizes="180x180" href={`${base}/apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}/site.webmanifest`} />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
     <meta property="og:type" content="website" />
@@ -31,7 +41,12 @@ const containerClass = width === 'wide' ? 'container-wide' : 'container-prose';
   <body>
     <header class="site-header">
       <div class="container-wide site-header-row">
-        <a href={`${base}/`} class="brand">Home Bartender</a>
+        <a href={`${base}/`} class="brand" aria-label="Home Bartender">
+          <picture>
+            <source media="(max-width: 42rem)" srcset={logoCoupe.src} />
+            <img src={logoFull.src} alt="" width={logoFull.attributes.width} height={logoFull.attributes.height} />
+          </picture>
+        </a>
         <nav class="nav-links" aria-label="Primary">
           <a href={`${base}/`}>Recipes</a>
           <a href={`${base}/learn/`}>Learn</a>
@@ -80,12 +95,19 @@ const containerClass = width === 'wide' ? 'container-wide' : 'container-prose';
   }
 
   .brand {
-    font-family: var(--font-serif);
-    font-weight: 600;
-    font-size: 1.0625rem;
-    color: hsl(var(--fg));
+    display: inline-flex;
+    align-items: center;
     text-decoration: none;
-    letter-spacing: -0.01em;
+    border-radius: var(--radius-md);
+  }
+  .brand:focus-visible {
+    outline: 2px solid hsl(var(--fg));
+    outline-offset: 3px;
+  }
+  .brand img {
+    display: block;
+    height: 2.5rem;
+    width: auto;
   }
 
   .nav-links {

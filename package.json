@@ -12,7 +12,8 @@
     "promote": "node scripts/promote.mjs",
     "codegen": "node scripts/codegen-taxonomy.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "generate-favicons": "node scripts/generate-favicons.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -24,6 +25,8 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.34.0",
     "vitest": "^4.1.7",
     "yaml": "^2.9.0"
   }
