@@ -10,6 +10,7 @@
     "astro": "astro",
     "validate": "node scripts/validate.mjs",
     "promote": "node scripts/promote.mjs",
+    "migrate:bodies": "node scripts/migrate-body-to-frontmatter.mjs",
     "codegen": "node scripts/codegen-taxonomy.mjs",
     "test": "vitest run",
     "test:watch": "vitest",

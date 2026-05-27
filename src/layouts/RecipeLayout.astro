@@ -2,6 +2,10 @@
 import BaseLayout from './BaseLayout.astro';
 import type { Recipe } from '../lib/recipes';
 import { label } from '../lib/taxonomy';
+import Ingredients from '../components/recipe/Ingredients.astro';
+import Steps from '../components/recipe/Steps.astro';
+import HouseMade from '../components/recipe/HouseMade.astro';
+import BatchInstructions from '../components/recipe/BatchInstructions.astro';
 
 interface Props {
   recipe: Recipe;
@@ -78,6 +82,12 @@ const hasAttribution =
     </header>
 
     <div class="recipe-body">
+      {data.ingredients.length > 0 && (
+        <Ingredients items={data.ingredients} garnish={data.garnish} float={data.float} />
+      )}
+      {data.house_made && <HouseMade {...data.house_made} />}
+      {data.steps.length > 0 && <Steps items={data.steps} />}
+      {data.batch && <BatchInstructions {...data.batch} />}
       <slot />
     </div>
 
