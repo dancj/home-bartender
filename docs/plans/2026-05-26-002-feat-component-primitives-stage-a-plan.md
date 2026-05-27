@@ -1,8 +1,9 @@
 ---
 title: 'feat: Stage A — typed recipe components with frontmatter-driven body sections'
 type: feat
-status: active
+status: completed
 date: 2026-05-26
+completed: 2026-05-27
 ---
 
 # feat: Stage A — typed recipe components with frontmatter-driven body sections
