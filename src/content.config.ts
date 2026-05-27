@@ -40,6 +40,22 @@ const recipes = defineCollection({
     tags: z.array(z.string()).default([]),
     occasions: z.array(z.enum(OCCASIONS)).default([]),
 
+    ingredients: z.array(z.string()).default([]),
+    garnish: z.string().optional().default(''),
+    float: z.string().optional().default(''),
+    steps: z.array(z.string()).default([]),
+    house_made: z.object({
+      name: z.string(),
+      yield: z.string().optional(),
+      ingredients: z.array(z.string()).optional(),
+      steps: z.array(z.string()),
+    }).optional(),
+    batch: z.object({
+      yield: z.string(),
+      ingredients: z.array(z.string()).optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+
     attribution: z.object({
       creator: z.string().default(''),
       bar: z.string().default(''),
