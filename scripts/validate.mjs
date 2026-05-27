@@ -64,24 +64,10 @@ export function extractH2Headings(body) {
   return out;
 }
 
-// Return the lines under the H2 heading `title` up to (but not including) the
-// next H2 heading or EOF. Returns [] when the heading is not found.
-export function linesUnderHeading(body, title) {
-  const lines = body.split('\n');
-  const start = lines.findIndex((l) => l.match(/^##\s+(.+?)\s*$/)?.[1] === title);
-  if (start === -1) return [];
-  const out = [];
-  for (let i = start + 1; i < lines.length; i++) {
-    if (/^##\s+/.test(lines[i])) break;
-    out.push(lines[i]);
-  }
-  return out;
-}
-
 // Trigger predicate for the House-Made soft rule. Returns true when the
-// ingredient line names a craft preparation likely to need a `## House-Made …`
-// section. Bare `simple syrup` and `maple syrup` are intentionally excluded —
-// they are store-bought and would generate noise on day one.
+// ingredient line names a craft preparation likely to need a `house_made`
+// frontmatter field. Bare `simple syrup` and `maple syrup` are intentionally
+// excluded — they are store-bought and would generate noise on day one.
 export function mentionsHouseMadeWorthyPrep(line) {
   if (/\b(shrub|tincture|cordial|infusion)\b/i.test(line)) return true;
   if (/\b\w+-washed\b/i.test(line)) return true;
@@ -95,18 +81,22 @@ export function mentionsHouseMadeWorthyPrep(line) {
 // Body-structure linter for published recipes. Returns { errors, warnings }
 // with raw messages (no file path prefix; the caller adds that).
 //
+// Stage A inverted the contract: structured content (ingredients, steps,
+// house_made, batch) lives in frontmatter; the body is for narrative prose
+// (## Notes and any unrecognized H2 sections).
+//
 // Hard rules (errors) for recipes with frontmatter.publish === true:
-//   - ## Ingredients heading must exist
-//   - ## Steps heading must exist
-//   - ## Ingredients section must contain at least one `- ` list item before
-//     the next H2 or EOF
+//   - ## Ingredients / ## Steps / ## House-Made <…> / ## How to Batch It
+//     headings in the body are migration leftovers (their content belongs
+//     in frontmatter now)
+//   - frontmatter.ingredients[] must be non-empty
 //
 // Soft rules (warnings):
-//   - When an ingredient line mentions a House-Made-worthy prep (per
-//     mentionsHouseMadeWorthyPrep), a heading starting with `House-Made`
-//     must exist.
-//   - When frontmatter.format is `batch` or `punch`, a `## How to Batch It`
-//     heading must exist.
+//   - When an ingredients[] (or batch.ingredients[]) string mentions a
+//     House-Made-worthy prep (per mentionsHouseMadeWorthyPrep), the
+//     frontmatter.house_made field must exist.
+//   - When frontmatter.format is `batch` or `punch`, the frontmatter.batch
+//     field must exist.
 //
 // Inbox drafts and any frontmatter where publish !== true are skipped (no
 // rules applied).
@@ -118,33 +108,40 @@ export function lintBody(body, frontmatter) {
 
   const headings = extractH2Headings(body);
 
-  if (!headings.includes('Ingredients')) {
-    errors.push('missing required heading: ## Ingredients');
-  }
-  if (!headings.includes('Steps')) {
-    errors.push('missing required heading: ## Steps');
-  }
-
   if (headings.includes('Ingredients')) {
-    const ingredientLines = linesUnderHeading(body, 'Ingredients');
-    const hasListItem = ingredientLines.some((l) => /^\s*-\s+\S/.test(l));
-    if (!hasListItem) {
-      errors.push('## Ingredients section is empty or has no list items');
-    }
+    errors.push('migration leftover: ## Ingredients heading in body — content belongs in frontmatter.ingredients[]');
+  }
+  if (headings.includes('Steps')) {
+    errors.push('migration leftover: ## Steps heading in body — content belongs in frontmatter.steps[]');
+  }
+  if (headings.some((h) => /^House-Made\b/.test(h))) {
+    errors.push('migration leftover: ## House-Made … heading in body — content belongs in frontmatter.house_made');
+  }
+  if (headings.includes('How to Batch It')) {
+    errors.push('migration leftover: ## How to Batch It heading in body — content belongs in frontmatter.batch');
+  }
 
-    const triggersHouseMade = ingredientLines.some(mentionsHouseMadeWorthyPrep);
-    const hasHouseMadeHeading = headings.some((h) => /^House-Made\b/.test(h));
-    if (triggersHouseMade && !hasHouseMadeHeading) {
-      warnings.push(
-        'ingredient line references a House-Made-worthy prep but no ## House-Made … section found',
-      );
-    }
+  const ingredients = Array.isArray(frontmatter.ingredients) ? frontmatter.ingredients : [];
+  if (ingredients.length === 0) {
+    errors.push('frontmatter.ingredients[] is empty on a published recipe');
+  }
+
+  const batchIngredients = Array.isArray(frontmatter.batch?.ingredients)
+    ? frontmatter.batch.ingredients
+    : [];
+  const triggersHouseMade =
+    ingredients.some(mentionsHouseMadeWorthyPrep) ||
+    batchIngredients.some(mentionsHouseMadeWorthyPrep);
+  if (triggersHouseMade && !frontmatter.house_made) {
+    warnings.push(
+      'ingredient references a House-Made-worthy prep but no house_made field found',
+    );
   }
 
   if (frontmatter.format === 'batch' || frontmatter.format === 'punch') {
-    if (!headings.includes('How to Batch It')) {
+    if (!frontmatter.batch) {
       warnings.push(
-        'format is batch/punch but no ## How to Batch It section found',
+        'format is batch/punch but no batch field found',
       );
     }
   }

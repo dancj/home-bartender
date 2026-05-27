@@ -15,6 +15,12 @@ const CANONICAL_INBOX = [
   'publish: false',
   'glass: coupe',
   'method: shaken',
+  'ingredients:',
+  '  - 2 oz spirit',
+  '  - 1 oz juice',
+  'steps:',
+  '  - Shake.',
+  '  - Strain.',
   'attribution:',
   '  creator: Test Author',
   '  bar: Test Bar',
@@ -24,13 +30,9 @@ const CANONICAL_INBOX = [
   '',
   '> *A short blurb*',
   '',
-  '## Ingredients',
-  '- 2 oz spirit',
-  '- 1 oz juice',
+  '## Notes',
   '',
-  '## Steps',
-  '1. Shake.',
-  '2. Strain.',
+  '*Just a draft.*',
   '',
 ].join('\n');
 
@@ -97,8 +99,8 @@ describe('rewritePromotionFrontmatter', () => {
     const out = rewritePromotionFrontmatter(CANONICAL_INBOX, { category: 'original' });
     expect(out).toContain('  creator: Test Author');
     expect(out).toContain('\n\n# Test Recipe\n');
-    expect(out).toContain('## Steps');
-    expect(out).toContain('1. Shake.');
+    expect(out).toContain('## Notes');
+    expect(out).toContain('*Just a draft.*');
   });
 
   it('does not touch frontmatter keys other than category and publish', () => {
@@ -386,17 +388,21 @@ describe('promote — subprocess discipline', () => {
 });
 
 describe('promote — pre-flight body lint (U4)', () => {
-  // Body-invalid inbox: ## Steps removed. The publish:true flip during promote
-  // activates the body rule, which would otherwise only surface after the
-  // git mv + npm run validate. Pre-flight must surface this BEFORE any
-  // side effects (no writeFile, no exec).
-  const INBOX_MISSING_STEPS = [
+  // Body-invalid inbox: still has migration-leftover ## Ingredients heading.
+  // After U7 flipped the linter contract, this is a hard error — the body
+  // shape should be `## Notes` only and ingredients live in frontmatter.
+  // Pre-flight must surface this BEFORE any side effects.
+  const INBOX_MIGRATION_LEFTOVER = [
     '---',
     'title: Body Broken',
     'category: inbox',
     'publish: false',
     'glass: coupe',
     'method: shaken',
+    'ingredients:',
+    '  - 2 oz spirit',
+    'steps:',
+    '  - Combine.',
     '---',
     '',
     '## Ingredients',
@@ -404,9 +410,9 @@ describe('promote — pre-flight body lint (U4)', () => {
     '',
   ].join('\n');
 
-  // Body-valid but soft-rule trigger (format: batch, no ## How to Batch It).
+  // Body-valid but soft-rule trigger (format: batch, no batch field).
   // Should produce a warning but NOT block promotion.
-  const INBOX_BATCH_NO_BATCH_HEADING = [
+  const INBOX_BATCH_NO_BATCH_FIELD = [
     '---',
     'title: Batched Drink',
     'category: inbox',
@@ -414,37 +420,37 @@ describe('promote — pre-flight body lint (U4)', () => {
     'glass: coupe',
     'method: shaken',
     'format: batch',
+    'ingredients:',
+    '  - 2 oz spirit',
+    'steps:',
+    '  - Combine.',
     '---',
     '',
-    '## Ingredients',
-    '- 2 oz spirit',
-    '',
-    '## Steps',
-    '1. Combine.',
+    '## Notes',
     '',
   ].join('\n');
 
   it('rejects body-invalid inbox before any side effects (no writeFile, no exec)', async () => {
-    const deps = makeDeps({ inboxContent: INBOX_MISSING_STEPS });
+    const deps = makeDeps({ inboxContent: INBOX_MIGRATION_LEFTOVER });
     await expect(
       promote({ slug: 'test-recipe', category: 'classic', ...deps }),
-    ).rejects.toThrow(/Body validation failed|## Steps/i);
+    ).rejects.toThrow(/Body validation failed|migration leftover/i);
     expect(deps.calls.writeFile).toHaveLength(0);
     expect(deps.calls.exec).toHaveLength(0);
   });
 
   it('rejects body-invalid inbox even in --dry-run mode (pre-flight runs before dryRun guard)', async () => {
-    const deps = makeDeps({ inboxContent: INBOX_MISSING_STEPS });
+    const deps = makeDeps({ inboxContent: INBOX_MIGRATION_LEFTOVER });
     await expect(
       promote({ slug: 'test-recipe', category: 'classic', dryRun: true, ...deps }),
-    ).rejects.toThrow(/Body validation failed|## Steps/i);
+    ).rejects.toThrow(/Body validation failed|migration leftover/i);
     expect(deps.calls.writeFile).toHaveLength(0);
     expect(deps.calls.exec).toHaveLength(0);
   });
 
   it('does not block promotion on body warnings; proceeds and emits stderr WARN', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const deps = makeDeps({ inboxContent: INBOX_BATCH_NO_BATCH_HEADING });
+    const deps = makeDeps({ inboxContent: INBOX_BATCH_NO_BATCH_FIELD });
     const result = await promote({
       slug: 'test-recipe',
       category: 'classic',
@@ -454,7 +460,7 @@ describe('promote — pre-flight body lint (U4)', () => {
     expect(deps.calls.exec).toHaveLength(2); // git mv + npm run validate
     expect(deps.calls.writeFile).toHaveLength(1);
     const warningOutput = warnSpy.mock.calls.flat().join('\n');
-    expect(warningOutput).toMatch(/How to Batch It/i);
+    expect(warningOutput).toMatch(/no batch field found/i);
     warnSpy.mockRestore();
   });
 
@@ -471,7 +477,7 @@ describe('promote — pre-flight body lint (U4)', () => {
   it('pre-flight runs after collision check (collision wins when both fire)', async () => {
     // SG-003 ordering: collision is the cheaper, more specific failure mode.
     const deps = makeDeps({
-      inboxContent: INBOX_MISSING_STEPS,
+      inboxContent: INBOX_MIGRATION_LEFTOVER,
       dstExists: true,
     });
     await expect(
