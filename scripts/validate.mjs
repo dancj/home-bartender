@@ -182,11 +182,103 @@ export function parseScalar(v) {
   return v.replace(/^["']|["']$/g, '');
 }
 
+const USAGE =
+  'Usage: node scripts/validate.mjs [--files <path>...]';
+
+// Parse argv into a settings object. With no args, returns whole-tree mode
+// (files=[]). With `--files <path>...`, returns the list of paths supplied
+// after the flag. The pre-commit hook (lint-staged) appends staged paths to
+// the configured command, so --files is the natural seam.
+export function parseArgs(argv) {
+  let files = null;
+
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--files') {
+      if (files !== null) {
+        throw new Error(`Duplicate --files flag. ${USAGE}`);
+      }
+      const collected = [];
+      i++;
+      while (i < argv.length && !argv[i].startsWith('--')) {
+        collected.push(argv[i]);
+        i++;
+      }
+      if (collected.length === 0) {
+        throw new Error(`--files requires at least one path. ${USAGE}`);
+      }
+      files = collected;
+      i--;
+      continue;
+    }
+    if (arg.startsWith('--')) {
+      throw new Error(`Unknown flag: ${arg}. ${USAGE}`);
+    }
+  }
+
+  return { files: files ?? [] };
+}
+
+// Narrow a list of absolute recipe paths to the subset named in opts.files.
+// Empty opts.files returns the full list (whole-tree mode). Paths outside
+// recipesDir are silently skipped — lint-staged will pass any staged .md it
+// matched and we don't want pre-commit failing because a sibling change was
+// staged alongside a recipe.
+export function filterFiles(allFiles, opts) {
+  const { files, rootDir, recipesDir } = opts;
+  if (!files || files.length === 0) return allFiles;
+
+  const wanted = new Set();
+  for (const entry of files) {
+    const abs = path.isAbsolute(entry) ? entry : path.resolve(rootDir, entry);
+    if (!abs.startsWith(recipesDir + path.sep) && abs !== recipesDir) continue;
+    wanted.add(abs);
+  }
+
+  return allFiles.filter((f) => wanted.has(f));
+}
+
 async function main() {
-  const files = await walk(RECIPES_DIR);
+  const { files: filesArg } = parseArgs(process.argv.slice(2));
+  const allFiles = await walk(RECIPES_DIR);
+  const files = filterFiles(allFiles, {
+    files: filesArg,
+    rootDir: ROOT,
+    recipesDir: RECIPES_DIR,
+  });
   const slugs = new Map();
   const errors = [];
   const warnings = [];
+
+  // Build the slug map from the *full* tree so cross-file checks (related[],
+  // duplicate slugs, alias collisions) stay full-fidelity even in --files
+  // mode. Only the emit loop is scoped to the staged subset.
+  const slugMapAllFiles = await Promise.all(
+    allFiles.map(async (file) => {
+      const raw = await readFile(file, 'utf8');
+      const fm = parseFrontmatter(raw);
+      return { file, raw, fm };
+    }),
+  );
+  for (const { file, fm } of slugMapAllFiles) {
+    if (!fm) continue;
+    const slug = path.basename(file, '.md');
+    const rel = path.relative(ROOT, file);
+    if (slugs.has(slug)) {
+      // Only surface duplicate-slug errors when at least one side is in the
+      // emit set. The full-tree CI run will always catch the rest.
+      const otherRel = slugs.get(slug);
+      const fileIsEmitted = files.includes(file);
+      const otherIsEmitted = allFiles.some(
+        (f) => path.relative(ROOT, f) === otherRel && files.includes(f),
+      );
+      if (fileIsEmitted || otherIsEmitted) {
+        errors.push(`${rel}: duplicate slug "${slug}" (also in ${otherRel})`);
+      }
+    } else {
+      slugs.set(slug, rel);
+    }
+  }
 
   for (const file of files) {
     const rel = path.relative(ROOT, file);
@@ -195,12 +287,8 @@ async function main() {
 
     if (!fm) { errors.push(`${rel}: no/invalid frontmatter`); continue; }
 
-    const slug = path.basename(file, '.md');
     const dirName = path.basename(path.dirname(file));
     const expectedCategory = CATEGORY_BY_DIR[dirName];
-
-    if (slugs.has(slug)) errors.push(`${rel}: duplicate slug "${slug}" (also in ${slugs.get(slug)})`);
-    slugs.set(slug, rel);
 
     if (!fm.title) errors.push(`${rel}: missing title`);
     if (expectedCategory && fm.category !== expectedCategory) {
