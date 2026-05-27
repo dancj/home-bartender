@@ -52,3 +52,5 @@ batch:
 ## Notes
 
 One of the simplest and most reliable gin drinks. The key is fresh lime — Rose's sweetened lime cordial is traditional but fresh juice with simple syrup is crisper. A floral or contemporary gin (like Hendrick's) works well; a classic London Dry (like Tanqueray) keeps it clean and bright.
+
+**Collins variation:** Add 1–2 oz sparkling water and serve in a Collins glass over ice for a longer, more refreshing build. Shake the base as above, strain into a Collins glass over ice, top with sparkling water and stir gently.

@@ -104,10 +104,12 @@ export function lintBody(body, frontmatter) {
   const errors = [];
   const warnings = [];
 
-  if (frontmatter?.publish !== true) return { errors, warnings };
-
   const headings = extractH2Headings(body);
 
+  // Migration-leftover headings are errors regardless of publish status —
+  // an inbox draft with `## Ingredients` in the body is half-migrated and
+  // would have been silently skipped by the post-migration rollback gate
+  // (which had only run on publish:true recipes pre-fix).
   if (headings.includes('Ingredients')) {
     errors.push('migration leftover: ## Ingredients heading in body — content belongs in frontmatter.ingredients[]');
   }
@@ -120,6 +122,8 @@ export function lintBody(body, frontmatter) {
   if (headings.includes('How to Batch It')) {
     errors.push('migration leftover: ## How to Batch It heading in body — content belongs in frontmatter.batch');
   }
+
+  if (frontmatter?.publish !== true) return { errors, warnings };
 
   const ingredients = Array.isArray(frontmatter.ingredients) ? frontmatter.ingredients : [];
   if (ingredients.length === 0) {

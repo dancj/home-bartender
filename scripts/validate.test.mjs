@@ -198,11 +198,20 @@ describe('lintBody — hard rules (publish: true)', () => {
     });
   });
 
-  it('skips all rules when publish is not true (inbox draft)', () => {
-    const body = '## Ingredients\n\n- still in body, draft is not yet migrated';
-    expect(lintBody(body, { publish: false, ingredients: [] })).toEqual({ errors: [], warnings: [] });
-    expect(lintBody(body, { publish: undefined })).toEqual({ errors: [], warnings: [] });
-    expect(lintBody(body, {})).toEqual({ errors: [], warnings: [] });
+  it('skips publish-only rules when publish is not true (inbox draft) but still flags migration leftovers', () => {
+    // Migration-leftover headings are errors on ALL recipes regardless of publish status —
+    // an inbox draft with `## Ingredients` in the body is half-migrated and shipping it would
+    // silently double-render the ingredients list. Only the empty-ingredients[] check is
+    // publish-gated (drafts are allowed to be incomplete).
+    const draftBody = '## Notes\n\nshort draft, no migration leftover';
+    expect(lintBody(draftBody, { publish: false, ingredients: [] })).toEqual({ errors: [], warnings: [] });
+    expect(lintBody(draftBody, { publish: undefined })).toEqual({ errors: [], warnings: [] });
+    expect(lintBody(draftBody, {})).toEqual({ errors: [], warnings: [] });
+
+    const leftoverBody = '## Ingredients\n\n- still in body, half-migrated draft';
+    expect(lintBody(leftoverBody, { publish: false, ingredients: [] }).errors).toContain(
+      'migration leftover: ## Ingredients heading in body — content belongs in frontmatter.ingredients[]',
+    );
   });
 
   it('errors when body still contains ## Ingredients heading (migration leftover)', () => {

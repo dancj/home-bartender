@@ -14,6 +14,8 @@ const { name, yield: yieldText, ingredients, steps } = Astro.props;
     {ingredients.map((item) => <li>{item}</li>)}
   </ul>
 )}
-<ol>
-  {steps.map((step) => <li>{step}</li>)}
-</ol>
+{steps.length > 0 && (
+  <ol>
+    {steps.map((step) => <li>{step}</li>)}
+  </ol>
+)}
