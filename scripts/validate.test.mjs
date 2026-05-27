@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest';
+import path from 'node:path';
 import {
   parseFrontmatter,
   parseScalar,
   lintBody,
   mentionsHouseMadeWorthyPrep,
+  parseArgs,
+  filterFiles,
 } from './validate.mjs';
 
 describe('parseFrontmatter', () => {
@@ -362,6 +365,117 @@ describe('lintBody — soft rules (House-Made)', () => {
   it('skips the soft rule when publish is not true', () => {
     const body = ingredients(['- ¾ oz honey-ginger syrup']);
     expect(lintBody(body, { publish: false })).toEqual({ errors: [], warnings: [] });
+  });
+});
+
+describe('parseArgs', () => {
+  it('returns an empty files array when given no arguments', () => {
+    expect(parseArgs([])).toEqual({ files: [] });
+  });
+
+  it('parses --files followed by one path', () => {
+    expect(parseArgs(['--files', 'recipes/classics/manhattan.md'])).toEqual({
+      files: ['recipes/classics/manhattan.md'],
+    });
+  });
+
+  it('parses --files followed by multiple paths', () => {
+    expect(
+      parseArgs(['--files', 'recipes/classics/a.md', 'recipes/originals/b.md']),
+    ).toEqual({
+      files: ['recipes/classics/a.md', 'recipes/originals/b.md'],
+    });
+  });
+
+  it('throws on an empty --files (no paths supplied)', () => {
+    expect(() => parseArgs(['--files'])).toThrow(/--files/);
+  });
+
+  it('throws on a duplicate --files flag', () => {
+    expect(() => parseArgs(['--files', 'a.md', '--files', 'b.md'])).toThrow(
+      /duplicate/i,
+    );
+  });
+
+  it('throws on an unknown flag', () => {
+    expect(() => parseArgs(['--unknown', 'x'])).toThrow(/unknown/i);
+  });
+});
+
+describe('filterFiles', () => {
+  const rootDir = '/repo';
+  const recipesDir = '/repo/recipes';
+  const allFiles = [
+    '/repo/recipes/classics/manhattan.md',
+    '/repo/recipes/classics/old-fashioned.md',
+    '/repo/recipes/originals/foo.md',
+    '/repo/recipes/inbox/draft.md',
+  ];
+
+  it('returns all files unchanged when files arg is empty (whole-tree mode)', () => {
+    expect(filterFiles(allFiles, { files: [], rootDir, recipesDir })).toEqual(
+      allFiles,
+    );
+  });
+
+  it('returns only files matching a single repo-root-relative --files entry', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: ['recipes/classics/manhattan.md'],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual(['/repo/recipes/classics/manhattan.md']);
+  });
+
+  it('returns multiple matches when --files lists multiple repo-relative paths', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: ['recipes/classics/manhattan.md', 'recipes/originals/foo.md'],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual([
+      '/repo/recipes/classics/manhattan.md',
+      '/repo/recipes/originals/foo.md',
+    ]);
+  });
+
+  it('de-dupes when a path is supplied as both relative and absolute', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: [
+          'recipes/classics/manhattan.md',
+          '/repo/recipes/classics/manhattan.md',
+        ],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual(['/repo/recipes/classics/manhattan.md']);
+  });
+
+  it('silently skips paths outside recipes/ (e.g., sections/, root-level)', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: [
+          'sections/intro.md',
+          'README.md',
+          'recipes/classics/manhattan.md',
+        ],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual(['/repo/recipes/classics/manhattan.md']);
+  });
+
+  it('returns an empty array when no --files entries match any tree file', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: ['recipes/classics/does-not-exist.md'],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual([]);
   });
 });
 

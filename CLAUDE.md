@@ -45,6 +45,12 @@ When implementing any plan task:
 
 Tests are written with [Vitest](https://vitest.dev/) and run via `npm test`. CI gates them on every PR via `.github/workflows/test.yml`, and the production deploy in `.github/workflows/deploy.yml` runs them as a build step so a test failure aborts before any pages artifact is uploaded. `astro check` and `npm run validate` continue to cover TypeScript and recipe-frontmatter checks.
 
+### Pre-commit hooks
+
+The repo runs [husky](https://typicode.github.io/husky/) + [lint-staged](https://github.com/lint-staged/lint-staged) on every commit. The hook is installed automatically the first time you run `npm install` (via the `prepare` script). On commit, lint-staged runs `node scripts/validate.mjs --files <staged>` against any staged `recipes/**/*.md`, catching taxonomy, `related[]`, and dir/category mismatches locally instead of waiting for CI.
+
+`--no-verify` bypasses the hook, but per the Git Safety Protocol in this file, treat it as emergency-only. If the hook fails, fix the underlying issue (run `npm run validate` to see the full report) rather than skipping.
+
 ### Closing issues via PRs
 
 Always reference related GitHub issues in PR descriptions using GitHub's closing keywords so issues are auto-closed on merge:
