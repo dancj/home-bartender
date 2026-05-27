@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import {
   parseFrontmatter,
-  parseScalar,
   lintBody,
   mentionsHouseMadeWorthyPrep,
   parseArgs,
@@ -82,39 +81,98 @@ describe('parseFrontmatter', () => {
 
     expect(parseFrontmatter(raw)).toEqual({ title: 'Foo', category: 'classic' });
   });
-});
 
-describe('parseScalar', () => {
-  it('returns boolean true for the literal "true"', () => {
-    expect(parseScalar('true')).toBe(true);
+  it('parses a flow-style string array (ingredients[])', () => {
+    const raw = [
+      '---',
+      'ingredients:',
+      '  - 2 oz blanco tequila',
+      '  - 1 oz fresh lime juice',
+      '  - ½ oz Cointreau',
+      '---',
+      '',
+    ].join('\n');
+
+    expect(parseFrontmatter(raw)).toEqual({
+      ingredients: ['2 oz blanco tequila', '1 oz fresh lime juice', '½ oz Cointreau'],
+    });
   });
 
-  it('returns boolean false for the literal "false"', () => {
-    expect(parseScalar('false')).toBe(false);
+  it('parses a nested house_made object with mixed required and optional fields', () => {
+    const raw = [
+      '---',
+      'house_made:',
+      '  name: Honey-Ginger Syrup',
+      '  yield: Makes ~4 oz. Keeps 2–3 weeks refrigerated.',
+      '  ingredients:',
+      '    - 1 cup honey',
+      '    - 1 cup water',
+      '  steps:',
+      '    - Combine honey and water in a small saucepan.',
+      '    - Simmer 10 minutes, strain, and cool.',
+      '---',
+      '',
+    ].join('\n');
+
+    expect(parseFrontmatter(raw)).toEqual({
+      house_made: {
+        name: 'Honey-Ginger Syrup',
+        yield: 'Makes ~4 oz. Keeps 2–3 weeks refrigerated.',
+        ingredients: ['1 cup honey', '1 cup water'],
+        steps: [
+          'Combine honey and water in a small saucepan.',
+          'Simmer 10 minutes, strain, and cool.',
+        ],
+      },
+    });
   });
 
-  it('returns an integer for an all-digit string', () => {
-    expect(parseScalar('42')).toBe(42);
+  it('parses a block scalar preserving line breaks (batch.instructions)', () => {
+    const raw = [
+      '---',
+      'batch:',
+      '  yield: Makes 8 servings.',
+      '  instructions: |',
+      '    Combine all in a pitcher. Stir to chill.',
+      '    Pour over large cubes; float Laphroaig per glass.',
+      '---',
+      '',
+    ].join('\n');
+
+    expect(parseFrontmatter(raw)).toEqual({
+      batch: {
+        yield: 'Makes 8 servings.',
+        instructions:
+          'Combine all in a pitcher. Stir to chill.\nPour over large cubes; float Laphroaig per glass.\n',
+      },
+    });
   });
 
-  it('returns an empty array for the literal "[]"', () => {
-    expect(parseScalar('[]')).toEqual([]);
+  it('returns null when frontmatter contains malformed YAML (unclosed flow sequence)', () => {
+    const raw = [
+      '---',
+      'title: Foo',
+      'spirits: [tequila, mezcal',
+      '---',
+      '',
+    ].join('\n');
+
+    expect(parseFrontmatter(raw)).toBeNull();
   });
 
-  it('returns a string array for a list literal with mixed quoting', () => {
-    expect(parseScalar(`["a", b, 'c']`)).toEqual(['a', 'b', 'c']);
-  });
+  it('preserves vulgar fractions and en-dashes in string values', () => {
+    const raw = [
+      '---',
+      'ingredients:',
+      '  - ¾ oz fresh lemon juice',
+      '  - 2–3 fresh basil leaves',
+      '---',
+      '',
+    ].join('\n');
 
-  it('strips surrounding double quotes from a bare string', () => {
-    expect(parseScalar('"hello"')).toBe('hello');
-  });
-
-  it('strips surrounding single quotes from a bare string', () => {
-    expect(parseScalar("'hello'")).toBe('hello');
-  });
-
-  it('returns the raw string unchanged when no special pattern matches', () => {
-    expect(parseScalar('weeknight')).toBe('weeknight');
+    expect(parseFrontmatter(raw)).toEqual({
+      ingredients: ['¾ oz fresh lemon juice', '2–3 fresh basil leaves'],
+    });
   });
 });
 

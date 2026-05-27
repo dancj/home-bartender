@@ -16,6 +16,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parse as parseYaml } from 'yaml';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
@@ -44,31 +45,12 @@ export function parseFrontmatter(raw) {
   if (end === -1) return null;
   const block = raw.slice(4, end);
 
-  const fm = {};
-  const lines = block.split('\n');
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    if (!line.trim() || line.trim().startsWith('#')) { i++; continue; }
-    const m = line.match(/^([a-z_]+):\s*(.*)$/);
-    if (!m) { i++; continue; }
-    const [, key, valRaw] = m;
-    const val = valRaw.trim();
-    if (val === '') {
-      const nested = {};
-      i++;
-      while (i < lines.length && lines[i].startsWith('  ')) {
-        const sub = lines[i].slice(2).match(/^([a-z_]+):\s*(.*)$/);
-        if (sub) nested[sub[1]] = parseScalar(sub[2].trim());
-        i++;
-      }
-      fm[key] = nested;
-    } else {
-      fm[key] = parseScalar(val);
-      i++;
-    }
+  try {
+    const parsed = parseYaml(block);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch {
+    return null;
   }
-  return fm;
 }
 
 // Extract H2 heading titles (text after `## `) from a body string. Returns an
@@ -168,18 +150,6 @@ export function lintBody(body, frontmatter) {
   }
 
   return { errors, warnings };
-}
-
-export function parseScalar(v) {
-  if (v.startsWith('[') && v.endsWith(']')) {
-    const inner = v.slice(1, -1).trim();
-    if (!inner) return [];
-    return inner.split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
-  }
-  if (v === 'true') return true;
-  if (v === 'false') return false;
-  if (/^\d+$/.test(v)) return parseInt(v, 10);
-  return v.replace(/^["']|["']$/g, '');
 }
 
 const USAGE =
