@@ -1,0 +1,19 @@
+---
+interface Props {
+  name: string;
+  yield?: string;
+  ingredients?: string[];
+  steps: string[];
+}
+const { name, yield: yieldText, ingredients, steps } = Astro.props;
+---
+<h2>House-Made {name}</h2>
+{yieldText && <p><em>{yieldText}</em></p>}
+{ingredients && ingredients.length > 0 && (
+  <ul>
+    {ingredients.map((item) => <li>{item}</li>)}
+  </ul>
+)}
+<ol>
+  {steps.map((step) => <li>{step}</li>)}
+</ol>
