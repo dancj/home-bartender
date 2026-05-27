@@ -1,64 +1,61 @@
 @import "tailwindcss";
 
-/* ---------- shadcn-style theme ----------
- * Neutral zinc palette + single ink accent. Light by default, dark via media
- * query. Tokens are exposed both as Tailwind theme variables and as raw CSS
- * vars so untouched legacy rules keep working during the migration.
+/* ---------- Home Bartender theme ----------
+ * Warm-cream surface, lifted near-white card, warmed near-black text, single
+ * terracotta accent. Light mode only. See docs/design/direction.md for the
+ * full palette + rationale.
+ *
+ * Tokens live in @theme so Tailwind v4 exposes them as utility classes
+ * (e.g., bg-bg, bg-surface, text-fg-muted, shadow-card, rounded-card).
+ * --font-display is reserved for Fraunces; the @fontsource/fraunces import
+ * lands in BaseLayout.astro in U4.
  */
 
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", "Inter", sans-serif;
+    "Segoe UI", sans-serif;
   --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-display: "Fraunces", "Newsreader", Georgia, serif;
 
+  /* Surfaces */
+  --color-bg: #F5F0E8;
+  --color-surface: #FBF8F2;
+  --color-surface-muted: #EEE8DD;
+  --color-rule: #E3DCCB;
+  --color-rule-strong: #CFC4AC;
+
+  /* Text */
+  --color-fg: #1F1A14;
+  --color-fg-muted: #6B5F50;
+  --color-fg-subtle: #9A8E7C;
+
+  /* Accent — terracotta, used sparingly */
+  --color-accent: #9C3F2A;
+  --color-accent-fg: #FBF8F2;
+  --color-accent-soft: #E8D5C9;
+  --color-accent-ring: rgb(156 63 42 / 0.18);
+  --color-ring: rgb(31 26 20 / 0.35);
+
+  /* Header chrome — dark slab so the dark-themed logo PNGs merge into it */
+  --color-header-bg: #1A1810;
+  --color-header-fg: #FBF8F2;
+  --color-header-fg-muted: #A89B89;
+
+  /* Radius */
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  --radius-md: 8px;
+  --radius-card: 22px;
+
+  /* Shadows — cards lift off surface; form chrome stays flat */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -8px rgb(0 0 0 / 0.08);
+  --shadow-card-hover: 0 2px 4px rgb(0 0 0 / 0.05), 0 14px 32px -10px rgb(0 0 0 / 0.12);
+
+  /* Motion */
+  --transition-base: 150ms ease-out;
+  --transition-lift: 200ms ease;
 }
 
 @layer base {
-  :root {
-    /* Surfaces */
-    --bg: 0 0% 100%;             /* page */
-    --surface: 0 0% 99%;         /* cards, panels */
-    --surface-muted: 240 5% 96%; /* subtle fills */
-    --rule: 240 6% 90%;          /* hairline borders */
-    --rule-strong: 240 5% 84%;
-
-    /* Text */
-    --fg: 240 10% 9%;            /* primary */
-    --fg-muted: 240 4% 46%;      /* secondary */
-    --fg-subtle: 240 4% 64%;
-
-    /* Accent — calm deep ink (near-black with a hint of blue) */
-    --accent: 222 47% 11%;
-    --accent-fg: 0 0% 100%;
-    --accent-ring: 222 47% 11% / 0.18;
-
-    /* Focus */
-    --ring: 222 47% 11% / 0.35;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: 240 6% 7%;
-      --surface: 240 5% 10%;
-      --surface-muted: 240 5% 14%;
-      --rule: 240 5% 18%;
-      --rule-strong: 240 5% 24%;
-
-      --fg: 0 0% 96%;
-      --fg-muted: 240 5% 65%;
-      --fg-subtle: 240 5% 48%;
-
-      --accent: 0 0% 96%;
-      --accent-fg: 240 10% 9%;
-      --accent-ring: 0 0% 96% / 0.18;
-
-      --ring: 0 0% 96% / 0.4;
-    }
-  }
-
   *,
   *::before,
   *::after {
@@ -66,8 +63,8 @@
   }
 
   html {
-    color: hsl(var(--fg));
-    background: hsl(var(--bg));
+    color: var(--color-fg);
+    background: var(--color-bg);
     font-family: var(--font-sans);
     line-height: 1.55;
     font-feature-settings: "kern", "liga";
@@ -84,18 +81,25 @@
   }
 
   ::selection {
-    background: hsl(var(--accent));
-    color: hsl(var(--accent-fg));
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
   }
 
   :focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
     border-radius: var(--radius-sm);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --transition-base: 0ms;
+      --transition-lift: 0ms;
+    }
   }
 }
 
-/* ---------- component primitives (shadcn-style) ---------- */
+/* ---------- component primitives ---------- */
 
 @layer components {
   .container-prose {
@@ -111,23 +115,35 @@
     padding-inline: 1.25rem;
   }
 
-  /* Card */
+  /* Card — lifted soft-shadow surface; padding scales per direction §Responsive */
   .card {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    padding: 1.25rem 1.25rem 1.125rem;
-    background: hsl(var(--surface));
-    border: 1px solid hsl(var(--rule));
-    border-radius: var(--radius-md);
+    padding: 1rem;
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
     color: inherit;
     text-decoration: none;
-    transition: border-color 150ms ease, background-color 150ms ease;
-    height: 100%;
+    transition: box-shadow var(--transition-lift),
+      transform var(--transition-lift);
   }
-  .card:hover {
-    border-color: hsl(var(--rule-strong));
-    background: hsl(var(--surface-muted));
+  @media (min-width: 40rem) {
+    .card { padding: 1.25rem; }
+  }
+  @media (min-width: 72rem) {
+    .card { padding: 1.5rem; }
+  }
+  @media (hover: hover) {
+    .card:hover {
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-2px);
+    }
+  }
+  .card:active {
+    transform: translateY(1px);
+    box-shadow: var(--shadow-card);
   }
 
   /* Button */
@@ -142,35 +158,35 @@
     font-weight: 500;
     line-height: 1;
     border-radius: var(--radius-md);
-    border: 1px solid hsl(var(--rule));
-    background: hsl(var(--surface));
-    color: hsl(var(--fg));
+    border: 1px solid var(--color-rule);
+    background: var(--color-surface);
+    color: var(--color-fg);
     cursor: pointer;
     text-decoration: none;
     transition: background-color 120ms ease, border-color 120ms ease,
       color 120ms ease;
   }
   .btn:hover {
-    background: hsl(var(--surface-muted));
-    border-color: hsl(var(--rule-strong));
+    background: var(--color-surface-muted);
+    border-color: var(--color-rule-strong);
   }
   .btn-primary {
-    background: hsl(var(--accent));
-    color: hsl(var(--accent-fg));
-    border-color: hsl(var(--accent));
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent);
   }
   .btn-primary:hover {
-    background: hsl(var(--accent) / 0.9);
-    border-color: hsl(var(--accent) / 0.9);
+    background: color-mix(in srgb, var(--color-accent), transparent 10%);
+    border-color: color-mix(in srgb, var(--color-accent), transparent 10%);
   }
   .btn-ghost {
     background: transparent;
     border-color: transparent;
-    color: hsl(var(--fg-muted));
+    color: var(--color-fg-muted);
   }
   .btn-ghost:hover {
-    background: hsl(var(--surface-muted));
-    color: hsl(var(--fg));
+    background: var(--color-surface-muted);
+    color: var(--color-fg);
   }
 
   /* Pill / chip — used for filters and tags */
@@ -182,24 +198,24 @@
     font-size: 0.75rem;
     font-weight: 500;
     line-height: 1.3;
-    border: 1px solid hsl(var(--rule));
+    border: 1px solid var(--color-rule);
     border-radius: 999px;
-    background: hsl(var(--surface));
-    color: hsl(var(--fg-muted));
+    background: var(--color-surface);
+    color: var(--color-fg-muted);
     cursor: pointer;
     text-decoration: none;
     transition: background-color 120ms ease, color 120ms ease,
       border-color 120ms ease;
   }
   .chip:hover {
-    color: hsl(var(--fg));
-    border-color: hsl(var(--rule-strong));
+    color: var(--color-fg);
+    border-color: var(--color-rule-strong);
   }
   .chip-active,
   .chip[aria-pressed="true"] {
-    background: hsl(var(--accent));
-    color: hsl(var(--accent-fg));
-    border-color: hsl(var(--accent));
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    border-color: var(--color-accent);
   }
 
   /* Input */
@@ -208,19 +224,19 @@
     padding: 0.45rem 0.75rem;
     font-family: var(--font-sans);
     font-size: 0.875rem;
-    color: hsl(var(--fg));
-    background: hsl(var(--surface));
-    border: 1px solid hsl(var(--rule));
+    color: var(--color-fg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
     border-radius: var(--radius-md);
     transition: border-color 120ms ease, box-shadow 120ms ease;
   }
   .input:hover {
-    border-color: hsl(var(--rule-strong));
+    border-color: var(--color-rule-strong);
   }
   .input:focus {
     outline: none;
-    border-color: hsl(var(--accent));
-    box-shadow: 0 0 0 3px hsl(var(--accent-ring));
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-ring);
   }
 
   /* Section title / eyebrow */
@@ -230,7 +246,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: hsl(var(--fg-muted));
+    color: var(--color-fg-muted);
   }
 
   /* Shared list-page primitives */
@@ -243,7 +259,7 @@
   .page-head .lede {
     font-family: var(--font-serif);
     font-style: italic;
-    color: hsl(var(--fg-muted));
+    color: var(--color-fg-muted);
     font-size: 1.0625rem;
     margin-top: 0.5rem;
   }
@@ -261,7 +277,7 @@
 
 @layer base {
   h1, h2, h3, h4 {
-    color: hsl(var(--fg));
+    color: var(--color-fg);
     font-family: var(--font-serif);
     line-height: 1.15;
     letter-spacing: -0.015em;
@@ -287,7 +303,7 @@
   a {
     color: inherit;
     text-decoration: underline;
-    text-decoration-color: hsl(var(--rule-strong));
+    text-decoration-color: var(--color-rule-strong);
     text-underline-offset: 3px;
     transition: text-decoration-color 120ms ease;
   }
@@ -300,13 +316,13 @@
       monospace;
     font-size: 0.875em;
     padding: 0.1rem 0.35rem;
-    background: hsl(var(--surface-muted));
+    background: var(--color-surface-muted);
     border-radius: var(--radius-sm);
   }
 
   hr {
     border: none;
-    border-top: 1px solid hsl(var(--rule));
+    border-top: 1px solid var(--color-rule);
     margin-block: 2rem;
   }
 }

@@ -173,9 +173,9 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
 
   .filter-bar {
     margin-bottom: 2rem;
-    border: 1px solid hsl(var(--rule));
+    border: 1px solid var(--color-rule);
     border-radius: var(--radius-md);
-    background: hsl(var(--surface));
+    background: var(--color-surface);
   }
   .filter-bar > summary {
     cursor: pointer;
@@ -183,7 +183,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     font-family: var(--font-sans);
     font-size: 0.8125rem;
     font-weight: 500;
-    color: hsl(var(--fg));
+    color: var(--color-fg);
     list-style: none;
     display: flex;
     align-items: center;
@@ -194,8 +194,8 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     content: '';
     width: 0.5rem;
     height: 0.5rem;
-    border-right: 1.5px solid hsl(var(--fg-muted));
-    border-bottom: 1.5px solid hsl(var(--fg-muted));
+    border-right: 1.5px solid var(--color-fg-muted);
+    border-bottom: 1.5px solid var(--color-fg-muted);
     transform: rotate(-45deg);
     transition: transform 150ms ease;
     margin-right: 0.25rem;
@@ -207,7 +207,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     flex: 0 0 auto;
   }
   .filter-count {
-    color: hsl(var(--fg-muted));
+    color: var(--color-fg-muted);
     font-weight: 400;
     font-size: 0.75rem;
   }
@@ -217,7 +217,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
     gap: 1.5rem;
     padding: 0.5rem 1rem 1.25rem;
-    border-top: 1px solid hsl(var(--rule));
+    border-top: 1px solid var(--color-rule);
   }
   .filter-group h3 {
     margin: 0 0 0.65rem;
@@ -239,22 +239,22 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     margin: 0 1rem 1rem auto;
     background: none;
     border: none;
-    color: hsl(var(--fg-muted));
+    color: var(--color-fg-muted);
     font-family: var(--font-sans);
     font-size: 0.75rem;
     text-decoration: underline;
-    text-decoration-color: hsl(var(--rule));
+    text-decoration-color: var(--color-rule);
     text-underline-offset: 2px;
     cursor: pointer;
     padding: 0;
   }
   .clear-btn:hover {
-    color: hsl(var(--fg));
+    color: var(--color-fg);
   }
 
   .empty {
     text-align: center;
-    color: hsl(var(--fg-muted));
+    color: var(--color-fg-muted);
     font-style: italic;
     font-family: var(--font-serif);
     padding: 3rem 1rem;
