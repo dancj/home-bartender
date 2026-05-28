@@ -1,0 +1,4 @@
+# Force LF line endings on git hooks regardless of contributor platform.
+# Husky executes these directly via /bin/sh; CRLF makes the shebang-less
+# scripts unparseable on macOS/Linux.
+.husky/* text eol=lf

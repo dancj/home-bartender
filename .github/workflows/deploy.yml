@@ -29,28 +29,72 @@ jobs:
           node-version: 24
           cache: npm
 
+      - name: Cache Astro data store
+        uses: actions/cache@v5
+        with:
+          path: .astro/data-store.json
+          key: ${{ runner.os }}-astro-data-store-${{ hashFiles('recipes/**', 'sections/**', 'data/taxonomy.yaml', 'package-lock.json', 'src/content.config.ts', 'astro.config.mjs') }}
+          restore-keys: |
+            ${{ runner.os }}-astro-data-store-
+
       - name: Install dependencies
         run: npm ci
 
       - name: Validate recipe frontmatter
-        run: npm run validate
+        id: validate
+        run: |
+          npm run validate
+          echo "PASS: Validate recipe frontmatter" >> "$GITHUB_STEP_SUMMARY"
+      - name: Mark Validate recipe frontmatter as HOLD
+        if: ${{ always() && steps.validate.outcome == 'failure' }}
+        run: |
+          echo "HOLD: Validate recipe frontmatter, see logs" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Run tests
-        run: npm test
+        id: tests
+        run: |
+          npm test
+          echo "PASS: Run tests" >> "$GITHUB_STEP_SUMMARY"
+      - name: Mark Run tests as HOLD
+        if: ${{ always() && steps.tests.outcome == 'failure' }}
+        run: |
+          echo "HOLD: Run tests, see logs" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify generated taxonomy is current
+        id: taxonomy
         run: |
           npm run codegen
           git diff --exit-code src/taxonomy.generated.ts scripts/taxonomy.generated.mjs TEMPLATE.md \
             || { echo "::error::generated taxonomy artifacts are out of sync with data/taxonomy.yaml. Run 'npm run codegen' locally and commit the regenerated files."; exit 1; }
+          echo "PASS: Verify generated taxonomy is current" >> "$GITHUB_STEP_SUMMARY"
+      - name: Mark Verify generated taxonomy is current as HOLD
+        if: ${{ always() && steps.taxonomy.outcome == 'failure' }}
+        run: |
+          echo "HOLD: Verify generated taxonomy is current, see logs" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build site
-        run: npm run build
+        id: build
+        run: |
+          npm run build
+          echo "PASS: Build site" >> "$GITHUB_STEP_SUMMARY"
+      - name: Mark Build site as HOLD
+        if: ${{ always() && steps.build.outcome == 'failure' }}
+        run: |
+          echo "HOLD: Build site, see logs" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload artifact
+        id: upload
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./dist
+      - name: Mark Upload artifact as PASS
+        if: ${{ steps.upload.outcome == 'success' }}
+        run: |
+          echo "PASS: Upload artifact" >> "$GITHUB_STEP_SUMMARY"
+      - name: Mark Upload artifact as HOLD
+        if: ${{ always() && steps.upload.outcome == 'failure' }}
+        run: |
+          echo "HOLD: Upload artifact, see logs" >> "$GITHUB_STEP_SUMMARY"
 
   deploy:
     needs: build

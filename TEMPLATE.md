@@ -35,6 +35,38 @@ flavors: [citrus, refreshing]
 tags: []                     # free-form descriptors that don't fit any canonical surface (e.g. "smoky-sour", "spicy")
 occasions: [weeknight]       # weeknight | batch-friendly | showstopper | brunch | nightcap | summer | winter
 
+# Structured recipe content (renders via shared Astro components)
+ingredients:
+  - 2 oz blanco tequila
+  - 1 oz fresh lime juice
+  - ½ oz Cointreau
+garnish: Salt rim            # optional — `**Garnish:**` bold-callout convention, one canonical place
+float: ""                    # optional — `**Float:**` bold-callout convention (e.g. ¼ oz Laphroaig)
+steps:
+  - Combine in a shaker with ice.
+  - Shake hard, strain into a rocks glass.
+
+# House-Made preparation (optional, single object — change to an array if a recipe ever needs more)
+house_made:
+  name: Honey-Ginger Syrup   # rendered as "House-Made <name>"
+  yield: Makes ~4 oz. Keeps 2–3 weeks refrigerated.   # optional italic line
+  ingredients:               # optional — omit when the procedure produces the ingredient (e.g. bacon-washed bourbon)
+    - 1 cup honey
+    - 1 cup water
+  steps:
+    - Combine honey and water in a small saucepan.
+    - Simmer 10 minutes, strain, cool.
+
+# Batch / punch scale-up (optional)
+batch:
+  yield: Makes 8 servings.
+  ingredients:               # optional
+    - 16 oz blanco tequila
+    - 8 oz lime juice
+  instructions: |            # PLAIN TEXT — markdown syntax renders literally. Split on blank lines into <p> blocks.
+    Combine all in a pitcher. Stir to chill.
+    Pour over ice in salt-rimmed glasses.
+
 # Attribution for borrowed recipes (leave empty for originals)
 attribution:
   creator: ""                # e.g. "Sam Ross"
@@ -76,42 +108,12 @@ Add new values by editing `data/taxonomy.yaml` and running `npm run codegen` —
 
 ## Body
 
+Structured content (ingredients, steps, house-made preparations, batch instructions) lives in frontmatter and renders via the recipe layout's typed Astro components — see `src/components/recipe/`. The body is for narrative prose only: `## Notes` and any narrative-only sections (e.g. `## Variations`). The body linter (`scripts/validate.mjs`) errors on residual `## Ingredients` / `## Steps` / `## House-Made …` / `## How to Batch It` headings in the body — those are migration leftovers.
+
 ```markdown
 # Recipe Name
 
 > *One-line description — same as the blurb in frontmatter.*
-
-## Ingredients
-
-- X oz [spirit]
-- X oz [modifier]
-- X oz [acid/juice]
-- X oz [sweetener]
-- [Garnish], for garnish
-
-## House-Made [Syrup / Infusion]  (optional)
-
-*Makes ~X oz. Keeps X weeks refrigerated.*
-
-- ingredient
-- ingredient
-
-1. Step
-2. Step
-
-## Steps
-
-1. Step
-2. Step
-3. Step
-
-## How to Batch It  (optional)
-
-*Makes 8 servings:*
-
-- batch amounts...
-
-[Batch instructions — how to prep, store, and serve.]
 
 ## Notes
 
@@ -132,4 +134,7 @@ Run before committing. Fails on:
 
 ## Migration
 
-The one-off `scripts/migrate-to-frontmatter.mjs` converts pre-frontmatter recipes (bold-fact prose headers) into this schema. It's idempotent — running it on already-migrated files is a no-op. Kept around in case future contributors want to bulk-import recipes that match the old format.
+Two one-off migration scripts live under `scripts/`. Both are idempotent (re-runs are no-ops) and are kept around for historical reference:
+
+- `scripts/migrate-to-frontmatter.mjs` — pre-frontmatter bold-fact prose headers → frontmatter schema. Run once during the initial schema cutover.
+- `scripts/migrate-body-to-frontmatter.mjs` — Stage A (issue #23, 2026-05-27): freeform `## Ingredients` / `## Steps` / `## House-Made …` / `## How to Batch It` body sections → structured `ingredients[]` / `steps[]` / `house_made{}` / `batch{}` frontmatter fields, with `**Garnish:**` / `**Float:**` bold callouts and inline garnish list items extracted to top-level `garnish` / `float` strings.

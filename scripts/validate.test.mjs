@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
+import path from 'node:path';
 import {
   parseFrontmatter,
-  parseScalar,
   lintBody,
   mentionsHouseMadeWorthyPrep,
+  parseArgs,
+  filterFiles,
 } from './validate.mjs';
 
 describe('parseFrontmatter', () => {
@@ -79,56 +81,102 @@ describe('parseFrontmatter', () => {
 
     expect(parseFrontmatter(raw)).toEqual({ title: 'Foo', category: 'classic' });
   });
-});
 
-describe('parseScalar', () => {
-  it('returns boolean true for the literal "true"', () => {
-    expect(parseScalar('true')).toBe(true);
+  it('parses a flow-style string array (ingredients[])', () => {
+    const raw = [
+      '---',
+      'ingredients:',
+      '  - 2 oz blanco tequila',
+      '  - 1 oz fresh lime juice',
+      '  - ½ oz Cointreau',
+      '---',
+      '',
+    ].join('\n');
+
+    expect(parseFrontmatter(raw)).toEqual({
+      ingredients: ['2 oz blanco tequila', '1 oz fresh lime juice', '½ oz Cointreau'],
+    });
   });
 
-  it('returns boolean false for the literal "false"', () => {
-    expect(parseScalar('false')).toBe(false);
+  it('parses a nested house_made object with mixed required and optional fields', () => {
+    const raw = [
+      '---',
+      'house_made:',
+      '  name: Honey-Ginger Syrup',
+      '  yield: Makes ~4 oz. Keeps 2–3 weeks refrigerated.',
+      '  ingredients:',
+      '    - 1 cup honey',
+      '    - 1 cup water',
+      '  steps:',
+      '    - Combine honey and water in a small saucepan.',
+      '    - Simmer 10 minutes, strain, and cool.',
+      '---',
+      '',
+    ].join('\n');
+
+    expect(parseFrontmatter(raw)).toEqual({
+      house_made: {
+        name: 'Honey-Ginger Syrup',
+        yield: 'Makes ~4 oz. Keeps 2–3 weeks refrigerated.',
+        ingredients: ['1 cup honey', '1 cup water'],
+        steps: [
+          'Combine honey and water in a small saucepan.',
+          'Simmer 10 minutes, strain, and cool.',
+        ],
+      },
+    });
   });
 
-  it('returns an integer for an all-digit string', () => {
-    expect(parseScalar('42')).toBe(42);
+  it('parses a block scalar preserving line breaks (batch.instructions)', () => {
+    const raw = [
+      '---',
+      'batch:',
+      '  yield: Makes 8 servings.',
+      '  instructions: |',
+      '    Combine all in a pitcher. Stir to chill.',
+      '    Pour over large cubes; float Laphroaig per glass.',
+      '---',
+      '',
+    ].join('\n');
+
+    expect(parseFrontmatter(raw)).toEqual({
+      batch: {
+        yield: 'Makes 8 servings.',
+        instructions:
+          'Combine all in a pitcher. Stir to chill.\nPour over large cubes; float Laphroaig per glass.\n',
+      },
+    });
   });
 
-  it('returns an empty array for the literal "[]"', () => {
-    expect(parseScalar('[]')).toEqual([]);
+  it('returns null when frontmatter contains malformed YAML (unclosed flow sequence)', () => {
+    const raw = [
+      '---',
+      'title: Foo',
+      'spirits: [tequila, mezcal',
+      '---',
+      '',
+    ].join('\n');
+
+    expect(parseFrontmatter(raw)).toBeNull();
   });
 
-  it('returns a string array for a list literal with mixed quoting', () => {
-    expect(parseScalar(`["a", b, 'c']`)).toEqual(['a', 'b', 'c']);
-  });
+  it('preserves vulgar fractions and en-dashes in string values', () => {
+    const raw = [
+      '---',
+      'ingredients:',
+      '  - ¾ oz fresh lemon juice',
+      '  - 2–3 fresh basil leaves',
+      '---',
+      '',
+    ].join('\n');
 
-  it('strips surrounding double quotes from a bare string', () => {
-    expect(parseScalar('"hello"')).toBe('hello');
-  });
-
-  it('strips surrounding single quotes from a bare string', () => {
-    expect(parseScalar("'hello'")).toBe('hello');
-  });
-
-  it('returns the raw string unchanged when no special pattern matches', () => {
-    expect(parseScalar('weeknight')).toBe('weeknight');
+    expect(parseFrontmatter(raw)).toEqual({
+      ingredients: ['¾ oz fresh lemon juice', '2–3 fresh basil leaves'],
+    });
   });
 });
 
 const CANONICAL_BODY = [
-  '',
-  '## Ingredients',
-  '',
-  '- 2 oz tequila reposado',
-  '- 1 oz fresh grapefruit juice',
-  '- ½ oz fresh lime juice',
-  '',
-  '---',
-  '',
-  '## Steps',
-  '',
-  '1. Combine in a shaker',
-  '2. Strain over ice',
   '',
   '## Notes',
   '',
@@ -136,122 +184,109 @@ const CANONICAL_BODY = [
   '',
 ].join('\n');
 
+const CANONICAL_FM = {
+  publish: true,
+  ingredients: ['2 oz tequila reposado', '1 oz fresh grapefruit juice', '½ oz fresh lime juice'],
+  steps: ['Combine in a shaker', 'Strain over ice'],
+};
+
 describe('lintBody — hard rules (publish: true)', () => {
-  it('returns no errors and no warnings on a canonical published body', () => {
-    expect(lintBody(CANONICAL_BODY, { publish: true })).toEqual({
+  it('returns no errors and no warnings on a canonical post-migration body + frontmatter', () => {
+    expect(lintBody(CANONICAL_BODY, CANONICAL_FM)).toEqual({
       errors: [],
       warnings: [],
     });
   });
 
-  it('skips all rules when publish is not true (inbox draft)', () => {
-    const broken = '## Just one heading\n\nno ingredients, no steps';
-    expect(lintBody(broken, { publish: false })).toEqual({ errors: [], warnings: [] });
-    expect(lintBody(broken, { publish: undefined })).toEqual({ errors: [], warnings: [] });
-    expect(lintBody(broken, {})).toEqual({ errors: [], warnings: [] });
+  it('skips publish-only rules when publish is not true (inbox draft) but still flags migration leftovers', () => {
+    // Migration-leftover headings are errors on ALL recipes regardless of publish status —
+    // an inbox draft with `## Ingredients` in the body is half-migrated and shipping it would
+    // silently double-render the ingredients list. Only the empty-ingredients[] check is
+    // publish-gated (drafts are allowed to be incomplete).
+    const draftBody = '## Notes\n\nshort draft, no migration leftover';
+    expect(lintBody(draftBody, { publish: false, ingredients: [] })).toEqual({ errors: [], warnings: [] });
+    expect(lintBody(draftBody, { publish: undefined })).toEqual({ errors: [], warnings: [] });
+    expect(lintBody(draftBody, {})).toEqual({ errors: [], warnings: [] });
+
+    const leftoverBody = '## Ingredients\n\n- still in body, half-migrated draft';
+    expect(lintBody(leftoverBody, { publish: false, ingredients: [] }).errors).toContain(
+      'migration leftover: ## Ingredients heading in body — content belongs in frontmatter.ingredients[]',
+    );
   });
 
-  it('errors when ## Ingredients heading is missing', () => {
-    const body = '## Steps\n\n1. Pour\n';
-    const result = lintBody(body, { publish: true });
-    expect(result.errors).toEqual(['missing required heading: ## Ingredients']);
-  });
-
-  it('errors when ## Steps heading is missing', () => {
+  it('errors when body still contains ## Ingredients heading (migration leftover)', () => {
     const body = '## Ingredients\n\n- 2 oz spirit\n';
-    const result = lintBody(body, { publish: true });
-    expect(result.errors).toEqual(['missing required heading: ## Steps']);
+    const result = lintBody(body, CANONICAL_FM);
+    expect(result.errors).toContain(
+      'migration leftover: ## Ingredients heading in body — content belongs in frontmatter.ingredients[]',
+    );
   });
 
-  it('reports both missing-heading errors when body has neither', () => {
-    const result = lintBody('## Notes\n\nfree-form text', { publish: true });
-    expect(result.errors).toContain('missing required heading: ## Ingredients');
-    expect(result.errors).toContain('missing required heading: ## Steps');
+  it('errors when body still contains ## Steps heading (migration leftover)', () => {
+    const body = '## Steps\n\n1. Pour\n';
+    const result = lintBody(body, CANONICAL_FM);
+    expect(result.errors).toContain(
+      'migration leftover: ## Steps heading in body — content belongs in frontmatter.steps[]',
+    );
   });
 
-  it('errors when ## Ingredients section has no list items before next H2', () => {
-    const body = [
-      '## Ingredients',
-      '',
-      'No list here, just prose.',
-      '',
-      '## Steps',
-      '',
-      '1. Pour',
-    ].join('\n');
-    const result = lintBody(body, { publish: true });
-    expect(result.errors).toEqual([
-      '## Ingredients section is empty or has no list items',
-    ]);
+  it('errors when body still contains ## House-Made <Name> heading (migration leftover)', () => {
+    const body = '## House-Made Honey-Ginger Syrup\n\n- 1 cup honey\n';
+    const result = lintBody(body, CANONICAL_FM);
+    expect(result.errors).toContain(
+      'migration leftover: ## House-Made … heading in body — content belongs in frontmatter.house_made',
+    );
   });
 
-  it('errors when ## Ingredients section is entirely empty', () => {
-    const body = ['## Ingredients', '', '', '## Steps', '', '1. Pour'].join('\n');
-    const result = lintBody(body, { publish: true });
-    expect(result.errors).toEqual([
-      '## Ingredients section is empty or has no list items',
-    ]);
+  it('errors when body still contains ## How to Batch It heading (migration leftover)', () => {
+    const body = '## How to Batch It\n\nMakes 8 servings.\n';
+    const result = lintBody(body, CANONICAL_FM);
+    expect(result.errors).toContain(
+      'migration leftover: ## How to Batch It heading in body — content belongs in frontmatter.batch',
+    );
   });
 
-  it('errors when ## Ingredients has only a bold callout but no list items', () => {
-    const body = [
-      '## Ingredients',
-      '',
-      '**Garnish:** lime wheel',
-      '',
-      '## Steps',
-      '',
-      '1. Pour',
-    ].join('\n');
-    const result = lintBody(body, { publish: true });
-    expect(result.errors).toEqual([
-      '## Ingredients section is empty or has no list items',
-    ]);
+  it('errors when frontmatter.ingredients[] is empty on a published recipe', () => {
+    const result = lintBody(CANONICAL_BODY, { publish: true, ingredients: [], steps: ['Pour'] });
+    expect(result.errors).toContain(
+      'frontmatter.ingredients[] is empty on a published recipe',
+    );
   });
 
-  it('accepts ## Ingredients with a list followed by a bold callout', () => {
-    const body = [
-      '## Ingredients',
-      '',
-      '- 2 oz spirit',
-      '- 1 oz juice',
-      '',
-      '**Garnish:** lime wheel',
-      '',
-      '## Steps',
-      '',
-      '1. Pour',
-    ].join('\n');
-    expect(lintBody(body, { publish: true })).toEqual({ errors: [], warnings: [] });
+  it('does not error when ingredients[] is empty but publish is false (draft)', () => {
+    expect(lintBody(CANONICAL_BODY, { publish: false, ingredients: [] })).toEqual({
+      errors: [],
+      warnings: [],
+    });
   });
 
-  it('treats markdown horizontal rules (---) between sections as non-headings', () => {
-    expect(lintBody(CANONICAL_BODY, { publish: true })).toEqual({ errors: [], warnings: [] });
+  it('errors when frontmatter.ingredients is missing entirely (treated as empty)', () => {
+    const result = lintBody(CANONICAL_BODY, { publish: true });
+    expect(result.errors).toContain(
+      'frontmatter.ingredients[] is empty on a published recipe',
+    );
   });
 
-  it('is case-sensitive on heading matches (## ingredients does not satisfy ## Ingredients)', () => {
-    const body = [
-      '## ingredients',
-      '',
-      '- 2 oz spirit',
-      '',
-      '## Steps',
-      '',
-      '1. Pour',
-    ].join('\n');
-    const result = lintBody(body, { publish: true });
-    expect(result.errors).toEqual(['missing required heading: ## Ingredients']);
+  it('accepts a post-migration body containing only narrative prose under ## Notes', () => {
+    const body = ['## Notes', '', 'Drink while listening to side B of *Kind of Blue*.', ''].join('\n');
+    expect(lintBody(body, CANONICAL_FM)).toEqual({ errors: [], warnings: [] });
   });
 
-  it('accepts # only at H2 level, ignores deeper headings as section markers', () => {
-    const body = [
-      '### Ingredients',
-      '- foo',
-      '## Steps',
-      '1. step',
-    ].join('\n');
-    const result = lintBody(body, { publish: true });
-    expect(result.errors).toContain('missing required heading: ## Ingredients');
+  it('accepts a post-migration body with an unrecognized H2 (e.g., ## Variations)', () => {
+    const body = ['## Notes', '', 'free-form', '', '## Variations', '', 'swap mezcal for tequila'].join('\n');
+    expect(lintBody(body, CANONICAL_FM)).toEqual({ errors: [], warnings: [] });
+  });
+
+  it('is case-sensitive on heading matches (## ingredients does not trigger the leftover error)', () => {
+    const body = '## ingredients\n\n- 2 oz spirit\n';
+    const result = lintBody(body, CANONICAL_FM);
+    expect(result.errors).toEqual([]);
+  });
+
+  it('ignores deeper headings (### Ingredients) as migration-leftover signals', () => {
+    const body = '### Ingredients\n\n- foo\n';
+    const result = lintBody(body, CANONICAL_FM);
+    expect(result.errors).toEqual([]);
   });
 });
 
@@ -283,142 +318,253 @@ describe('mentionsHouseMadeWorthyPrep — trigger predicate', () => {
 });
 
 describe('lintBody — soft rules (House-Made)', () => {
-  const ingredients = (lines) =>
-    [
-      '## Ingredients',
-      '',
-      ...lines,
-      '',
-      '## Steps',
-      '',
-      '1. Combine',
-    ].join('\n');
+  const fmWith = (ingredients, extra = {}) => ({
+    publish: true,
+    ingredients,
+    steps: ['Combine'],
+    ...extra,
+  });
 
-  it('warns when craft syrup is mentioned but no ## House-Made heading present', () => {
-    const body = ingredients(['- 2 oz gin', '- ¾ oz honey-ginger syrup']);
-    const result = lintBody(body, { publish: true });
+  it('warns when craft syrup is in ingredients[] but no house_made field present', () => {
+    const result = lintBody(
+      CANONICAL_BODY,
+      fmWith(['2 oz gin', '¾ oz honey-ginger syrup']),
+    );
     expect(result.warnings).toContain(
-      'ingredient line references a House-Made-worthy prep but no ## House-Made … section found',
+      'ingredient references a House-Made-worthy prep but no house_made field found',
     );
   });
 
-  it('does not warn when ## House-Made heading is present', () => {
-    const body = [
-      '## Ingredients',
-      '',
-      '- 2 oz gin',
-      '- ¾ oz honey-ginger syrup',
-      '',
-      '## House-Made Honey-Ginger Syrup',
-      '',
-      '- 1 cup honey',
-      '- 2 inches ginger',
-      '',
-      '## Steps',
-      '',
-      '1. Combine',
-    ].join('\n');
-    expect(lintBody(body, { publish: true })).toEqual({ errors: [], warnings: [] });
+  it('does not warn when house_made field is present', () => {
+    const result = lintBody(
+      CANONICAL_BODY,
+      fmWith(['2 oz gin', '¾ oz honey-ginger syrup'], {
+        house_made: { name: 'Honey-Ginger Syrup', steps: ['Combine and simmer'] },
+      }),
+    );
+    expect(result).toEqual({ errors: [], warnings: [] });
   });
 
-  it('does not warn when ingredient line is store-bought (simple syrup)', () => {
-    const body = ingredients(['- 2 oz gin', '- ½ oz simple syrup']);
-    expect(lintBody(body, { publish: true })).toEqual({ errors: [], warnings: [] });
+  it('does not warn when ingredient is store-bought (simple syrup)', () => {
+    const result = lintBody(CANONICAL_BODY, fmWith(['2 oz gin', '½ oz simple syrup']));
+    expect(result).toEqual({ errors: [], warnings: [] });
   });
 
-  it('does not warn when ingredient line is store-bought (maple syrup)', () => {
-    const body = ingredients(['- 2 oz bourbon', '- 1 bar spoon maple syrup']);
-    expect(lintBody(body, { publish: true })).toEqual({ errors: [], warnings: [] });
+  it('does not warn when ingredient is store-bought (maple syrup)', () => {
+    const result = lintBody(
+      CANONICAL_BODY,
+      fmWith(['2 oz bourbon', '1 bar spoon maple syrup']),
+    );
+    expect(result).toEqual({ errors: [], warnings: [] });
   });
 
-  it('warns when *-washed ingredient lacks House-Made section', () => {
-    const body = ingredients(['- 2 oz bacon-washed bourbon']);
-    expect(lintBody(body, { publish: true }).warnings).toContain(
-      'ingredient line references a House-Made-worthy prep but no ## House-Made … section found',
+  it('warns when *-washed ingredient lacks house_made field', () => {
+    const result = lintBody(CANONICAL_BODY, fmWith(['2 oz bacon-washed bourbon']));
+    expect(result.warnings).toContain(
+      'ingredient references a House-Made-worthy prep but no house_made field found',
     );
   });
 
-  it('warns when shrub/cordial/tincture/infusion mentioned without House-Made', () => {
+  it('warns when shrub/cordial/tincture/infusion mentioned without house_made', () => {
     for (const ingredient of [
-      '- ½ oz apple shrub',
-      '- ¼ oz cherry cordial',
-      '- 2 dashes orange tincture',
-      '- ¼ oz lavender infusion',
+      '½ oz apple shrub',
+      '¼ oz cherry cordial',
+      '2 dashes orange tincture',
+      '¼ oz lavender infusion',
     ]) {
-      const body = ingredients(['- 2 oz spirit', ingredient]);
-      const result = lintBody(body, { publish: true });
+      const result = lintBody(CANONICAL_BODY, fmWith(['2 oz spirit', ingredient]));
       expect(result.warnings).toContain(
-        'ingredient line references a House-Made-worthy prep but no ## House-Made … section found',
+        'ingredient references a House-Made-worthy prep but no house_made field found',
       );
     }
   });
 
   it('emits only one warning even when multiple craft preps are mentioned', () => {
-    const body = ingredients(['- ¾ oz honey-ginger syrup', '- ¼ oz cherry cordial']);
-    const result = lintBody(body, { publish: true });
+    const result = lintBody(
+      CANONICAL_BODY,
+      fmWith(['¾ oz honey-ginger syrup', '¼ oz cherry cordial']),
+    );
     expect(result.warnings).toHaveLength(1);
   });
 
+  it('also scans batch.ingredients[] for craft preps', () => {
+    const result = lintBody(
+      CANONICAL_BODY,
+      fmWith(['2 oz gin'], {
+        batch: { yield: 'Makes 8', ingredients: ['16 oz gin', '6 oz honey-ginger syrup'] },
+      }),
+    );
+    expect(result.warnings).toContain(
+      'ingredient references a House-Made-worthy prep but no house_made field found',
+    );
+  });
+
   it('skips the soft rule when publish is not true', () => {
-    const body = ingredients(['- ¾ oz honey-ginger syrup']);
-    expect(lintBody(body, { publish: false })).toEqual({ errors: [], warnings: [] });
+    const result = lintBody(CANONICAL_BODY, {
+      publish: false,
+      ingredients: ['¾ oz honey-ginger syrup'],
+    });
+    expect(result).toEqual({ errors: [], warnings: [] });
+  });
+});
+
+describe('parseArgs', () => {
+  it('returns an empty files array when given no arguments', () => {
+    expect(parseArgs([])).toEqual({ files: [] });
+  });
+
+  it('parses --files followed by one path', () => {
+    expect(parseArgs(['--files', 'recipes/classics/manhattan.md'])).toEqual({
+      files: ['recipes/classics/manhattan.md'],
+    });
+  });
+
+  it('parses --files followed by multiple paths', () => {
+    expect(
+      parseArgs(['--files', 'recipes/classics/a.md', 'recipes/originals/b.md']),
+    ).toEqual({
+      files: ['recipes/classics/a.md', 'recipes/originals/b.md'],
+    });
+  });
+
+  it('throws on an empty --files (no paths supplied)', () => {
+    expect(() => parseArgs(['--files'])).toThrow(/--files/);
+  });
+
+  it('throws on a duplicate --files flag', () => {
+    expect(() => parseArgs(['--files', 'a.md', '--files', 'b.md'])).toThrow(
+      /duplicate/i,
+    );
+  });
+
+  it('throws on an unknown flag', () => {
+    expect(() => parseArgs(['--unknown', 'x'])).toThrow(/unknown/i);
+  });
+});
+
+describe('filterFiles', () => {
+  const rootDir = '/repo';
+  const recipesDir = '/repo/recipes';
+  const allFiles = [
+    '/repo/recipes/classics/manhattan.md',
+    '/repo/recipes/classics/old-fashioned.md',
+    '/repo/recipes/originals/foo.md',
+    '/repo/recipes/inbox/draft.md',
+  ];
+
+  it('returns all files unchanged when files arg is empty (whole-tree mode)', () => {
+    expect(filterFiles(allFiles, { files: [], rootDir, recipesDir })).toEqual(
+      allFiles,
+    );
+  });
+
+  it('returns only files matching a single repo-root-relative --files entry', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: ['recipes/classics/manhattan.md'],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual(['/repo/recipes/classics/manhattan.md']);
+  });
+
+  it('returns multiple matches when --files lists multiple repo-relative paths', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: ['recipes/classics/manhattan.md', 'recipes/originals/foo.md'],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual([
+      '/repo/recipes/classics/manhattan.md',
+      '/repo/recipes/originals/foo.md',
+    ]);
+  });
+
+  it('de-dupes when a path is supplied as both relative and absolute', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: [
+          'recipes/classics/manhattan.md',
+          '/repo/recipes/classics/manhattan.md',
+        ],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual(['/repo/recipes/classics/manhattan.md']);
+  });
+
+  it('silently skips paths outside recipes/ (e.g., sections/, root-level)', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: [
+          'sections/intro.md',
+          'README.md',
+          'recipes/classics/manhattan.md',
+        ],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual(['/repo/recipes/classics/manhattan.md']);
+  });
+
+  it('returns an empty array when no --files entries match any tree file', () => {
+    expect(
+      filterFiles(allFiles, {
+        files: ['recipes/classics/does-not-exist.md'],
+        rootDir,
+        recipesDir,
+      }),
+    ).toEqual([]);
   });
 });
 
 describe('lintBody — soft rules (batch format)', () => {
-  const minimalBody = (extra = []) =>
-    [
-      '## Ingredients',
-      '',
-      '- 2 oz spirit',
-      '',
-      '## Steps',
-      '',
-      '1. Combine',
-      ...extra,
-    ].join('\n');
+  const fm = (extra = {}) => ({
+    publish: true,
+    ingredients: ['2 oz spirit'],
+    steps: ['Combine'],
+    ...extra,
+  });
 
-  it('warns when format: batch but no ## How to Batch It section', () => {
-    const result = lintBody(minimalBody(), { publish: true, format: 'batch' });
+  it('warns when format: batch but no batch field present', () => {
+    const result = lintBody(CANONICAL_BODY, fm({ format: 'batch' }));
     expect(result.warnings).toContain(
-      'format is batch/punch but no ## How to Batch It section found',
+      'format is batch/punch but no batch field found',
     );
   });
 
-  it('warns when format: punch but no ## How to Batch It section', () => {
-    const result = lintBody(minimalBody(), { publish: true, format: 'punch' });
+  it('warns when format: punch but no batch field present', () => {
+    const result = lintBody(CANONICAL_BODY, fm({ format: 'punch' }));
     expect(result.warnings).toContain(
-      'format is batch/punch but no ## How to Batch It section found',
+      'format is batch/punch but no batch field found',
     );
   });
 
-  it('does not warn when format: single (regardless of batch heading presence)', () => {
-    expect(lintBody(minimalBody(), { publish: true, format: 'single' })).toEqual({
+  it('does not warn when format: single (regardless of batch field presence)', () => {
+    expect(lintBody(CANONICAL_BODY, fm({ format: 'single' }))).toEqual({
       errors: [],
       warnings: [],
     });
   });
 
-  it('does not warn when format: batch AND ## How to Batch It is present', () => {
-    const body = minimalBody(['', '## How to Batch It', '', 'Makes 8 servings.']);
-    expect(lintBody(body, { publish: true, format: 'batch' })).toEqual({
-      errors: [],
-      warnings: [],
-    });
+  it('does not warn when format: batch AND batch field is populated', () => {
+    expect(
+      lintBody(
+        CANONICAL_BODY,
+        fm({ format: 'batch', batch: { yield: 'Makes 8' } }),
+      ),
+    ).toEqual({ errors: [], warnings: [] });
   });
 
   it('does not warn when format frontmatter is missing/undefined', () => {
-    expect(lintBody(minimalBody(), { publish: true })).toEqual({
-      errors: [],
-      warnings: [],
-    });
+    expect(lintBody(CANONICAL_BODY, fm())).toEqual({ errors: [], warnings: [] });
   });
 
   it('skips the soft rule when publish is not true', () => {
-    expect(lintBody(minimalBody(), { publish: false, format: 'batch' })).toEqual({
-      errors: [],
-      warnings: [],
-    });
+    expect(
+      lintBody(CANONICAL_BODY, { publish: false, format: 'batch', ingredients: [] }),
+    ).toEqual({ errors: [], warnings: [] });
   });
 });
 

@@ -5,15 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "dev:search": "npm run search:index && astro dev",
+    "search:index": "astro build && pagefind --site dist --output-path public/pagefind",
     "build": "astro check && astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "validate": "node scripts/validate.mjs",
     "promote": "node scripts/promote.mjs",
+    "migrate:bodies": "node scripts/migrate-body-to-frontmatter.mjs",
     "codegen": "node scripts/codegen-taxonomy.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "generate-favicons": "node scripts/generate-favicons.mjs"
+    "generate-favicons": "node scripts/generate-favicons.mjs",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "recipes/**/*.md": "node scripts/validate.mjs --files"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",
@@ -26,6 +33,8 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.0",
     "png-to-ico": "^3.0.0",
     "sharp": "^0.34.0",
     "vitest": "^4.1.7",

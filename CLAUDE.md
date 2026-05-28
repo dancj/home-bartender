@@ -45,6 +45,12 @@ When implementing any plan task:
 
 Tests are written with [Vitest](https://vitest.dev/) and run via `npm test`. CI gates them on every PR via `.github/workflows/test.yml`, and the production deploy in `.github/workflows/deploy.yml` runs them as a build step so a test failure aborts before any pages artifact is uploaded. `astro check` and `npm run validate` continue to cover TypeScript and recipe-frontmatter checks.
 
+### Pre-commit hooks
+
+The repo runs [husky](https://typicode.github.io/husky/) + [lint-staged](https://github.com/lint-staged/lint-staged) on every commit. The hook is installed automatically the first time you run `npm install` (via the `prepare` script). On commit, lint-staged runs `node scripts/validate.mjs --files <staged>` against any staged `recipes/**/*.md`, catching taxonomy, `related[]`, and dir/category mismatches locally instead of waiting for CI.
+
+`--no-verify` bypasses the hook, but per the Git Safety Protocol in this file, treat it as emergency-only. If the hook fails, fix the underlying issue (run `npm run validate` to see the full report) rather than skipping.
+
 ### Closing issues via PRs
 
 Always reference related GitHub issues in PR descriptions using GitHub's closing keywords so issues are auto-closed on merge:
@@ -122,7 +128,7 @@ CI re-runs codegen on every PR and fails if any generated artifact is stale.
 ### Lifecycle
 
 1. **Draft** — file lands in `recipes/inbox/<slug>.md` with `category: inbox` and `publish: false`. Hidden from the site index; visible only at `/inbox/?preview=1`.
-2. **Review** — fill in missing measurements, fix taxonomy, add attribution if borrowed, verify the body has at minimum `## Ingredients` and `## Steps` (plus `## House-Made …`, `## How to Batch It`, `## Notes` where relevant). The body contract is enforced by `npm run validate` on every `publish: true` recipe — missing `## Ingredients` / `## Steps` or an empty Ingredients list errors out; ingredient lines that reference craft preps (`shrub`, `tincture`, `cordial`, `infusion`, `*-washed`, or a non–store-bought syrup) warn when no `## House-Made …` heading is present, and `format: batch | punch` recipes warn when `## How to Batch It` is missing.
+2. **Review** — fill in missing measurements, fix taxonomy, add attribution if borrowed, verify the frontmatter carries `ingredients[]` and `steps[]` (plus `house_made{}`, `batch{}`, and top-level `garnish` / `float` where relevant). The body collapses to `## Notes` and any narrative-only sections. The body+frontmatter contract is enforced by `npm run validate` on every `publish: true` recipe — an empty `ingredients[]` errors out, residual `## Ingredients` / `## Steps` / `## House-Made …` / `## How to Batch It` headings in the body error as migration leftovers, ingredient strings that reference craft preps (`shrub`, `tincture`, `cordial`, `infusion`, `*-washed`, or a non–store-bought syrup) warn when no `house_made` field is present, and `format: batch | punch` recipes warn when the `batch` field is missing.
 3. **Publish** — run `npm run promote -- <slug> --category=<classic|original|seasonal>`. The script rewrites frontmatter (singular `category`, `publish: true`), `git mv`s the file into the matching category dir, and re-runs `npm run validate`. Add `--dry-run` to preview. On validation failure the script rolls back atomically. If you'd rather hand-edit, the manual ritual is: (a) move the file to the matching category dir (`recipes/classics/`, `recipes/originals/`, or `recipes/seasonal/`), (b) change `category:` to the singular form, (c) flip `publish: true`.
 4. **Validate** — `npm run validate` runs automatically as part of `npm run promote`. Run it manually before committing if you used the hand-edit path. `npm run build` re-validates via `astro check` and rebuilds the Pagefind index.
 
@@ -146,9 +152,12 @@ When you receive an email containing a cocktail recipe (look for ingredients wit
    - `category: inbox`, `publish: false` (inbox recipes are drafts until reviewed)
    - Infer `glass`, `method` (shaken/stirred/built/blended), `ice`, `difficulty` from ingredients and steps
    - Detect primary `spirits[]` from the ingredient list
+   - Write parsed ingredients into `ingredients[]` (each line as a single string), parsed steps into `steps[]`. Garnishes go in top-level `garnish: string` (single string; join multiple with " or ")
+   - If the recipe has a syrup/infusion/shrub the bartender makes themselves, populate `house_made: { name, yield?, ingredients?, steps }` in frontmatter (NOT a body section)
+   - If the recipe includes batch instructions, populate `batch: { yield, ingredients?, instructions? }`. `instructions` is plain text — markdown syntax in the field renders literally
    - If the email mentions an original creator/bar/year, populate the `attribution` block
    - If measurements are missing, leave them blank rather than guessing
-   - Add a House-Made section in the body if the recipe includes a syrup or infusion
+   - Body should be just `## Notes` (and any narrative-only sections like `## Variations`) — do NOT put `## Ingredients` / `## Steps` / `## House-Made` / `## How to Batch It` in the body, those are migration leftovers and the linter will error on them
 3. Write the file to `recipes/inbox/{slug}.md`.
 4. Ship it as a PR per the Contributing rules — do not commit on `main`:
    - `git checkout -b feat-inbox-{slug}` (no issue ref needed for ingest)
@@ -177,6 +186,28 @@ ice: cubed
 difficulty: easy
 spirits: [tequila]
 flavors: []
+ingredients:
+  - 2 oz blanco tequila
+  - 1 oz fresh lime juice
+garnish: Salt rim                   # optional
+float: ""                           # optional (e.g. ¼ oz Laphroaig for penicillin-style)
+steps:
+  - Combine in a shaker with ice.
+  - Shake hard, strain.
+house_made:                         # optional
+  name: Honey-Ginger Syrup
+  yield: Makes ~4 oz.
+  ingredients:                      # optional — omit when the procedure produces the ingredient
+    - 1 cup honey
+    - 1 cup water
+  steps:
+    - Combine and simmer.
+batch:                              # optional
+  yield: Makes 8 servings.
+  ingredients:                      # optional
+    - 16 oz blanco tequila
+  instructions: |                   # PLAIN TEXT — markdown renders literally
+    Combine all in a pitcher. Stir to chill.
 attribution:
   creator: ""
   bar: ""
@@ -188,9 +219,7 @@ attribution:
 
 > *One-line description*
 
-## Ingredients
-## House-Made [Syrup/Infusion]  (if applicable)
-## Steps
-## How to Batch It              (if you can calculate it)
 ## Notes
+
+*Origin story, substitutions, variations, tips.*
 ```

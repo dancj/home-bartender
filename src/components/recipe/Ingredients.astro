@@ -1,0 +1,14 @@
+---
+interface Props {
+  items: string[];
+  garnish?: string;
+  float?: string;
+}
+const { items, garnish, float: floatProp } = Astro.props;
+---
+<h2>Ingredients</h2>
+<ul>
+  {items.map((item) => <li>{item}</li>)}
+</ul>
+{garnish && <p><strong>Garnish:</strong> {garnish}</p>}
+{floatProp && <p><strong>Float:</strong> {floatProp}</p>}
