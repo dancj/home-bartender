@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "dev:search": "npm run search:index && astro dev",
+    "search:index": "astro build && pagefind --site dist --output-path public/pagefind",
     "build": "astro check && astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
