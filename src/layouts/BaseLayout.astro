@@ -25,8 +25,13 @@ const navLinks = [
   { href: `${base}/learn/`, label: 'Learn', current: isLearn },
 ];
 
-const logoFull = await getImage({ src: logoFullSrc, width: 228, height: 80, format: 'webp' });
-const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, format: 'webp' });
+// Generate at high density so both header states stay crisp on retina; CSS
+// scales these down. The wordmark renders at its native source width (1024px)
+// — its largest on-screen use is the full-width mobile hero, and the 1024×360
+// source can't be upscaled past that without softening. The coupe only ever
+// shows small (the ~64px collapsed icon), so 256px gives comfortable 2–4×.
+const logoFull = await getImage({ src: logoFullSrc, width: 1024, height: 360, format: 'webp' });
+const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, format: 'webp' });
 ---
 <!doctype html>
 <html lang="en">
