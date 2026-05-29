@@ -25,8 +25,13 @@ const navLinks = [
   { href: `${base}/learn/`, label: 'Learn', current: isLearn },
 ];
 
-const logoFull = await getImage({ src: logoFullSrc, width: 228, height: 80, format: 'webp' });
-const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, format: 'webp' });
+// Generate at high density so both header states stay crisp on retina; CSS
+// scales these down. The wordmark renders at its native source width (1024px)
+// — its largest on-screen use is the full-width mobile hero, and the 1024×360
+// source can't be upscaled past that without softening. The coupe only ever
+// shows small (the ~64px collapsed icon), so 256px gives comfortable 2–4×.
+const logoFull = await getImage({ src: logoFullSrc, width: 1024, height: 360, format: 'webp' });
+const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, format: 'webp' });
 ---
 <!doctype html>
 <html lang="en">
@@ -46,13 +51,11 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
     <meta name="twitter:card" content="summary" />
   </head>
   <body>
-    <header class="site-header sticky top-0 z-10 bg-header-bg">
-      <div class="container-wide site-header-row">
-        <a href={`${base}/`} class="brand inline-flex items-center no-underline" aria-label="Home Bartender">
-          <picture>
-            <source media="(max-width: 40rem)" srcset={logoCoupe.src} />
-            <img src={logoFull.src} alt="" width={logoFull.attributes.width} height={logoFull.attributes.height} class="brand-img block" />
-          </picture>
+    <header class="site-header sticky top-0 z-10 bg-header-bg" data-collapsing-header>
+      <div class="container-wide site-header__content">
+        <a href={`${base}/`} class="brand no-underline" aria-label="Home Bartender">
+          <img class="brand-wordmark" src={logoFull.src} alt="" width={logoFull.attributes.width} height={logoFull.attributes.height} />
+          <img class="brand-coupe" src={logoCoupe.src} alt="" width={logoCoupe.attributes.width} height={logoCoupe.attributes.height} />
         </a>
         <nav class="nav-links flex" aria-label="Primary">
           {navLinks.map(link => (
@@ -73,38 +76,180 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 80, height: 80, for
         </p>
       </div>
     </footer>
+    <script>
+      import { headerProgress } from '../scripts/headerProgress';
+
+      const header = document.querySelector<HTMLElement>('[data-collapsing-header]');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      // The header's CSS default is the hero; reduced-motion forces compact via
+      // media query. This script is what makes the hero *collapse*: it writes
+      // --header-progress inline as you scroll. Under reduced-motion we bail so
+      // the compact media-query value stands and nothing animates (R10). With no
+      // JS the hero stays put (static, non-collapsing) — a reasonable fallback.
+      if (header && !reduceMotion.matches) {
+        const rootFontPx = () =>
+          parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+
+        // Read a rem/px length custom property off the header as px.
+        const readLength = (name: string): number => {
+          const raw = getComputedStyle(header).getPropertyValue(name).trim();
+          const n = parseFloat(raw);
+          if (Number.isNaN(n)) return 0;
+          return raw.endsWith('rem') ? n * rootFontPx() : n;
+        };
+
+        // Collapse distance = the band's large-minus-compact height. Recomputed
+        // on resize because both are rem values that change at the breakpoint.
+        let collapseDistance = 0;
+        const measure = () => {
+          collapseDistance = readLength('--hb-large') - readLength('--hb-compact');
+        };
+
+        let ticking = false;
+        const apply = () => {
+          ticking = false;
+          const progress = headerProgress(window.scrollY, collapseDistance);
+          header.style.setProperty('--header-progress', String(progress));
+        };
+        const onScroll = () => {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(apply);
+          }
+        };
+
+        measure();
+        apply(); // set the frame for the current scroll position (no-op at the top)
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', () => {
+          measure();
+          apply();
+        }, { passive: true });
+      }
+    </script>
   </body>
 </html>
 
 <style>
-  /* Sticky-blur header — backdrop-filter values are non-default in Tailwind */
-  .site-header {
-    backdrop-filter: saturate(180%) blur(8px);
-  }
-  .site-header-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  /* Logo is flush with the header chrome — image height defines the row height.
-     Width is pinned explicitly per breakpoint because <picture> swaps the
-     source srcset on mobile but the <img> keeps the desktop ratio attrs. */
-  .brand { border-radius: 0; }
-  .brand-img { height: 4rem; width: calc(4rem * 228 / 80); object-fit: contain; }
+  /* ── Collapsing header ────────────────────────────────────────────────
+     One markup tree renders two states, interpolated by --header-progress:
+       0 = large hero (big centered/full-width wordmark, tabs beneath)
+       1 = compact slim bar (today's header: small logo left, tabs right)
+     --header-progress defaults to 0 (hero), so the header renders hero-first and
+     the scroll script has nothing to "expand" on load — this avoids a flash of the
+     compact bar when navigating between pages. Reduced-motion forces 1 (compact)
+     via the media query below; the scroll script writes the property inline on
+     scroll. With no JS the hero stays put (static, non-collapsing).
 
-  /* Mobile: square coupe + push the tab cluster to the right edge. */
-  @media (max-width: 40rem) {
-    .brand-img { width: 4rem; }
-    .nav-links { margin-left: auto; }
+     The dark chrome occupies real, interpolated height (see .site-header__content
+     `height`), so <main> always flows directly below the header in both states —
+     no overlap, no leftover gap. The header is sticky, so as you scroll it shrinks
+     and pins to the top. Logo/tabs ride transforms keyed to the same progress. */
+  .site-header {
+    /* Tunable geometry — adjust these to tune the hero proportions. */
+    --hb-compact: 4rem;            /* slim-bar height = logo height */
+    --hb-large: 12.4rem;           /* hero height (mobile default) */
+    --brand-scale-hero: 1.6;       /* desktop wordmark enlargement at hero */
+    /* Default to the hero (0). Rendering hero-first means JS has nothing to
+       "expand" on load — at the top of a fresh page the scroll script just
+       confirms 0 — so there's no flash of the compact bar when navigating
+       between pages. The scroll script writes --header-progress inline as you
+       scroll; reduced-motion forces compact below. */
+    --header-progress: 0;          /* 0 = hero, 1 = compact (U3 drives this) */
+    --h: calc(1 - var(--header-progress)); /* hero amount: 1 = hero, 0 = compact */
+  }
+
+  /* Reduced motion: render the compact sticky bar and never animate (R10).
+     CSS-only, so it holds with or without JS; the scroll script also bails out
+     under reduced motion, so nothing overrides this back to the hero. */
+  @media (prefers-reduced-motion: reduce) {
+    .site-header {
+      --header-progress: 1;
+    }
+  }
+
+  .site-header__content {
+    position: relative;
+    container-type: inline-size;   /* establishes cqw for tab centring */
+    /* Real height interpolated large→compact. <main> sits directly below it,
+       so collapsing pulls the page up rather than revealing/covering content. */
+    height: calc(var(--hb-compact) + (var(--hb-large) - var(--hb-compact)) * var(--h));
+  }
+
+  /* The link is a layout-neutral wrapper; each mark positions itself. */
+  .brand {
+    display: contents;
+    border-radius: 0;
+  }
+  .brand-wordmark,
+  .brand-coupe {
+    position: absolute;
+    object-fit: contain;
+  }
+
+  /* ── Mobile (Compact, <40rem) ───────────────────────────────────────────
+     Crossfade: full-width wordmark (hero) ⇄ square coupe (compact). No scale. */
+  .brand-coupe {
+    top: 0;
+    left: 0;
+    height: var(--hb-compact);
+    width: var(--hb-compact);
+    opacity: var(--header-progress); /* visible compact, fades out into hero */
+  }
+  .brand-wordmark {
+    top: 0;
+    left: 50%;
+    width: min(100%, 22rem);
+    height: auto;
+    transform: translateX(-50%) translateY(calc(0.9rem * var(--h)));
+    opacity: var(--h); /* visible hero, fades out into compact */
+  }
+
+  /* ── Desktop (Comfortable / Wide, ≥40rem) ───────────────────────────────
+     One wordmark scales between compact-left and hero-centered; coupe unused. */
+  @media (min-width: 40rem) {
+    .brand-coupe { display: none; }
+    .brand-wordmark {
+      --scale: calc(1 + (var(--brand-scale-hero) - 1) * var(--h));
+      top: 0;
+      height: var(--hb-compact);
+      width: auto;
+      left: calc(50% * var(--h));
+      transform-origin: top left;
+      transform:
+        translateX(calc(-50% * var(--scale) * var(--h)))
+        translateY(calc(0.9rem * var(--h)))
+        scale(var(--scale));
+      opacity: 1;
+    }
+    .site-header {
+      --hb-large: 11rem;
+    }
   }
 
   /* Folder-tab nav — each link is a cream-filled tab that sits flush with
      the bottom of the dark header chrome and visually merges into the page
      below. Top corners round; bottom corners are square so the tab "opens"
-     into the page surface. */
+     into the page surface.
+
+     Compact: small logo left, tabs at the right edge, vertically centred in
+     the slim bar. Hero: tabs drop beneath the logo, horizontally centred.
+     Both positions are reached by interpolating the same --h. */
   .nav-links {
-    align-self: end;
+    position: absolute;
+    /* Flush with the header's bottom edge in BOTH states, so the folder tabs
+       always open into the page surface (no dark gap below them). The header's
+       interpolated height does the vertical morph for free. */
+    bottom: 0;
+    top: auto;
+    right: 0;                 /* compact: anchored to the right edge (R5) */
+    left: auto;
     gap: 0.25rem;
+    /* x only: right-anchored (compact) → horizontally centred (hero).
+       (50% - 50cqw) shifts the cluster's centre from the right edge to the
+       container centre; 50% is half the nav's own width, 50cqw half the bar. */
+    transform: translateX(calc((50% - 50cqw) * var(--h)));
   }
   .nav-links a {
     display: inline-flex;
