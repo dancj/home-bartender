@@ -16,7 +16,7 @@ concurrency:
 jobs:
   changelog:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'Release: staging to main') }}
+    if: "${{ github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Release: staging to main') }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
