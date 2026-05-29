@@ -77,6 +77,57 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, f
         </p>
       </div>
     </footer>
+    <script>
+      import { headerProgress } from '../scripts/headerProgress';
+
+      const header = document.querySelector<HTMLElement>('[data-collapsing-header]');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      // Progressive enhancement: the header's CSS default is the compact bar.
+      // With no JS or reduced-motion we never touch --header-progress, so it
+      // stays compact and never animates (R10). Otherwise we expand it to the
+      // hero at the top and collapse it on scroll.
+      if (header && !reduceMotion.matches) {
+        const rootFontPx = () =>
+          parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+
+        // Read a rem/px length custom property off the header as px.
+        const readLength = (name: string): number => {
+          const raw = getComputedStyle(header).getPropertyValue(name).trim();
+          const n = parseFloat(raw);
+          if (Number.isNaN(n)) return 0;
+          return raw.endsWith('rem') ? n * rootFontPx() : n;
+        };
+
+        // Collapse distance = the band's large-minus-compact height. Recomputed
+        // on resize because both are rem values that change at the breakpoint.
+        let collapseDistance = 0;
+        const measure = () => {
+          collapseDistance = readLength('--hb-large') - readLength('--hb-compact');
+        };
+
+        let ticking = false;
+        const apply = () => {
+          ticking = false;
+          const progress = headerProgress(window.scrollY, collapseDistance);
+          header.style.setProperty('--header-progress', String(progress));
+        };
+        const onScroll = () => {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(apply);
+          }
+        };
+
+        measure();
+        apply(); // expand to the hero at the top (or the right frame on mid-page reload)
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', () => {
+          measure();
+          apply();
+        }, { passive: true });
+      }
+    </script>
   </body>
 </html>
 
