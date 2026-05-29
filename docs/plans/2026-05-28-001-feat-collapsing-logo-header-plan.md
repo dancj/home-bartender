@@ -1,7 +1,7 @@
 ---
 title: "feat: Collapsing logo header"
 type: feat
-status: active
+status: completed
 date: 2026-05-28
 origin: docs/brainstorms/2026-05-28-collapsing-logo-header-requirements.md
 ---
