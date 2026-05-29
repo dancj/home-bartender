@@ -51,13 +51,12 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, f
     <meta name="twitter:card" content="summary" />
   </head>
   <body>
-    <header class="site-header sticky top-0 z-10 bg-header-bg">
-      <div class="container-wide site-header-row">
-        <a href={`${base}/`} class="brand inline-flex items-center no-underline" aria-label="Home Bartender">
-          <picture>
-            <source media="(max-width: 40rem)" srcset={logoCoupe.src} />
-            <img src={logoFull.src} alt="" width={logoFull.attributes.width} height={logoFull.attributes.height} class="brand-img block" />
-          </picture>
+    <header class="site-header sticky top-0 z-10" data-collapsing-header>
+      <div class="site-header__band" aria-hidden="true"></div>
+      <div class="container-wide site-header__content">
+        <a href={`${base}/`} class="brand no-underline" aria-label="Home Bartender">
+          <img class="brand-wordmark" src={logoFull.src} alt="" width={logoFull.attributes.width} height={logoFull.attributes.height} />
+          <img class="brand-coupe" src={logoCoupe.src} alt="" width={logoCoupe.attributes.width} height={logoCoupe.attributes.height} />
         </a>
         <nav class="nav-links flex" aria-label="Primary">
           {navLinks.map(link => (
@@ -82,34 +81,127 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, f
 </html>
 
 <style>
-  /* Sticky-blur header — backdrop-filter values are non-default in Tailwind */
-  .site-header {
-    backdrop-filter: saturate(180%) blur(8px);
-  }
-  .site-header-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  /* Logo is flush with the header chrome — image height defines the row height.
-     Width is pinned explicitly per breakpoint because <picture> swaps the
-     source srcset on mobile but the <img> keeps the desktop ratio attrs. */
-  .brand { border-radius: 0; }
-  .brand-img { height: 4rem; width: calc(4rem * 228 / 80); object-fit: contain; }
+  /* ── Collapsing header ────────────────────────────────────────────────
+     One markup tree renders two states, interpolated by --header-progress:
+       0 = large hero (big centered/full-width wordmark, tabs beneath)
+       1 = compact slim bar (today's header: small logo left, tabs right)
+     --header-progress defaults to 1, so with no JS / reduced-motion / before
+     the U3 script runs, the header renders as today's compact bar. U3 sets
+     the property on scroll.
 
-  /* Mobile: square coupe + push the tab cluster to the right edge. */
-  @media (max-width: 40rem) {
-    .brand-img { width: 4rem; }
-    .nav-links { margin-left: auto; }
+     No-reflow guarantee: the header reserves only the compact height in
+     normal flow (.site-header__content min-height). The dark chrome is an
+     absolutely-positioned band scaled with transform, and the hero logo/tabs
+     are positioned with transforms — both overflow downward over <main>
+     without changing layout, so collapsing never reflows the page. */
+  .site-header {
+    /* Tunable geometry — adjust these to tune the hero proportions. */
+    --hb-compact: 4rem;            /* slim-bar height = logo height */
+    --hb-large: 12.5rem;           /* hero band height (mobile default) */
+    --nav-y-hero: 9rem;            /* tabs' downward drop into the hero (mobile) */
+    --brand-scale-hero: 1.6;       /* desktop wordmark enlargement at hero */
+    --header-progress: 1;          /* 0 = hero, 1 = compact (U3 drives this) */
+    --h: calc(1 - var(--header-progress)); /* hero amount: 1 = hero, 0 = compact */
+    --brand-w-compact: calc(4rem * 1024 / 360); /* desktop compact wordmark width */
+  }
+
+  /* Dark chrome band. Absolute so its height never reflows <main>; scaled with
+     a compositor-friendly transform (solid fill, so scaleY shows no distortion). */
+  .site-header__band {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: var(--hb-large);
+    background: var(--color-header-bg);
+    transform-origin: top;
+    transform: scaleY(calc(
+      (var(--hb-compact) + (var(--hb-large) - var(--hb-compact)) * var(--h)) / var(--hb-large)
+    ));
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .site-header__content {
+    position: relative;
+    z-index: 1;
+    min-height: var(--hb-compact); /* reserves compact height in flow */
+    container-type: inline-size;   /* establishes cqw for tab centring */
+  }
+
+  /* The link is a layout-neutral wrapper; each mark positions itself. */
+  .brand {
+    display: contents;
+    border-radius: 0;
+  }
+  .brand-wordmark,
+  .brand-coupe {
+    position: absolute;
+    object-fit: contain;
+  }
+
+  /* ── Mobile (Compact, <40rem) ───────────────────────────────────────────
+     Crossfade: full-width wordmark (hero) ⇄ square coupe (compact). No scale. */
+  .brand-coupe {
+    top: 0;
+    left: 0;
+    height: var(--hb-compact);
+    width: var(--hb-compact);
+    opacity: var(--header-progress); /* visible compact, fades out into hero */
+  }
+  .brand-wordmark {
+    top: 0;
+    left: 50%;
+    width: min(100%, 22rem);
+    height: auto;
+    transform: translateX(-50%) translateY(calc(0.9rem * var(--h)));
+    opacity: var(--h); /* visible hero, fades out into compact */
+  }
+
+  /* ── Desktop (Comfortable / Wide, ≥40rem) ───────────────────────────────
+     One wordmark scales between compact-left and hero-centered; coupe unused. */
+  @media (min-width: 40rem) {
+    .brand-coupe { display: none; }
+    .brand-wordmark {
+      --scale: calc(1 + (var(--brand-scale-hero) - 1) * var(--h));
+      top: 0;
+      height: var(--hb-compact);
+      width: auto;
+      left: calc(50% * var(--h));
+      transform-origin: top left;
+      transform:
+        translateX(calc(-50% * var(--scale) * var(--h)))
+        translateY(calc(0.9rem * var(--h)))
+        scale(var(--scale));
+      opacity: 1;
+    }
+    .site-header {
+      --hb-large: 10.5rem;
+      --nav-y-hero: 7.2rem; /* below the scaled (1.6×) wordmark */
+    }
   }
 
   /* Folder-tab nav — each link is a cream-filled tab that sits flush with
      the bottom of the dark header chrome and visually merges into the page
      below. Top corners round; bottom corners are square so the tab "opens"
-     into the page surface. */
+     into the page surface.
+
+     Compact: small logo left, tabs at the right edge, vertically centred in
+     the slim bar. Hero: tabs drop beneath the logo, horizontally centred.
+     Both positions are reached by interpolating the same --h. */
   .nav-links {
-    align-self: end;
+    position: absolute;
+    top: 0;
+    right: 0;                 /* compact: anchored to the right edge (R5) */
+    left: auto;
+    height: var(--hb-compact);
+    align-items: center;      /* vertically centre tabs in the slim bar */
     gap: 0.25rem;
+    /* x: right-anchored (compact) → horizontally centred (hero).
+       (50% - 50cqw) shifts the cluster's centre from the right edge to the
+       container centre; 50% is half the nav's own width, 50cqw half the bar.
+       y: drop beneath the hero logo. Both scale with --h. */
+    transform:
+      translateX(calc((50% - 50cqw) * var(--h)))
+      translateY(calc(var(--nav-y-hero, 8rem) * var(--h)));
   }
   .nav-links a {
     display: inline-flex;
