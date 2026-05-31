@@ -1,8 +1,8 @@
 ---
 title: Spritz
 blurb: A limoncello-Aperol spritz — bright citrus and gentle bitterness with bubbles.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: wine
 glass_note: or spritz glass
 method: shaken
