@@ -1,8 +1,8 @@
 ---
 title: French 75
 blurb: A gin sour topped with Champagne — celebratory, bright, and dangerously drinkable.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: flute
 glass_note: or coupe
 method: shaken

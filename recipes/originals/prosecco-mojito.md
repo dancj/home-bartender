@@ -59,3 +59,5 @@ batch:
 ## Notes
 
 Don't over-muddle the mint — you want the oils, not the bitterness from the stems. Prosecco adds effervescence without the sweetness of tonic. Cava or any dry sparkling wine works just as well.
+
+**Variation — shaken & bigger pour (Collins build):** for a bolder, more diluted version, scale to 2 oz rum and 3 oz sparkling wine, and swap the gentle in-glass muddle for a shaker build. Muddle 6 mint leaves with ½ a lime cut into wedges, ½ oz simple syrup, and the rum directly in the shaker; add crushed ice and shake briefly; pour the whole thing (ice and all) into a Collins glass and top with the 3 oz sparkling wine. Keeps the drink integrated and well-diluted — a light Prosecco works best here so the mint isn't overpowered.

@@ -1,8 +1,8 @@
 ---
 title: Spice Trade
 blurb: A simple, crushable gin sour — cinnamon warmth meets bright basil and lemon.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: shaken
 ice: none
@@ -20,8 +20,8 @@ flavors:
 tags: []
 occasions: []
 attribution:
-  creator: ""
-  bar: ""
+  creator: "Nathan Howard"
+  bar: "Cole's"
   year: ""
   source_url: ""
 related:
