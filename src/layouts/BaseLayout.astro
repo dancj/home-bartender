@@ -26,11 +26,11 @@ const navLinks = [
 ];
 
 // Generate at high density so both header states stay crisp on retina; CSS
-// scales these down. The wordmark renders at its native source width (1024px)
-// — its largest on-screen use is the full-width mobile hero, and the 1024×360
-// source can't be upscaled past that without softening. The coupe only ever
-// shows small (the ~64px collapsed icon), so 256px gives comfortable 2–4×.
-const logoFull = await getImage({ src: logoFullSrc, width: 1024, height: 360, format: 'webp' });
+// scales these down. The wordmark renders at its native source width (1426px)
+// — its largest on-screen use is the full-width mobile hero, and the 1426×511
+// transparent source can't be upscaled past that without softening. The coupe
+// only ever shows small (the ~64px collapsed icon), so 256px gives 2–4×.
+const logoFull = await getImage({ src: logoFullSrc, width: 1426, height: 511, format: 'webp' });
 const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, format: 'webp' });
 ---
 <!doctype html>
