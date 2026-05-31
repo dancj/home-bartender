@@ -94,8 +94,8 @@ The aggregated `## Closes` list inside the managed block is the **only** place a
 
 ```
 recipes/
-  classics/       ← established cocktails (often borrowed; attribution required)
-  originals/      ← personal creations and experiments
+  classics/       ← established cocktails (attribution filled only when there's a clear named creator + venue)
+  originals/      ← contributor's own creations (only when the contributor has explicitly stated authorship, not when a recipe simply looks unusual)
   seasonal/       ← seasonal/holiday recipes
   inbox/          ← new recipes pending review (publish: false)
 sections/         ← prose: introduction, techniques, tools, glossary
@@ -138,7 +138,8 @@ CI re-runs codegen on every PR and fails if any generated artifact is stale.
 - **Underscore prefix excludes** — `recipes/**/_anything.md` is skipped by the content-collection glob. Use it to stash a draft you don't want loaded.
 - **`category` must match parent dir** — `recipes/classics/foo.md` must have `category: classic`. Validator errors otherwise.
 - **`related[]`** must list slugs that resolve to existing recipe files. Validator errors on dangling refs.
-- **`attribution.creator`** is expected for anything in `classics/`; originals leave the whole `attribution` block empty.
+- **`attribution.creator`** is filled only when there's a clear, named creator AND venue (e.g., Sam Ross / Milk & Honey; Joaquín Simó / Death & Co; Nathan Howard / Cole's). For established communal classics whose origin is murky or contested (Old Fashioned, Manhattan, Cosmopolitan, French 75, Gin Gimlet, Spritz, Mojito, etc.) and for originals, leave the whole `attribution` block empty — never invent or guess. The convention is conservative attribution: the block carries weight only when it's verifiable.
+- **Category placement** — don't agonize over `classics/` vs `originals/`. Default new promotions to `classics/`. Place in `originals/` only when the contributor has explicitly stated the recipe is their own creation. When in doubt, ask or pick classic.
 - **Reserved fields** — `hero_image`, `gallery`, `preparations` are defined in the schema but currently unused. Leave them empty; don't fabricate values.
 - **Two collections** — `recipes` (in `recipes/`) and `sections` (in `sections/`, schema is just `{ title, order, summary? }`, powers `/learn/`). Same glob rules apply to both.
 
@@ -155,9 +156,10 @@ When you receive an email containing a cocktail recipe (look for ingredients wit
    - Write parsed ingredients into `ingredients[]` (each line as a single string), parsed steps into `steps[]`. Garnishes go in top-level `garnish: string` (single string; join multiple with " or ")
    - If the recipe has a syrup/infusion/shrub the bartender makes themselves, populate `house_made: { name, yield?, ingredients?, steps }` in frontmatter (NOT a body section)
    - If the recipe includes batch instructions, populate `batch: { yield, ingredients?, instructions? }`. `instructions` is plain text — markdown syntax in the field renders literally
-   - If the email mentions an original creator/bar/year, populate the `attribution` block
+   - Populate the `attribution` block ONLY when the email names both a specific creator AND a specific venue (e.g., "Sam Ross at Milk & Honey", "Joaquín Simó at Death & Co"). Do NOT fill attribution for communal classics whose origin is murky (Old Fashioned, Manhattan, Cosmopolitan, French 75, Gin Gimlet, etc.) — leave all fields empty. Never invent a likely creator.
    - If measurements are missing, leave them blank rather than guessing
    - Body should be just `## Notes` (and any narrative-only sections like `## Variations`) — do NOT put `## Ingredients` / `## Steps` / `## House-Made` / `## How to Batch It` in the body, those are migration leftovers and the linter will error on them
+   - Notes must stick to verifiable facts: substitutions, technique tips, named-source observations. Do NOT open with "An original…", "This is essentially X", or any other inferential origin claim — the project convention is conservative attribution, so editorial assertions about origin get rewritten at promotion time anyway. If the email's own text states an origin, quote/paraphrase faithfully; if not, stay silent on origin.
 3. Write the file to `recipes/inbox/{slug}.md`.
 4. Ship it as a PR per the Contributing rules — do not commit on `main`:
    - `git checkout -b feat-inbox-{slug}` (no issue ref needed for ingest)
