@@ -1,8 +1,8 @@
 ---
 title: Paper Plane
 blurb: An equal-parts modern classic — bourbon, amaro, Aperol, and lemon in perfect balance.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 glass_note: or rocks with a big cube
 method: shaken
@@ -22,12 +22,13 @@ flavors:
 tags: []
 occasions: []
 attribution:
-  creator: ""
-  bar: ""
+  creator: "Sam Ross"
+  bar: "Milk & Honey, NYC"
   year: ""
   source_url: ""
 related:
   - penicillin
+  - naked-and-famous
 aliases: []
 hero_image: ""
 gallery: []

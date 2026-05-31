@@ -1,8 +1,8 @@
 ---
 title: Dead Man's Handle
 blurb: A tequila sour with orgeat and Aperol — bright, nutty, and just a little bitter.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: shaken
 ice: none

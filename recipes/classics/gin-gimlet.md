@@ -1,8 +1,8 @@
 ---
 title: Gin Gimlet
 blurb: A clean, tart classic — gin, lime, and just enough sweetness.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 glass_note: or Collins with sparkling water
 method: shaken

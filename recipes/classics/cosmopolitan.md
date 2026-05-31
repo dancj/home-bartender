@@ -1,8 +1,8 @@
 ---
 title: Cosmopolitan
 blurb: The iconic vodka sour — citrusy, rosy, and effortlessly elegant.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: shaken
 ice: none

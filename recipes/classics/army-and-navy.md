@@ -1,8 +1,8 @@
 ---
 title: Army & Navy
 blurb: A vintage gin sour with orgeat — bright, nutty, and deceptively simple.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: shaken
 ice: none

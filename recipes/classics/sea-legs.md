@@ -1,8 +1,8 @@
 ---
 title: Sea Legs
 blurb: A smoky, nutty, savory coupe — scotch and mezcal meet orgeat and celery, with a salt rim.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: shaken
 ice: none

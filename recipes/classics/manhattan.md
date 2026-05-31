@@ -1,8 +1,8 @@
 ---
 title: Manhattan
 blurb: The stirred whiskey classic — rich, sweet, and bittersweet with a cherry.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: stirred
 ice: none
