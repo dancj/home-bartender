@@ -97,3 +97,8 @@ export function applyDilution(baseYield: number): Dilution {
   if (!isPositiveFinite(baseYield)) return { dilutionWater: 0, finalVolume: 0 };
   return { dilutionWater: baseYield, finalVolume: baseYield * 2 };
 }
+
+/** Format a millilitre volume as an approximate US-cup count (1 cup ≈ 236.588 ml), 1 decimal. */
+export function mlToCups(ml: number): string {
+  return (ml / 236.588).toFixed(1);
+}

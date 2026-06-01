@@ -1,0 +1,65 @@
+/* Shared typography for /learn pages — the generic section route
+   (src/pages/learn/[slug].astro) and the dedicated Super Juice route
+   (src/pages/learn/super-juice.astro) both render section markdown into a
+   `.prose` article with a `.back` link, so the styling lives here once. */
+
+.back {
+  margin-bottom: 1.25rem;
+}
+.back a {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+}
+.back a:hover {
+  color: var(--color-fg);
+}
+
+.prose h1 {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  margin: 0 0 1rem;
+}
+.prose h2 {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-fg);
+}
+.prose h3 {
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.prose p,
+.prose li {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--color-fg);
+}
+.prose p {
+  margin-block: 0.75rem;
+}
+.prose ul,
+.prose ol {
+  margin-block: 0.75rem;
+  padding-inline-start: 1.5rem;
+}
+.prose li {
+  margin-block: 0.35rem;
+}
+.prose a {
+  color: var(--color-accent);
+  text-underline-offset: 2px;
+}
+.prose strong {
+  color: var(--color-fg);
+  font-weight: 600;
+}
+.prose em {
+  color: var(--color-fg-muted);
+}

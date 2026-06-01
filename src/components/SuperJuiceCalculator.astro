@@ -1,5 +1,5 @@
 ---
-import { computeBuild, applyDilution, type Citrus } from '../lib/superJuice';
+import { computeBuild, applyDilution, mlToCups, type Citrus } from '../lib/superJuice';
 
 // No-JS / server-rendered default: lime at 100 g peel. The client script below
 // re-reads inputs and overwrites these same nodes, but with JS off the page still
@@ -8,7 +8,6 @@ const DEFAULT_CITRUS: Citrus = 'lime';
 const DEFAULT_PEEL = 100;
 const build = computeBuild(DEFAULT_CITRUS, DEFAULT_PEEL);
 const dil = applyDilution(build.baseYield);
-const cups = (ml: number) => (ml / 236.588).toFixed(1);
 ---
 
 <section class="sj" aria-labelledby="sj-title" data-sj-root>
@@ -51,8 +50,8 @@ const cups = (ml: number) => (ml / 236.588).toFixed(1);
       <div><dt>Citric acid</dt><dd><span data-sj="citric">{build.citric}</span> g</dd></div>
       <div data-sj-malic><dt>Malic acid</dt><dd><span data-sj="malic">{build.malic}</span> g</dd></div>
       <div><dt>Water</dt><dd><span data-sj="water">{build.water}</span> ml</dd></div>
-      <div><dt>Base yield</dt><dd><span data-sj="base">{build.baseYield}</span> ml (~<span data-sj="baseCups">{cups(build.baseYield)}</span> cups)</dd></div>
-      <div class="sj-final"><dt>After 1:1 cut</dt><dd><span data-sj="final">{dil.finalVolume}</span> ml (~<span data-sj="finalCups">{cups(dil.finalVolume)}</span> cups)</dd></div>
+      <div><dt>Base yield</dt><dd><span data-sj="base">{build.baseYield}</span> ml (~<span data-sj="baseCups">{mlToCups(build.baseYield)}</span> cups)</dd></div>
+      <div class="sj-final"><dt>After 1:1 cut</dt><dd><span data-sj="final">{dil.finalVolume}</span> ml (~<span data-sj="finalCups">{mlToCups(dil.finalVolume)}</span> cups)</dd></div>
     </dl>
 
     <ol class="sj-steps">
@@ -68,22 +67,21 @@ const cups = (ml: number) => (ml / 236.588).toFixed(1);
       </li>
       <li>
         Blend ~30 seconds, then strain through cheesecloth — about
-        <span data-sj="base">{build.baseYield}</span> ml super juice (~<span data-sj="baseCups">{cups(build.baseYield)}</span> cups).
+        <span data-sj="base">{build.baseYield}</span> ml super juice (~<span data-sj="baseCups">{mlToCups(build.baseYield)}</span> cups).
       </li>
       <li>
         Our cut: stir in <span data-sj="dilWater">{dil.dilutionWater}</span> ml water (1:1) for about
-        <span data-sj="final">{dil.finalVolume}</span> ml (~<span data-sj="finalCups">{cups(dil.finalVolume)}</span> cups) ready to mix.
+        <span data-sj="final">{dil.finalVolume}</span> ml (~<span data-sj="finalCups">{mlToCups(dil.finalVolume)}</span> cups) ready to mix.
       </li>
     </ol>
   </div>
 </section>
 
 <script>
-  import { computeBuild, applyDilution, estimatePeelWeight, type Citrus } from '../lib/superJuice';
+  import { computeBuild, applyDilution, estimatePeelWeight, mlToCups, type Citrus } from '../lib/superJuice';
 
   const root = document.querySelector<HTMLElement>('[data-sj-root]');
   if (root) {
-    const cups = (ml: number) => (ml / 236.588).toFixed(1);
     const peelInput = root.querySelector<HTMLInputElement>('#sj-peel')!;
     const fruitInput = root.querySelector<HTMLInputElement>('#sj-fruit')!;
     const peelField = root.querySelector<HTMLElement>('[data-sj-input="peel"]')!;
@@ -127,10 +125,10 @@ const cups = (ml: number) => (ml / 236.588).toFixed(1);
       setAll('malic', String(build.malic));
       setAll('water', String(build.water));
       setAll('base', String(build.baseYield));
-      setAll('baseCups', cups(build.baseYield));
+      setAll('baseCups', mlToCups(build.baseYield));
       setAll('dilWater', String(dil.dilutionWater));
       setAll('final', String(dil.finalVolume));
-      setAll('finalCups', cups(dil.finalVolume));
+      setAll('finalCups', mlToCups(dil.finalVolume));
 
       // Lemon has no malic acid — hide every malic-bearing node.
       root.querySelectorAll<HTMLElement>('[data-sj-malic]').forEach((el) => {
