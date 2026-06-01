@@ -8,6 +8,7 @@ method: shaken
 ice: none
 ice_note: (served up)
 difficulty: medium
+families: [daiquiri]
 spirits:
   - mezcal
   - scotch

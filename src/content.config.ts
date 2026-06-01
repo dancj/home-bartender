@@ -30,7 +30,7 @@ const recipes = defineCollection({
     ice_note: z.string().optional().default(''),
     difficulty: z.enum(DIFFICULTIES),
 
-    family: z.enum(FAMILIES).optional(),
+    families: z.array(z.enum(FAMILIES)).default([]),
 
     spirits: z.array(z.enum(SPIRITS)).default([]),
     format: z.enum(FORMATS).default('single'),

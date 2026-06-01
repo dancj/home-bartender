@@ -10,6 +10,7 @@ method_note: built
 ice: cubed
 ice_note: over ice
 difficulty: easy
+families: [whiskey-highball]
 spirits:
   - aperitif
   - liqueur

@@ -10,6 +10,7 @@ method_note: built
 ice: none
 ice_note: (served up)
 difficulty: easy
+families: [daiquiri, whiskey-highball]
 spirits:
   - gin
   - champagne
