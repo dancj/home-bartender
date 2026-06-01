@@ -1,9 +1,16 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/learn-prose.css';
 
 export async function getStaticPaths() {
-  const sections = await getCollection('sections');
+  // `super-juice` is served by its own page (src/pages/learn/super-juice.astro)
+  // so it can mount the interactive calculator. Exclude it here to avoid a
+  // duplicate `/learn/super-juice/` route. `section.id` is the bare slug
+  // (e.g. `glossary`), not the filename, for the glob content loader.
+  const sections = (await getCollection('sections')).filter(
+    (section) => section.id !== 'super-juice',
+  );
   return sections.map((section) => ({
     params: { slug: section.id },
     props: { section },
@@ -25,54 +32,3 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <Content />
   </article>
 </BaseLayout>
-
-<style>
-  .back {
-    margin-bottom: 1.25rem;
-  }
-  .back a {
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    color: var(--color-fg-muted);
-    text-decoration: none;
-  }
-  .back a:hover { color: var(--color-fg); }
-
-  .prose :global(h1) {
-    font-size: clamp(2rem, 5vw, 2.75rem);
-    margin: 0 0 1rem;
-  }
-  .prose :global(h2) {
-    font-family: var(--font-serif);
-    font-size: 1.375rem;
-    font-weight: 600;
-    margin-top: 2.25rem;
-    margin-bottom: 0.75rem;
-    color: var(--color-fg);
-  }
-  .prose :global(h3) {
-    font-family: var(--font-serif);
-    font-size: 1.125rem;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-  .prose :global(p),
-  .prose :global(li) {
-    font-family: var(--font-serif);
-    font-size: 1.0625rem;
-    line-height: 1.65;
-    color: var(--color-fg);
-  }
-  .prose :global(p) { margin-block: 0.75rem; }
-  .prose :global(ul),
-  .prose :global(ol) {
-    margin-block: 0.75rem;
-    padding-inline-start: 1.5rem;
-  }
-  .prose :global(li) { margin-block: 0.35rem; }
-  .prose :global(strong) {
-    color: var(--color-fg);
-    font-weight: 600;
-  }
-  .prose :global(em) { color: var(--color-fg-muted); }
-</style>

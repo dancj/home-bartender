@@ -1,0 +1,24 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SuperJuiceCalculator from '../../components/SuperJuiceCalculator.astro';
+import '../../styles/learn-prose.css';
+
+// Dedicated route for the Super Juice technique: renders the section prose from
+// the `sections` collection (so it still appears in the /learn index) and mounts
+// the interactive calculator below it. [slug].astro excludes this slug so the
+// two pages don't collide on /learn/super-juice/.
+const section = await getEntry('sections', 'super-juice');
+if (!section) throw new Error('Missing sections/super-juice.md');
+const { Content } = await render(section);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title={`${section.data.title} — Home Bartender`} description={section.data.summary}>
+  <p class="back">
+    <a href={`${base}/learn/`}>← Learn</a>
+  </p>
+  <article data-pagefind-body class="prose">
+    <Content />
+  </article>
+  <SuperJuiceCalculator />
+</BaseLayout>

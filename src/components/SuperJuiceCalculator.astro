@@ -1,0 +1,281 @@
+---
+import { computeBuild, applyDilution, type Citrus } from '../lib/superJuice';
+
+// No-JS / server-rendered default: lime at 100 g peel. The client script below
+// re-reads inputs and overwrites these same nodes, but with JS off the page still
+// shows a correct, legible build (R8). Build-time uses the same lib as the island.
+const DEFAULT_CITRUS: Citrus = 'lime';
+const DEFAULT_PEEL = 100;
+const build = computeBuild(DEFAULT_CITRUS, DEFAULT_PEEL);
+const dil = applyDilution(build.baseYield);
+---
+
+<section class="sj" aria-labelledby="sj-title" data-sj-root>
+  <h2 id="sj-title" class="sj-title">Super Juice calculator</h2>
+
+  <form class="sj-controls" novalidate>
+    <fieldset class="sj-seg">
+      <legend>Citrus</legend>
+      <div class="sj-seg-row">
+        <label><input type="radio" name="sj-citrus" value="lime" checked /> <span>Lime</span></label>
+        <label><input type="radio" name="sj-citrus" value="lemon" /> <span>Lemon</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="sj-seg">
+      <legend>Measure by</legend>
+      <div class="sj-seg-row">
+        <label><input type="radio" name="sj-mode" value="peel" checked /> <span>Peel weight</span></label>
+        <label><input type="radio" name="sj-mode" value="fruit" /> <span># of fruit</span></label>
+      </div>
+    </fieldset>
+
+    <div class="sj-field" data-sj-input="peel">
+      <label for="sj-peel">Peel weight (g)</label>
+      <input id="sj-peel" type="number" inputmode="decimal" min="0" step="any" value="100" />
+    </div>
+
+    <div class="sj-field" data-sj-input="fruit" hidden>
+      <label for="sj-fruit"># of fruit <span class="sj-est">(estimate)</span></label>
+      <input id="sj-fruit" type="number" inputmode="numeric" min="0" step="1" />
+    </div>
+  </form>
+
+  <p class="sj-placeholder" data-sj-placeholder hidden>
+    Enter a peel weight or fruit count above to see your build.
+  </p>
+
+  <div class="sj-results" data-sj-results>
+    <dl class="sj-amounts" aria-live="polite">
+      <div><dt>Citric acid</dt><dd><span data-sj="citric">{build.citric}</span> g</dd></div>
+      <div data-sj-malic><dt>Malic acid</dt><dd><span data-sj="malic">{build.malic}</span> g</dd></div>
+      <div><dt>Water</dt><dd><span data-sj="water">{build.water}</span> ml</dd></div>
+    </dl>
+
+    <ol class="sj-steps">
+      <li>
+        Peel your <span data-sj="citrus">{DEFAULT_CITRUS}</span> and weigh the peels (about
+        <span data-sj="peel">{build.peelWeight}</span> g here). Drop the peels straight into the
+        blender with <span data-sj="citric">{build.citric}</span> g citric acid<span data-sj-malic> and
+        <span data-sj="malic">{build.malic}</span> g malic acid</span> and let them sit up to 2 hours —
+        you want the brown oleo citrate to form. Doing this right in the blender, not a separate jar,
+        means you don't lose any of it. Set the peeled fruit aside; you'll juice it in step 3.
+      </li>
+      <li>
+        Add <span data-sj="water">{build.water}</span> ml water to the blender.
+      </li>
+      <li>
+        Juice the peeled fruit you set aside and add the juice. Blend ~30 seconds, then strain
+        through cheesecloth.
+      </li>
+      <li>
+        Stir in another <span data-sj="dilWater">{dil.dilutionWater}</span> ml water — our 1:1 cut —
+        and it's ready to mix. Refrigerate (or freeze!) the rest.
+      </li>
+    </ol>
+  </div>
+</section>
+
+<script>
+  import { computeBuild, applyDilution, estimatePeelWeight, type Citrus } from '../lib/superJuice';
+
+  const root = document.querySelector<HTMLElement>('[data-sj-root]');
+  if (root) {
+    const peelInput = root.querySelector<HTMLInputElement>('#sj-peel')!;
+    const fruitInput = root.querySelector<HTMLInputElement>('#sj-fruit')!;
+    const peelField = root.querySelector<HTMLElement>('[data-sj-input="peel"]')!;
+    const fruitField = root.querySelector<HTMLElement>('[data-sj-input="fruit"]')!;
+    const results = root.querySelector<HTMLElement>('[data-sj-results]')!;
+    const placeholder = root.querySelector<HTMLElement>('[data-sj-placeholder]')!;
+
+    const checked = (name: string) =>
+      root.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value ?? '';
+
+    const setAll = (key: string, value: string) => {
+      root.querySelectorAll(`[data-sj="${key}"]`).forEach((el) => {
+        el.textContent = value;
+      });
+    };
+
+    const render = () => {
+      const citrus = checked('sj-citrus') as Citrus;
+      const mode = checked('sj-mode');
+
+      // Swap which input is visible; each field keeps its own value so toggling
+      // never reinterprets a number in the wrong unit.
+      peelField.hidden = mode !== 'peel';
+      fruitField.hidden = mode !== 'fruit';
+
+      const peelWeight =
+        mode === 'fruit'
+          ? estimatePeelWeight(citrus, Number(fruitInput.value))
+          : Number(peelInput.value);
+
+      const build = computeBuild(citrus, peelWeight);
+      const empty = build.baseYield <= 0;
+      placeholder.hidden = !empty;
+      results.hidden = empty;
+      if (empty) return;
+
+      const dil = applyDilution(build.baseYield);
+      setAll('citrus', citrus);
+      setAll('peel', String(build.peelWeight));
+      setAll('citric', String(build.citric));
+      setAll('malic', String(build.malic));
+      setAll('water', String(build.water));
+      setAll('dilWater', String(dil.dilutionWater));
+
+      // Lemon has no malic acid — hide every malic-bearing node.
+      root.querySelectorAll<HTMLElement>('[data-sj-malic]').forEach((el) => {
+        el.hidden = build.malic <= 0;
+      });
+    };
+
+    root.addEventListener('input', render);
+    root.addEventListener('change', render);
+    render();
+  }
+</script>
+
+<style>
+  .sj {
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    padding: 1.25rem 1.4rem 1.5rem;
+    margin: 2rem 0;
+    font-family: var(--font-sans);
+  }
+  .sj-title {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--color-fg-muted);
+    margin: 0 0 1rem;
+  }
+  .sj-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    align-items: flex-end;
+    margin: 0 0 1.25rem;
+  }
+  .sj-seg {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-inline-size: 0;
+  }
+  .sj-seg legend,
+  .sj-field label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-fg-subtle);
+    padding: 0;
+    margin-bottom: 0.4rem;
+  }
+  /* Segmented control: real radios drive state, visually hidden; labels styled as buttons. */
+  .sj-seg-row {
+    display: inline-flex;
+  }
+  .sj-seg label {
+    position: relative;
+    cursor: pointer;
+    border: 1px solid var(--color-rule-strong);
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+    color: var(--color-fg-muted);
+    background: var(--color-surface);
+  }
+  .sj-seg label:first-of-type { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+  .sj-seg label:last-of-type { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-left: 0; }
+  .sj-seg label:has(input:checked) {
+    background: var(--color-surface-muted);
+    color: var(--color-fg);
+    font-weight: 600;
+  }
+  .sj-seg label:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .sj-seg input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .sj-field {
+    display: flex;
+    flex-direction: column;
+  }
+  .sj-field input {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    color: var(--color-fg);
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule-strong);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.55rem;
+    width: 9rem;
+  }
+  .sj-field input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-ring);
+    outline: none;
+  }
+  .sj-est {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-fg-subtle);
+  }
+  .sj-placeholder {
+    color: var(--color-fg-muted);
+    font-style: italic;
+    margin: 0;
+  }
+  .sj-amounts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 0.6rem 1.25rem;
+    margin: 0 0 1.25rem;
+    padding: 0.9rem 1rem;
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-sm);
+  }
+  .sj-amounts > div { display: flex; flex-direction: column; gap: 0.15rem; }
+  .sj-amounts dt {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-fg-subtle);
+  }
+  .sj-amounts dd {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--color-fg);
+  }
+  .sj-steps {
+    margin: 0;
+    padding-inline-start: 1.5rem;
+  }
+  .sj-steps li {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--color-fg);
+    margin-block: 0.5rem;
+  }
+  .sj-steps li::marker {
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-weight: 600;
+  }
+  .sj-steps [data-sj] { font-variant-numeric: tabular-nums; font-weight: 600; }
+</style>
