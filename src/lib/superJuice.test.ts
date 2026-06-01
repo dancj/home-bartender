@@ -3,7 +3,6 @@ import {
   computeBuild,
   estimatePeelWeight,
   applyDilution,
-  mlToCups,
   PROPORTIONS,
   AVG_PEEL_WEIGHT_G,
 } from './superJuice';
@@ -93,14 +92,6 @@ describe('estimatePeelWeight', () => {
   it('returns 0 for zero or negative fruit counts', () => {
     expect(estimatePeelWeight('lemon', 0)).toBe(0);
     expect(estimatePeelWeight('lime', -2)).toBe(0);
-  });
-});
-
-describe('mlToCups', () => {
-  it('converts millilitres to US cups, one decimal', () => {
-    expect(mlToCups(473.176)).toBe('2.0');
-    expect(mlToCups(1666)).toBe('7.0');
-    expect(mlToCups(0)).toBe('0.0');
   });
 });
 

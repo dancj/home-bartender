@@ -1,5 +1,5 @@
 ---
-import { computeBuild, applyDilution, mlToCups, type Citrus } from '../lib/superJuice';
+import { computeBuild, applyDilution, type Citrus } from '../lib/superJuice';
 
 // No-JS / server-rendered default: lime at 100 g peel. The client script below
 // re-reads inputs and overwrites these same nodes, but with JS off the page still
@@ -50,35 +50,34 @@ const dil = applyDilution(build.baseYield);
       <div><dt>Citric acid</dt><dd><span data-sj="citric">{build.citric}</span> g</dd></div>
       <div data-sj-malic><dt>Malic acid</dt><dd><span data-sj="malic">{build.malic}</span> g</dd></div>
       <div><dt>Water</dt><dd><span data-sj="water">{build.water}</span> ml</dd></div>
-      <div><dt>Base yield</dt><dd><span data-sj="base">{build.baseYield}</span> ml (~<span data-sj="baseCups">{mlToCups(build.baseYield)}</span> cups)</dd></div>
-      <div class="sj-final"><dt>After 1:1 cut</dt><dd><span data-sj="final">{dil.finalVolume}</span> ml (~<span data-sj="finalCups">{mlToCups(dil.finalVolume)}</span> cups)</dd></div>
     </dl>
 
     <ol class="sj-steps">
       <li>
         Peel your <span data-sj="citrus">{DEFAULT_CITRUS}</span> and weigh the peels (about
-        <span data-sj="peel">{build.peelWeight}</span> g here). Add them to a jar with
-        <span data-sj="citric">{build.citric}</span> g citric acid<span data-sj-malic> and
-        <span data-sj="malic">{build.malic}</span> g malic acid</span>. Shake and rest up to 2 hours.
+        <span data-sj="peel">{build.peelWeight}</span> g here). Drop the peels straight into the
+        blender with <span data-sj="citric">{build.citric}</span> g citric acid<span data-sj-malic> and
+        <span data-sj="malic">{build.malic}</span> g malic acid</span> and let them sit about 2 hours —
+        doing this right in the blender, not a separate jar, keeps all the oleo citrate. Set the
+        peeled fruit aside; you'll juice it in step 3.
       </li>
       <li>
-        Tip the peels and acid into a blender. Add <span data-sj="water">{build.water}</span> ml
-        water and the juice squeezed from the peeled fruit.
+        Add <span data-sj="water">{build.water}</span> ml water to the blender.
       </li>
       <li>
-        Blend ~30 seconds, then strain through cheesecloth — about
-        <span data-sj="base">{build.baseYield}</span> ml super juice (~<span data-sj="baseCups">{mlToCups(build.baseYield)}</span> cups).
+        Juice the peeled fruit you set aside and add the juice. Blend ~30 seconds, then strain
+        through cheesecloth.
       </li>
       <li>
-        Our cut: stir in <span data-sj="dilWater">{dil.dilutionWater}</span> ml water (1:1) for about
-        <span data-sj="final">{dil.finalVolume}</span> ml (~<span data-sj="finalCups">{mlToCups(dil.finalVolume)}</span> cups) ready to mix.
+        Stir in another <span data-sj="dilWater">{dil.dilutionWater}</span> ml water — our 1:1 cut —
+        and it's ready to mix.
       </li>
     </ol>
   </div>
 </section>
 
 <script>
-  import { computeBuild, applyDilution, estimatePeelWeight, mlToCups, type Citrus } from '../lib/superJuice';
+  import { computeBuild, applyDilution, estimatePeelWeight, type Citrus } from '../lib/superJuice';
 
   const root = document.querySelector<HTMLElement>('[data-sj-root]');
   if (root) {
@@ -124,11 +123,7 @@ const dil = applyDilution(build.baseYield);
       setAll('citric', String(build.citric));
       setAll('malic', String(build.malic));
       setAll('water', String(build.water));
-      setAll('base', String(build.baseYield));
-      setAll('baseCups', mlToCups(build.baseYield));
       setAll('dilWater', String(dil.dilutionWater));
-      setAll('final', String(dil.finalVolume));
-      setAll('finalCups', mlToCups(dil.finalVolume));
 
       // Lemon has no malic acid — hide every malic-bearing node.
       root.querySelectorAll<HTMLElement>('[data-sj-malic]').forEach((el) => {
@@ -266,19 +261,21 @@ const dil = applyDilution(build.baseYield);
     font-size: 0.95rem;
     color: var(--color-fg);
   }
-  .sj-amounts .sj-final dd { font-weight: 600; color: var(--color-accent); }
   .sj-steps {
     margin: 0;
-    padding-inline-start: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    padding-inline-start: 1.5rem;
   }
   .sj-steps li {
     font-family: var(--font-serif);
     font-size: 1.0625rem;
     line-height: 1.6;
     color: var(--color-fg);
+    margin-block: 0.5rem;
+  }
+  .sj-steps li::marker {
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-weight: 600;
   }
   .sj-steps [data-sj] { font-variant-numeric: tabular-nums; font-weight: 600; }
 </style>
