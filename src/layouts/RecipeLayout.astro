@@ -26,6 +26,19 @@ const hasAttribution =
       <p class="blurb">{data.blurb}</p>
 
       <dl class="facts">
+        {data.families.length > 0 && (
+          <div>
+            <dt class="eyebrow">Family</dt>
+            <dd>
+              {data.families.map((f: string, i: number) => (
+                <>
+                  {i > 0 && <span class="note"> · </span>}
+                  <a href={`${base}/by-family/${f}/`}>{label('family', f)}</a>
+                </>
+              ))}
+            </dd>
+          </div>
+        )}
         <div>
           <dt class="eyebrow">Glass</dt>
           <dd>
@@ -173,6 +186,15 @@ const hasAttribution =
     color: var(--color-fg-muted);
     margin-left: 0.25rem;
     font-style: italic;
+  }
+  .facts dd a {
+    color: var(--color-fg);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--color-rule-strong);
+  }
+  .facts dd a:hover {
+    text-decoration-color: var(--color-fg);
   }
 
   .taxonomy {

@@ -8,6 +8,7 @@ glass_note: or rocks
 method: shaken
 ice: cubed
 difficulty: medium
+families: [sidecar]
 spirits:
   - tequila
   - liqueur

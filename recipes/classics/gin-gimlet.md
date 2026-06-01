@@ -9,6 +9,7 @@ method: shaken
 ice: none
 ice_note: (served up) · or rocks in Collins variation
 difficulty: easy
+families: [daiquiri]
 spirits:
   - gin
 format: single

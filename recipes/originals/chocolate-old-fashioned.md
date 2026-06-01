@@ -7,6 +7,7 @@ glass: rocks
 method: stirred
 ice: large-cube
 difficulty: easy
+families: [old-fashioned]
 spirits:
   - bourbon
 format: single
