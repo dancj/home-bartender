@@ -71,7 +71,9 @@ export function computeBuild(citrus: Citrus, peelWeightGrams: number): Build {
   if (!p || !isPositiveFinite(peelWeightGrams)) return { ...ZERO_BUILD };
   const water = Math.round(p.water * peelWeightGrams);
   return {
-    peelWeight: peelWeightGrams,
+    // Math uses the raw weight; the echoed value is rounded for display parity
+    // with the acid/water figures (a direct peel entry can carry many decimals).
+    peelWeight: round(peelWeightGrams, 1),
     citric: round(p.citric * peelWeightGrams, 1),
     malic: round(p.malic * peelWeightGrams, 1),
     water,

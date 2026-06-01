@@ -49,6 +49,12 @@ describe('computeBuild', () => {
     expect(b.water).toBe(1250); // 16.66 * 75 = 1249.5 -> 1250
   });
 
+  it('rounds the echoed peel weight to 1 decimal while computing from the raw value', () => {
+    const b = computeBuild('lime', 33.333);
+    expect(b.peelWeight).toBe(33.3);
+    expect(b.citric).toBe(22); // 0.66 * 33.333 = 21.99978 -> 22.0
+  });
+
   it('stays finite and scaled for very large peel weights', () => {
     const b = computeBuild('lime', 10000);
     expect(Number.isFinite(b.water)).toBe(true);
