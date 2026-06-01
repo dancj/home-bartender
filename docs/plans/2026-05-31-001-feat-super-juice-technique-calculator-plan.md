@@ -1,7 +1,7 @@
 ---
 title: "feat: Super Juice technique page with integrated calculator"
 type: feat
-status: active
+status: completed
 date: 2026-05-31
 ---
 
