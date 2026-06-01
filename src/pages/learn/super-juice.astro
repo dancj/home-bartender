@@ -1,35 +1,25 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import SuperJuiceCalculator from '../../components/SuperJuiceCalculator.astro';
 
-export async function getStaticPaths() {
-  // `super-juice` is served by its own page (src/pages/learn/super-juice.astro)
-  // so it can mount the interactive calculator. Exclude it here to avoid a
-  // duplicate `/learn/super-juice/` route. `section.id` is the bare slug
-  // (e.g. `glossary`), not the filename, for the glob content loader.
-  const sections = (await getCollection('sections')).filter(
-    (section) => section.id !== 'super-juice',
-  );
-  return sections.map((section) => ({
-    params: { slug: section.id },
-    props: { section },
-  }));
-}
-
-const { section } = Astro.props;
+// Dedicated route for the Super Juice technique: renders the section prose from
+// the `sections` collection (so it still appears in the /learn index) and mounts
+// the interactive calculator below it. [slug].astro excludes this slug so the
+// two pages don't collide on /learn/super-juice/.
+const section = await getEntry('sections', 'super-juice');
+if (!section) throw new Error('Missing sections/super-juice.md');
 const { Content } = await render(section);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<BaseLayout
-  title={`${section.data.title} — Home Bartender`}
-  description={section.data.summary}
->
+<BaseLayout title={`${section.data.title} — Home Bartender`} description={section.data.summary}>
   <p class="back">
     <a href={`${base}/learn/`}>← Learn</a>
   </p>
   <article data-pagefind-body class="prose">
     <Content />
   </article>
+  <SuperJuiceCalculator />
 </BaseLayout>
 
 <style>
@@ -56,12 +46,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     margin-bottom: 0.75rem;
     color: var(--color-fg);
   }
-  .prose :global(h3) {
-    font-family: var(--font-serif);
-    font-size: 1.125rem;
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
   .prose :global(p),
   .prose :global(li) {
     font-family: var(--font-serif);
@@ -70,12 +54,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     color: var(--color-fg);
   }
   .prose :global(p) { margin-block: 0.75rem; }
-  .prose :global(ul),
-  .prose :global(ol) {
+  .prose :global(ul) {
     margin-block: 0.75rem;
     padding-inline-start: 1.5rem;
   }
   .prose :global(li) { margin-block: 0.35rem; }
+  .prose :global(a) {
+    color: var(--color-accent);
+    text-underline-offset: 2px;
+  }
   .prose :global(strong) {
     color: var(--color-fg);
     font-weight: 600;
