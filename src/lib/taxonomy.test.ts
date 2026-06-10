@@ -1,11 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { groupByTax } from './taxonomy';
+import { groupByTax, label } from './taxonomy';
 import type { Recipe } from './recipes';
 
 // Minimal Recipe-shaped stub — groupByTax only reads `data[field]`.
 function recipe(title: string, families: string[]): Recipe {
   return { data: { title, families } } as unknown as Recipe;
 }
+
+describe('label("format", _)', () => {
+  // Regression: RecipeCard once rendered the raw format slug instead of
+  // routing through label().
+  it('maps format slugs to display labels', () => {
+    expect(label('format', 'batch')).toBe('Batch');
+    expect(label('format', 'punch')).toBe('Punch');
+    expect(label('format', 'single')).toBe('Single');
+  });
+});
 
 describe('groupByTax(_, "families")', () => {
   it('buckets a single-family recipe under its one root', () => {

@@ -35,7 +35,7 @@ export const DIFFICULTIES = ['easy', 'medium', 'advanced'] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
 
 export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  'easy': "Easy",
+  'easy': "Basic",
   'medium': "Medium",
   'advanced': "Advanced",
 };

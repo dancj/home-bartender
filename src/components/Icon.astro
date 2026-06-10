@@ -1,0 +1,18 @@
+---
+import { iconUrl } from '../lib/icon-urls';
+
+interface Props {
+  field: string;
+  slug: string;
+  class?: string;
+}
+const { field, slug, class: className } = Astro.props;
+const url = iconUrl(field, slug);
+---
+{url && (
+  <span
+    class:list={['tax-icon', className]}
+    style={`--icon-url: url("${url}")`}
+    aria-hidden="true"
+  ></span>
+)}
