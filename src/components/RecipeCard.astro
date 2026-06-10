@@ -1,6 +1,7 @@
 ---
 import type { Recipe } from '../lib/recipes';
 import { label } from '../lib/taxonomy';
+import Icon from './Icon.astro';
 
 interface Props {
   recipe: Recipe;
@@ -23,13 +24,13 @@ const primarySpirit = data.spirits[0];
     <h2 class="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.01em] text-fg">{data.title}</h2>
     <p class="font-serif italic text-[0.95rem] leading-[1.45] text-fg-muted flex-1">{data.blurb}</p>
     <p class="recipe-card-meta">
-      <span>{label('method', data.method)}</span>
+      <span><Icon field="method" slug={data.method} /> {label('method', data.method)}</span>
       <span aria-hidden="true">·</span>
-      <span>{label('difficulty', data.difficulty)}</span>
+      <span><Icon field="difficulty" slug={data.difficulty} /> {label('difficulty', data.difficulty)}</span>
       {data.format !== 'single' && (
         <>
           <span aria-hidden="true">·</span>
-          <span>{data.format}</span>
+          <span><Icon field="format" slug={data.format} /> {label('format', data.format)}</span>
         </>
       )}
     </p>
@@ -55,4 +56,8 @@ const primarySpirit = data.spirits[0];
     align-items: center;
   }
   .recipe-card-meta span[aria-hidden] { opacity: 0.5; }
+  .recipe-card-meta .tax-icon {
+    --icon-size: 1.5em;
+    vertical-align: -0.35em;
+  }
 </style>

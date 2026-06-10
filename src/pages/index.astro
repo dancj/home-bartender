@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import RecipeCard from '../components/RecipeCard.astro';
 import { publishedRecipes } from '../lib/recipes';
 import { label, groupByTax } from '../lib/taxonomy';
+import Icon from '../components/Icon.astro';
 
 const recipes = (await publishedRecipes()).sort((a, b) =>
   a.data.title.localeCompare(b.data.title)
@@ -32,7 +33,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           {spirits.map((s) => (
             <li>
               <button type="button" class="chip" data-filter="spirit" data-value={s}>
-                {label('spirits', s)}
+                <Icon field="spirits" slug={s} /> {label('spirits', s)}
               </button>
             </li>
           ))}
@@ -44,7 +45,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           {difficulties.map((d) => (
             <li>
               <button type="button" class="chip" data-filter="difficulty" data-value={d}>
-                {label('difficulty', d)}
+                <Icon field="difficulty" slug={d} /> {label('difficulty', d)}
               </button>
             </li>
           ))}
@@ -56,7 +57,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           {methods.map((m) => (
             <li>
               <button type="button" class="chip" data-filter="method" data-value={m}>
-                {label('method', m)}
+                <Icon field="method" slug={m} /> {label('method', m)}
               </button>
             </li>
           ))}
@@ -68,7 +69,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           {flavors.map((f) => (
             <li>
               <button type="button" class="chip" data-filter="flavor" data-value={f}>
-                {label('flavor', f)}
+                <Icon field="flavor" slug={f} /> {label('flavor', f)}
               </button>
             </li>
           ))}

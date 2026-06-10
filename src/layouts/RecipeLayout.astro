@@ -6,6 +6,8 @@ import Ingredients from '../components/recipe/Ingredients.astro';
 import Steps from '../components/recipe/Steps.astro';
 import HouseMade from '../components/recipe/HouseMade.astro';
 import BatchInstructions from '../components/recipe/BatchInstructions.astro';
+import Icon from '../components/Icon.astro';
+import { iconUrl } from '../lib/icon-urls';
 
 interface Props {
   recipe: Recipe;
@@ -15,6 +17,17 @@ const { data } = recipe;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hasAttribution =
   data.attribution.creator || data.attribution.bar || data.attribution.year;
+
+// Markdown-rendered headings (## Notes, ## Variations) can't host the Icon
+// component — their icons ride in via ::before masks fed by these custom
+// properties on .recipe-body.
+const mdHeadingIcons = [
+  ['--icon-notes', iconUrl('sections', 'notes')],
+  ['--icon-variations', iconUrl('sections', 'variations')],
+]
+  .filter(([, url]) => url)
+  .map(([prop, url]) => `${prop}: url("${url}")`)
+  .join('; ');
 ---
 <BaseLayout title={`${data.title} — Home Bartender`} description={data.blurb}>
   <article data-pagefind-body>
@@ -33,6 +46,7 @@ const hasAttribution =
               {data.families.map((f: string, i: number) => (
                 <>
                   {i > 0 && <span class="note"> · </span>}
+                  <Icon field="family" slug={f} />
                   <a href={`${base}/by-family/${f}/`}>{label('family', f)}</a>
                 </>
               ))}
@@ -42,6 +56,7 @@ const hasAttribution =
         <div>
           <dt class="eyebrow">Glass</dt>
           <dd>
+            <Icon field="glass" slug={data.glass} />
             {label('glass', data.glass)}
             {data.glass_note && <span class="note">· {data.glass_note}</span>}
           </dd>
@@ -49,6 +64,7 @@ const hasAttribution =
         <div>
           <dt class="eyebrow">Method</dt>
           <dd>
+            <Icon field="method" slug={data.method} />
             {label('method', data.method)}
             {data.method_note && <span class="note">· {data.method_note}</span>}
           </dd>
@@ -56,13 +72,14 @@ const hasAttribution =
         <div>
           <dt class="eyebrow">Ice</dt>
           <dd>
+            <Icon field="ice" slug={data.ice} />
             {label('ice', data.ice)}
             {data.ice_note && <span class="note">· {data.ice_note}</span>}
           </dd>
         </div>
         <div>
           <dt class="eyebrow">Difficulty</dt>
-          <dd>{label('difficulty', data.difficulty)}</dd>
+          <dd><Icon field="difficulty" slug={data.difficulty} /> {label('difficulty', data.difficulty)}</dd>
         </div>
       </dl>
 
@@ -73,7 +90,7 @@ const hasAttribution =
               {data.spirits.map((s: string) => (
                 <li>
                   <a href={`${base}/by-spirit/${s}/`} class="chip chip-spirit">
-                    {label('spirits', s)}
+                    <Icon field="spirits" slug={s} /> {label('spirits', s)}
                   </a>
                 </li>
               ))}
@@ -84,7 +101,7 @@ const hasAttribution =
               {data.flavors.map((f: string) => (
                 <li>
                   <a href={`${base}/by-flavor/${f}/`} class="chip">
-                    {f}
+                    <Icon field="flavor" slug={f} /> {label('flavor', f)}
                   </a>
                 </li>
               ))}
@@ -94,7 +111,7 @@ const hasAttribution =
       )}
     </header>
 
-    <div class="recipe-body">
+    <div class="recipe-body" style={mdHeadingIcons || undefined}>
       {data.ingredients.length > 0 && (
         <Ingredients items={data.ingredients} garnish={data.garnish} float={data.float} />
       )}
@@ -118,7 +135,7 @@ const hasAttribution =
 
     {data.related.length > 0 && (
       <aside class="related">
-        <h2 class="aside-title">Related</h2>
+        <h2 class="aside-title"><Icon field="sections" slug="related" /> Related</h2>
         <ul>
           {data.related.map((slug: string) => (
             <li><a href={`${base}/recipes/${slug}/`}>{slug.replace(/-/g, ' ')}</a></li>
@@ -182,6 +199,12 @@ const hasAttribution =
     font-size: 0.9rem;
     color: var(--color-fg);
   }
+  .facts dd .tax-icon {
+    --icon-size: 1.15rem;
+    margin-right: 0.3rem;
+    vertical-align: -0.22em;
+    color: var(--color-fg-muted);
+  }
   .facts .note {
     color: var(--color-fg-muted);
     margin-left: 0.25rem;
@@ -231,6 +254,38 @@ const hasAttribution =
   }
   .recipe-body :global(h2:first-child) {
     margin-top: 1.5rem;
+  }
+  /* Section-heading icons: one visual treatment whether the icon comes
+     from the Icon component (component-rendered sections) or the ::before
+     mask (markdown-rendered ## Notes / ## Variations). */
+  .recipe-body :global(h2 .tax-icon) {
+    --icon-size: 1.5em;
+    margin-right: 0.4em;
+    vertical-align: -0.4em;
+  }
+  .recipe-body :global(h2#notes)::before,
+  .recipe-body :global(h2#variations)::before {
+    content: '';
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.4em;
+    vertical-align: -0.4em;
+    background-color: currentColor;
+    -webkit-mask: var(--md-icon) center / contain no-repeat;
+    mask: var(--md-icon) center / contain no-repeat;
+  }
+  .recipe-body :global(h2#notes)::before {
+    --md-icon: var(--icon-notes);
+  }
+  .recipe-body :global(h2#variations)::before {
+    --md-icon: var(--icon-variations);
+  }
+  .recipe-body :global(p .tax-icon.inline-icon) {
+    --icon-size: 1.1em;
+    margin-right: 0.15em;
+    vertical-align: -0.18em;
+    color: var(--color-fg-muted);
   }
   .recipe-body :global(h3) {
     font-family: var(--font-serif);
@@ -284,6 +339,11 @@ const hasAttribution =
     letter-spacing: 0.12em;
     color: var(--color-fg-muted);
     margin: 0 0 0.5rem;
+  }
+  .aside-title .tax-icon {
+    --icon-size: 1.5em;
+    margin-right: 0.35em;
+    vertical-align: -0.4em;
   }
   .attribution strong {
     color: var(--color-fg);

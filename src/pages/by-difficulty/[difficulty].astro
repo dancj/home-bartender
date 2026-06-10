@@ -3,6 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import RecipeCard from '../../components/RecipeCard.astro';
 import { publishedRecipes } from '../../lib/recipes';
 import { label } from '../../lib/taxonomy';
+import Icon from '../../components/Icon.astro';
 
 export async function getStaticPaths() {
   const recipes = await publishedRecipes();
@@ -27,7 +28,7 @@ const displayName = label('difficulty', difficulty);
 >
   <section class="page-head">
     <p class="eyebrow">By difficulty</p>
-    <h1>{displayName}</h1>
+    <h1><Icon field="difficulty" slug={difficulty} class="head-icon" /> {displayName}</h1>
     <p class="lede">{items.length} {items.length === 1 ? 'recipe' : 'recipes'}.</p>
   </section>
   <ul class="recipe-grid">

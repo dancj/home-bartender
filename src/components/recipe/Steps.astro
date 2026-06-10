@@ -1,10 +1,12 @@
 ---
+import Icon from '../Icon.astro';
+
 interface Props {
   items: string[];
 }
 const { items } = Astro.props;
 ---
-<h2>Steps</h2>
+<h2><Icon field="sections" slug="steps" /> Steps</h2>
 <ol>
   {items.map((item) => <li>{item}</li>)}
 </ol>
