@@ -1,0 +1,126 @@
+{
+  "hbt_build_type.png": {
+    "group": "methods",
+    "cells": ["shaken", "stirred", "built", "blended"]
+  },
+  "hbt_difficulty.png": {
+    "group": "difficulty",
+    "slice": { "axis": "cols", "depth": 1 },
+    "keepSegment": "first",
+    "keepGapY": 8,
+    "cells": ["easy", "medium", "advanced"]
+  },
+  "hbt_family2.png": {
+    "group": "families",
+    "inset": 0.08,
+    "slice": { "minGapX": 8, "minGapY": 8 },
+    "cells": [
+      "old-fashioned",
+      "martini",
+      null,
+      "daiquiri",
+      "sidecar",
+      null,
+      null,
+      "whiskey-highball",
+      null,
+      "flip",
+      null,
+      null
+    ]
+  },
+  "hbt_format.png": {
+    "group": "format",
+    "cells": ["single", "batch", "punch"]
+  },
+  "hbt_ice.png": {
+    "group": "ice",
+    "inset": 0.08,
+    "cells": ["cubed", "large-cube", "crushed", "none"]
+  },
+  "hbt-flavors.png": {
+    "group": "flavors",
+    "stripLabels": true,
+    "slice": { "minGapY": 40 },
+    "cells": [
+      "citrus",
+      "fruity",
+      "sweet",
+      "sour",
+      "tart",
+      "bright",
+      "herbal",
+      "floral",
+      "botanical",
+      "spice",
+      "nutty",
+      "smoky",
+      "chocolate",
+      "rich",
+      "spirit-forward",
+      "bitter",
+      "bubbly",
+      "savory",
+      "refreshing"
+    ]
+  },
+  "hbt-glassware.png": {
+    "group": "glassware",
+    "cells": [
+      "coupe",
+      "nick-and-nora",
+      "rocks",
+      "double-rocks",
+      "highball",
+      "collins",
+      "flute",
+      "wine",
+      "margarita",
+      null,
+      "martini",
+      "mug",
+      "snifter",
+      "julep-tin"
+    ]
+  },
+  "hbt-headings.png": {
+    "group": "sections",
+    "stripLabels": true,
+    "slice": { "minGapY": 70 },
+    "cells": [
+      "ingredients",
+      "steps",
+      "garnish",
+      "float",
+      "house-made",
+      "batch",
+      "notes",
+      "variations",
+      "related"
+    ]
+  },
+  "hbt-liquers.png": {
+    "group": "spirits",
+    "stripLabels": true,
+    "labelGapY": 4,
+    "slice": { "minGapY": 30 },
+    "cells": [
+      "tequila",
+      "mezcal",
+      "whiskey",
+      "bourbon",
+      "rye",
+      "scotch",
+      "gin",
+      "vodka",
+      "rum",
+      null,
+      "brandy",
+      "aperitif",
+      null,
+      "liqueur",
+      "wine",
+      "champagne"
+    ]
+  }
+}

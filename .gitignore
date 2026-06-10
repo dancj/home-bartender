@@ -12,5 +12,8 @@ dist/pagefind/
 .env
 .env.local
 
+# Icon pipeline scratch space (npm run icons)
+.icon-work/
+
 # OS
 .DS_Store
