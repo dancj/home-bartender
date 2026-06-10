@@ -9,7 +9,7 @@ Every facet value comes from `data/taxonomy.yaml` (the single source of truth). 
 1. Paste one prompt block below into the generator.
 2. Keep the **STYLE block identical across every run** — that's what makes all 86 icons read as one family.
 3. Save each result by its slug (`coupe.png`, `tequila.png`, …) so the files map straight onto the taxonomy.
-4. Image generators return raster images, not SVG. If you need true SVGs, vectorize afterward (or ask the generator to "output as SVG code" for simple line icons).
+4. Image generators return raster images, not SVG. Drop the generated grid PNGs into `docs/imgs/`, add an entry to `data/icon-grids.json` (group, slice options, row-major slug order — `null` skips a duplicate/variant cell), and run `npm run icons` to slice + vectorize them into `src/assets/icons/<group>/<slug>.svg` (requires `brew install potrace`). Sliced raster previews land in `.icon-work/` for QA.
 
 **Background:** prompts use a solid **white** background. The first three groups (categories, methods, ice) were drafted with transparent backgrounds before switching — re-run them on white if you want the whole set consistent.
 
