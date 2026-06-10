@@ -1,4 +1,6 @@
 ---
+import Icon from '../Icon.astro';
+
 interface Props {
   yield: string;
   ingredients?: string[];
@@ -9,7 +11,7 @@ const paragraphs = instructions
   ? instructions.split(/\n\s*\n+/).map((p) => p.trim()).filter(Boolean)
   : [];
 ---
-<h2>How to Batch It</h2>
+<h2><Icon field="sections" slug="batch" /> How to Batch It</h2>
 <p><em>{yieldText}</em></p>
 {ingredients && ingredients.length > 0 && (
   <ul>

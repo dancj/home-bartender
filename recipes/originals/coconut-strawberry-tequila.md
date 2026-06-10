@@ -8,6 +8,7 @@ glass_note: or coupe
 method: shaken
 ice: large-cube
 difficulty: easy
+families: [sidecar]
 spirits:
   - tequila
   - mezcal

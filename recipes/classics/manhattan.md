@@ -8,6 +8,7 @@ method: stirred
 ice: none
 ice_note: (served up)
 difficulty: easy
+families: [martini, old-fashioned]
 spirits:
   - bourbon
   - liqueur

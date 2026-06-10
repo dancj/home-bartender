@@ -9,6 +9,7 @@ method: shaken
 ice: none
 ice_note: (served up) · or large cube in rocks variation
 difficulty: easy
+families: [daiquiri]
 spirits:
   - bourbon
   - aperitif

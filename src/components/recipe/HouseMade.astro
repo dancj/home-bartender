@@ -1,4 +1,6 @@
 ---
+import Icon from '../Icon.astro';
+
 interface Props {
   name: string;
   yield?: string;
@@ -7,7 +9,7 @@ interface Props {
 }
 const { name, yield: yieldText, ingredients, steps } = Astro.props;
 ---
-<h2>House-Made {name}</h2>
+<h2><Icon field="sections" slug="house-made" /> House-Made {name}</h2>
 {yieldText && <p><em>{yieldText}</em></p>}
 {ingredients && ingredients.length > 0 && (
   <ul>

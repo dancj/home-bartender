@@ -33,6 +33,7 @@ const LABEL_MAPS: Record<string, Record<string, string>> = {
   method: METHOD_LABELS,
   glass: GLASS_LABELS,
   family: FAMILY_LABELS,
+  families: FAMILY_LABELS,
   ice: ICE_LABELS,
   category: CATEGORY_LABELS,
   format: FORMAT_LABELS,
@@ -48,7 +49,7 @@ export function label(field: string, value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1).replace(/-/g, ' ');
 }
 
-type TaxField = 'spirits' | 'flavors' | 'tags' | 'occasions';
+type TaxField = 'spirits' | 'flavors' | 'tags' | 'occasions' | 'families';
 
 export function groupByTax(recipes: Recipe[], field: TaxField): Map<string, Recipe[]> {
   const map = new Map<string, Recipe[]>();

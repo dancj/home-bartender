@@ -14,6 +14,7 @@
     "promote": "node scripts/promote.mjs",
     "migrate:bodies": "node scripts/migrate-body-to-frontmatter.mjs",
     "codegen": "node scripts/codegen-taxonomy.mjs",
+    "icons": "node scripts/prep-icons.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "generate-favicons": "node scripts/generate-favicons.mjs",

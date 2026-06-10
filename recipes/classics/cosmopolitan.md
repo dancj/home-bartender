@@ -8,6 +8,7 @@ method: shaken
 ice: none
 ice_note: (served up)
 difficulty: easy
+families: [sidecar]
 spirits:
   - vodka
   - liqueur
