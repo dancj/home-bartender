@@ -36,7 +36,7 @@ ices:
   - { slug: none, label: None }
 
 difficulties:
-  - { slug: easy, label: Easy }
+  - { slug: easy, label: Basic }
   - { slug: medium, label: Medium }
   - { slug: advanced, label: Advanced }
 

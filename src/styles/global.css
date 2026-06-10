@@ -219,7 +219,7 @@
     border-color: var(--color-accent);
   }
   .chip .tax-icon {
-    --icon-size: 1.25em;
+    --icon-size: 3.2em;
   }
 
   /* Input */
@@ -275,9 +275,9 @@
     margin: 0;
   }
   .page-head h1 .tax-icon {
-    --icon-size: 0.85em;
-    margin-right: 0.2em;
-    vertical-align: -0.08em;
+    --icon-size: 1.7em;
+    margin-right: 0.25em;
+    vertical-align: -0.45em;
     color: var(--color-fg-muted);
   }
   .page-head .lede {

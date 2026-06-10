@@ -20,8 +20,8 @@ const primarySpirit = data.spirits[0];
   data-difficulty={data.difficulty}
 >
   <a href={`${base}/recipes/${slug}/`} class="card h-full">
-    {primarySpirit && <p class="eyebrow">{label('spirits', primarySpirit)}</p>}
     <h2 class="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.01em] text-fg">{data.title}</h2>
+    {primarySpirit && <p class="eyebrow card-spirit">{label('spirits', primarySpirit)}</p>}
     <p class="font-serif italic text-[0.95rem] leading-[1.45] text-fg-muted flex-1">{data.blurb}</p>
     <p class="recipe-card-meta">
       <span><Icon field="method" slug={data.method} /> {label('method', data.method)}</span>
@@ -56,8 +56,11 @@ const primarySpirit = data.spirits[0];
     align-items: center;
   }
   .recipe-card-meta span[aria-hidden] { opacity: 0.5; }
-  .recipe-card-meta .tax-icon {
-    --icon-size: 1.5em;
-    vertical-align: -0.35em;
+  .card-spirit {
+    color: var(--color-accent);
+  }
+  .recipe-card-meta :global(.tax-icon) {
+    --icon-size: 3.6em;
+    vertical-align: -1.4em;
   }
 </style>
