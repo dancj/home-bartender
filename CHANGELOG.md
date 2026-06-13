@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.6.10.1] - 2026-06-10
+
+### Features
+
+- #64 — feat: add Super Juice technique with integrated calculator (@dancj)
+
+### Platform
+
+- #70 — feat(icons): surface taxonomy icons across recipe pages, cards, and listings (@dancj)
+- #68 — feat(icons): grid-slicing icon pipeline + 75 vectorized taxonomy icons (@dancj)
+- #66 — docs(icons): icon-set generation prompts reference (@dancj)
+- #65 — chore(deps): update vitest monorepo to v4.1.8 (@app/renovate)
+- #60 — feat(taxonomy): map recipes to Cocktail Codex root families (@dancj)
+- #59 — docs: update CHANGELOG for release 2026.5.31.1 (@app/github-actions)
+- #53 — chore(deps): update dependency lint-staged to v17.0.7 (@app/renovate)
 ## [2026.5.31.1] - 2026-05-31
 
 ### Platform
