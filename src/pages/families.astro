@@ -27,16 +27,22 @@ const roots = FAMILIES.map((slug) => ({
     </p>
   </section>
   <ul class="family-list">
-    {roots.map((f) => (
-      <li>
-        <a href={`${base}/by-family/${f.slug}/`} class:list={['card', 'h-full', 'family-card', { 'is-empty': f.count === 0 }]}>
-          <Icon field="family" slug={f.slug} class="family-icon" />
-          <h2 class="family-title">{f.label}</h2>
-          <p class="family-note">{f.note}</p>
-          <p class="family-count">{f.count} {f.count === 1 ? 'recipe' : 'recipes'}</p>
-        </a>
-      </li>
-    ))}
+    {roots.map((f) => {
+      // Empty roots have no /by-family/<slug>/ page (getStaticPaths only builds
+      // families with members), so render them as a non-link div, not a dead <a>.
+      const Tag = f.count === 0 ? 'div' : 'a';
+      const linkProps = f.count === 0 ? {} : { href: `${base}/by-family/${f.slug}/` };
+      return (
+        <li>
+          <Tag {...linkProps} class:list={['card', 'h-full', 'family-card', { 'is-empty': f.count === 0 }]}>
+            <Icon field="family" slug={f.slug} class="family-icon" />
+            <h2 class="family-title">{f.label}</h2>
+            <p class="family-note">{f.note}</p>
+            <p class="family-count">{f.count} {f.count === 1 ? 'recipe' : 'recipes'}</p>
+          </Tag>
+        </li>
+      );
+    })}
   </ul>
 </BaseLayout>
 
@@ -88,9 +94,15 @@ const roots = FAMILIES.map((slug) => ({
     font-size: 0.85rem;
     color: var(--color-fg-muted);
   }
-  /* Empty roots (e.g. Flip) stay visible for the "all roots" framing, de-emphasised. */
+  /* Empty roots (e.g. Flip) stay visible for the "all roots" framing, de-emphasised
+     and non-interactive (no page exists to link to). */
   .family-card.is-empty {
     opacity: 0.6;
+    cursor: default;
+  }
+  .family-card.is-empty:hover {
+    transform: none;
+    box-shadow: none;
   }
   .family-credit {
     margin: 0.6rem 0 0;
