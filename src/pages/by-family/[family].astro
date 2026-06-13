@@ -4,6 +4,8 @@ import RecipeCard from '../../components/RecipeCard.astro';
 import { publishedRecipes } from '../../lib/recipes';
 import { groupByTax, label } from '../../lib/taxonomy';
 import Icon from '../../components/Icon.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { breadcrumbTrail } from '../../lib/breadcrumbs';
 
 export async function getStaticPaths() {
   const recipes = await publishedRecipes();
@@ -23,7 +25,7 @@ const displayName = label('family', family);
   width="wide"
 >
   <section class="page-head">
-    <p class="eyebrow">By family</p>
+    <Breadcrumb segments={breadcrumbTrail('family', displayName)} />
     <h1><Icon field="family" slug={family} class="head-icon" /> {displayName}</h1>
     <p class="lede">{items.length} {items.length === 1 ? 'recipe' : 'recipes'}.</p>
   </section>
