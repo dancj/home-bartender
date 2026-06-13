@@ -98,7 +98,7 @@ recipes/
   originals/      ← contributor's own creations (only when the contributor has explicitly stated authorship, not when a recipe simply looks unusual)
   seasonal/       ← seasonal/holiday recipes
   inbox/          ← new recipes pending review (publish: false)
-sections/         ← prose: introduction, techniques, tools, glossary
+sections/         ← prose: introduction, techniques, tools, super juice
 TEMPLATE.md       ← standard recipe format with frontmatter schema
 ```
 

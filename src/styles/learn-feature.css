@@ -1,0 +1,257 @@
+/* Editorial layout primitives for the bespoke /learn feature pages
+   (Tools + Techniques). These pages moved off the generic prose route
+   (src/pages/learn/[slug].astro) into dedicated, structured layouts, so the
+   shared visual language — terracotta hanging numerals, group headings, the
+   stir/shake diptych — lives here once. Mirrors the learn-prose.css pattern.
+
+   Motion is opt-in via the .reveal entrance and guarded by
+   prefers-reduced-motion; everything else leans on the global @theme tokens. */
+
+.back {
+  margin-bottom: 1.25rem;
+}
+.back a {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-fg-muted);
+  text-decoration: none;
+}
+.back a:hover {
+  color: var(--color-fg);
+}
+
+/* ---------- page intro ---------- */
+
+.feature-head {
+  max-width: 60ch;
+  margin-bottom: 3rem;
+}
+.feature-head .eyebrow {
+  display: block;
+  margin-bottom: 0.6rem;
+}
+.feature-head h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 6vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.feature-head .lede {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--color-fg-muted);
+  font-size: clamp(1.0625rem, 2.5vw, 1.25rem);
+  line-height: 1.5;
+  margin-top: 0.85rem;
+}
+
+/* ---------- a group of items (e.g. "The Basics") ---------- */
+
+.feature-group {
+  margin-top: 3.5rem;
+}
+.feature-group:first-of-type {
+  margin-top: 0;
+}
+.feature-group__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--color-rule);
+}
+.feature-group__title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.feature-group__count {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-fg-subtle);
+}
+
+/* ---------- numbered editorial list ---------- */
+
+.kit {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2rem;
+}
+/* "Nice to Have" reads lighter: two columns on wide screens, tighter rhythm. */
+.kit--secondary {
+  gap: 1.5rem 2.5rem;
+}
+@media (min-width: 48rem) {
+  .kit--secondary {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kit__item {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  gap: 1.1rem;
+  align-items: start;
+}
+.kit__num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 0.9;
+  color: var(--color-accent);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.kit--secondary .kit__num {
+  font-size: 1.4rem;
+  color: var(--color-rule-strong);
+}
+.kit__name {
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.25rem;
+}
+.kit__desc {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-fg-muted);
+}
+.kit--secondary .kit__name {
+  font-size: 1.0625rem;
+}
+.kit--secondary .kit__desc {
+  font-size: 0.95rem;
+}
+
+/* ---------- stir / shake diptych ---------- */
+
+.diptych {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 3.5rem;
+}
+@media (min-width: 44rem) {
+  .diptych {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.diptych__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.75rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: box-shadow var(--transition-lift),
+    transform var(--transition-lift);
+}
+@media (hover: hover) {
+  .diptych__panel:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+  }
+}
+.diptych__icon {
+  --icon-size: 2.75rem;
+  color: var(--color-accent);
+}
+.diptych__verb {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.diptych__body {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--color-fg-muted);
+}
+
+/* ---------- techniques sequence ---------- */
+
+.seq {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2.25rem;
+}
+.seq__item {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+.seq__num {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 600;
+  line-height: 0.85;
+  color: var(--color-accent);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.seq__title {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.4rem;
+}
+.seq__body {
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--color-fg-muted);
+}
+.seq__body p + p {
+  margin-top: 0.75rem;
+}
+.seq__list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  font-family: var(--font-serif);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--color-fg-muted);
+}
+.seq__list li {
+  margin-block: 0.3rem;
+}
+.seq__see {
+  display: inline-block;
+  margin-top: 0.65rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--color-accent);
+}
+
+/* ---------- entrance motion ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(0.6rem);
+    animation: feature-rise 0.5s ease forwards;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+  @keyframes feature-rise {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
