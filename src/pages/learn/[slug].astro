@@ -4,12 +4,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import '../../styles/learn-prose.css';
 
 export async function getStaticPaths() {
-  // `super-juice` is served by its own page (src/pages/learn/super-juice.astro)
-  // so it can mount the interactive calculator. Exclude it here to avoid a
-  // duplicate `/learn/super-juice/` route. `section.id` is the bare slug
-  // (e.g. `glossary`), not the filename, for the glob content loader.
+  // Sections with their own dedicated, richer page (interactive calculator or
+  // bespoke visual layout) are excluded here so they don't also resolve through
+  // this generic prose route. `section.id` is the bare slug (e.g. `introduction`),
+  // not the filename, for the glob content loader.
+  const dedicated = new Set(['super-juice', 'tools', 'techniques']);
   const sections = (await getCollection('sections')).filter(
-    (section) => section.id !== 'super-juice',
+    (section) => !dedicated.has(section.id),
   );
   return sections.map((section) => ({
     params: { slug: section.id },
