@@ -1,0 +1,26 @@
+---
+import type { BreadcrumbSegment } from '../lib/breadcrumbs';
+
+interface Props {
+  segments: BreadcrumbSegment[];
+}
+
+const { segments } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<nav aria-label="Breadcrumb" class="breadcrumb">
+  <ol>
+    {segments.map((seg, i) => {
+      const isLast = i === segments.length - 1;
+      return (
+        <li>
+          {seg.href ? (
+            <a href={`${base}${seg.href}`}>{seg.label}</a>
+          ) : (
+            <span aria-current={isLast ? 'page' : undefined}>{seg.label}</span>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+</nav>
