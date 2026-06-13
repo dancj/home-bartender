@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { publishedRecipes } from '../lib/recipes';
+import { groupByTax, FAMILIES, FAMILY_LABELS, FAMILY_NOTES } from '../lib/taxonomy';
+
+const recipes = await publishedRecipes();
+const counts = groupByTax(recipes, 'families');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const roots = FAMILIES.map((slug) => ({
+  slug,
+  label: FAMILY_LABELS[slug],
+  note: FAMILY_NOTES[slug],
+  count: counts.get(slug)?.length ?? 0,
+}));
+---
+<BaseLayout
+  title="Families — Home Bartender"
+  description="The six Cocktail Codex root families every cocktail descends from."
+  width="wide"
+>
+  <section class="page-head">
+    <p class="eyebrow">Browse</p>
+    <h1>Families</h1>
+    <p class="lede">The six root families every cocktail descends from.</p>
+  </section>
+  <ul class="family-list">
+    {roots.map((f) => (
+      <li>
+        <a href={`${base}/by-family/${f.slug}/`} class:list={['card', 'h-full', 'family-card', { 'is-empty': f.count === 0 }]}>
+          <h2 class="family-title">
+            <Icon field="family" slug={f.slug} class="family-icon" />
+            {f.label}
+          </h2>
+          <p class="family-note">{f.note}</p>
+          <p class="family-count">{f.count} {f.count === 1 ? 'recipe' : 'recipes'}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  /* Mirrors .recipe-grid / .section-list so Families reads as a sibling browse page. */
+  .family-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 0.85rem;
+  }
+  .family-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .family-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+  }
+  .family-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .family-note {
+    margin: 0;
+    color: var(--color-fg-muted);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+  .family-count {
+    margin: 0;
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: var(--color-fg-muted);
+  }
+  /* Empty roots (e.g. Flip) stay visible for the "all roots" framing, de-emphasised. */
+  .family-card.is-empty {
+    opacity: 0.6;
+  }
+</style>
