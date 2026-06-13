@@ -1,0 +1,141 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import '../../styles/learn-feature.css';
+
+// Dedicated, structured route for Techniques. Content lives here so it renders
+// as a stir/shake diptych + numbered sequence rather than a prose wall.
+// sections/techniques.md keeps its frontmatter for the /learn index;
+// [slug].astro excludes this slug to avoid a duplicate route. See super-juice.astro.
+const section = await getEntry('sections', 'techniques');
+if (!section) throw new Error('Missing sections/techniques.md');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const combine = {
+  intro: 'The most important decision in making a cocktail is how you combine it.',
+  stir: {
+    verb: 'Stir',
+    body:
+      'when your drink is all spirits, liqueurs, and syrups — no juice, no dairy, no egg. Stirring chills and dilutes without aeration, keeping the drink clear and silky. Old fashioneds, Negronis, Manhattans — all stirred. Aim for 30–45 seconds.',
+  },
+  shake: {
+    verb: 'Shake',
+    body:
+      'when you have citrus juice, cream, egg white, or anything that needs to be emulsified or broken down. Shaking aerates the drink and creates a slightly cloudy, livelier texture. Margaritas, sours, mojitos — all shaken.',
+  },
+};
+
+// Each entry: { title, body: string | string[], list?, see? }
+const techniques = [
+  {
+    title: 'Dilution',
+    body:
+      "Dilution is not a mistake — it's an ingredient. A properly diluted cocktail is more complex and drinkable than an undiluted one. The ice melts as you stir or shake, and that water opens up the flavors. This is especially true in spirit-forward drinks like the old fashioned. Don't rush it.",
+  },
+  {
+    title: 'The Float',
+    body:
+      "A float sits on top of the drink rather than mixing in. You pour it slowly over the back of a bar spoon held just above the surface, letting it rest as a separate layer. The Penicillin's Laphroaig float is the classic example — you get smoke on the nose before the balanced drink beneath.",
+  },
+  {
+    title: 'Fat Washing',
+    body:
+      "Fat washing infuses the flavor of a fat (butter, bacon grease, olive oil, coconut cream) into a spirit. You combine the fat and spirit, let them sit, then freeze until the fat solidifies and can be strained out. The result is a spirit with the fat's flavor but none of the texture. The Maple Bacon Old Fashioned uses this technique with bourbon and bacon grease.",
+  },
+  {
+    title: 'Muddling',
+    body:
+      'Muddling extracts oils and juice from fresh ingredients by pressing them with a muddler. The key is to press and twist — not pound. Over-muddled mint becomes bitter; properly muddled mint is bright and aromatic. Same principle applies to citrus wedges and fresh herbs.',
+  },
+  {
+    title: 'Dry Shaking',
+    body:
+      'For drinks with egg white, dry shake first — shake without ice — to emulsify the protein before adding ice. This builds a thicker, more stable foam. Then add ice and shake again to chill.',
+    see: { label: 'Lavender Fields', href: `${base}/recipes/lavender-fields/` },
+  },
+  {
+    title: 'Flaming a Citrus Peel',
+    body:
+      "Hold the peel skin-side down over the drink. Warm the back of the peel with a lighter for a few seconds, then squeeze it so the oils mist toward the flame — they'll briefly ignite in a small burst. This caramelizes the oils and adds a slightly smoky, aromatic note. Run the peel around the rim before dropping it in.",
+  },
+  {
+    title: 'Batching for a Party',
+    body: 'Almost any cocktail can be batched. The key differences:',
+    list: [
+      "Pre-dilute by 20–25% with water if the batch won't be shaken or stirred with ice at serve time",
+      'Add carbonated ingredients (seltzer, prosecco) at the last moment',
+      "Garnish each drink individually — they don't hold in bulk",
+      'See each recipe’s "How to Batch It" section for specific quantities',
+    ],
+  },
+];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const asParagraphs = (body: string | string[]) =>
+  Array.isArray(body) ? body : [body];
+---
+<BaseLayout
+  title={`${section.data.title} — Home Bartender`}
+  description={section.data.summary}
+>
+  <p class="back">
+    <a href={`${base}/learn/`}>← Learn</a>
+  </p>
+
+  <article data-pagefind-body>
+    <header class="feature-head">
+      <span class="eyebrow">Learn</span>
+      <h1>Techniques</h1>
+      <p class="lede">{section.data.summary}</p>
+    </header>
+
+    <section aria-labelledby="combine-title">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title" id="combine-title">Stir or Shake</h2>
+        <span class="feature-group__count">The first decision</span>
+      </div>
+      <p class="seq__body" style="margin-bottom:1.75rem">{combine.intro}</p>
+      <div class="diptych">
+        <div class="diptych__panel reveal" style="--i:0">
+          <Icon field="method" slug="stirred" class="diptych__icon" />
+          <h3 class="diptych__verb">{combine.stir.verb}</h3>
+          <p class="diptych__body">{combine.stir.body}</p>
+        </div>
+        <div class="diptych__panel reveal" style="--i:1">
+          <Icon field="method" slug="shaken" class="diptych__icon" />
+          <h3 class="diptych__verb">{combine.shake.verb}</h3>
+          <p class="diptych__body">{combine.shake.body}</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="more-title">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title" id="more-title">Foundational Moves</h2>
+        <span class="feature-group__count">{pad(techniques.length)} techniques</span>
+      </div>
+      <ol class="seq" role="list">
+        {techniques.map((t, i) => (
+          <li class="seq__item reveal" style={`--i:${i}`}>
+            <span class="seq__num" aria-hidden="true">{pad(i + 1)}</span>
+            <div>
+              <h3 class="seq__title">{t.title}</h3>
+              <div class="seq__body">
+                {asParagraphs(t.body).map((p) => <p>{p}</p>)}
+              </div>
+              {t.list && (
+                <ul class="seq__list">
+                  {t.list.map((item) => <li>{item}</li>)}
+                </ul>
+              )}
+              {t.see && (
+                <a class="seq__see" href={t.see.href}>See: {t.see.label} →</a>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  </article>
+</BaseLayout>

@@ -14,7 +14,7 @@ recipes/
   originals/     ← personal creations and experiments
   seasonal/      ← seasonal/holiday recipes
   inbox/         ← drafts awaiting review (publish: false)
-sections/        ← prose: techniques, tools, glossary
+sections/        ← prose: techniques, tools, super juice
 src/             ← the Astro app (layouts, pages, components)
 scripts/         ← migration + validation utilities
 ```

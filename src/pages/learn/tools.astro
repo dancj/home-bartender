@@ -1,0 +1,118 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/learn-feature.css';
+
+// Dedicated, structured route for Tools. The content lives here (not in the
+// section markdown body) so it can render as an editorial numbered kit rather
+// than a prose wall. sections/tools.md keeps its frontmatter so the page still
+// appears in the /learn index; [slug].astro excludes this slug to avoid a
+// duplicate /learn/tools/ route. Mirrors the super-juice.astro pattern.
+const section = await getEntry('sections', 'tools');
+if (!section) throw new Error('Missing sections/tools.md');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const basics = [
+  {
+    name: 'Shaker',
+    desc: 'A two-piece cocktail shaker (tin + tin, or tin + glass). The Boston shaker is the professional standard; a cobbler shaker with a built-in strainer works fine at home. Shake without spilling, give it a good whack and pull apart.',
+  },
+  {
+    name: 'Strainer',
+    desc: 'A Hawthorne strainer (the one with a spring coil) for shaker drinks. A julep strainer for mixing glass drinks. In a pinch, hold the lid of a cobbler shaker.',
+  },
+  {
+    name: 'Jigger',
+    desc: 'Measure your pours. Eyeballing works at a bar after years of practice; at home, measure. A standard jigger is 1½ oz / ¾ oz.',
+  },
+  {
+    name: 'Mixing glass',
+    desc: 'A heavy pint glass or dedicated mixing glass for stirred drinks. Chills and stirs without aerating.',
+  },
+  {
+    name: 'Stirring spoon',
+    desc: 'A long bar spoon for stirring and floating. The twisted handle controls layered pours.',
+  },
+  {
+    name: 'Peeler',
+    desc: 'For citrus peels and garnishes.',
+  },
+];
+
+const niceToHave = [
+  {
+    name: 'Cocktail smoking kit',
+    desc: 'For smoked old fashioneds and other spirit-forward drinks. A smoking gun or a wood chip lid smoker adds a theatrical element.',
+  },
+  {
+    name: 'Zester / Microplane',
+    desc: 'For fine citrus zest as a garnish.',
+  },
+  {
+    name: 'Large ice cube tray',
+    desc: 'The big 2" cubes melt more slowly, which means better dilution control in rocks drinks. Worth it.',
+  },
+  {
+    name: 'Muddler',
+    desc: 'For mojitos, smashes, and any drink with fresh herbs or fruit.',
+  },
+  {
+    name: 'Fine mesh strainer',
+    desc: 'Double-strain shaken drinks (through the Hawthorne and a fine mesh) to remove ice chips and pulp. Makes a noticeably cleaner drink.',
+  },
+];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+<BaseLayout
+  title={`${section.data.title} — Home Bartender`}
+  description={section.data.summary}
+>
+  <p class="back">
+    <a href={`${base}/learn/`}>← Learn</a>
+  </p>
+
+  <article data-pagefind-body>
+    <header class="feature-head">
+      <span class="eyebrow">Learn</span>
+      <h1>Tools</h1>
+      <p class="lede">{section.data.summary}</p>
+    </header>
+
+    <section class="feature-group" aria-labelledby="basics-title">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title" id="basics-title">The Basics</h2>
+        <span class="feature-group__count">Every recipe, six tools</span>
+      </div>
+      <ol class="kit" role="list">
+        {basics.map((tool, i) => (
+          <li class="kit__item reveal" style={`--i:${i}`}>
+            <span class="kit__num" aria-hidden="true">{pad(i + 1)}</span>
+            <div>
+              <h3 class="kit__name">{tool.name}</h3>
+              <p class="kit__desc">{tool.desc}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="feature-group" aria-labelledby="nice-title">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title" id="nice-title">Nice to Have</h2>
+        <span class="feature-group__count">Worth it later</span>
+      </div>
+      <ul class="kit kit--secondary" role="list">
+        {niceToHave.map((tool, i) => (
+          <li class="kit__item reveal" style={`--i:${i}`}>
+            <span class="kit__num" aria-hidden="true">+</span>
+            <div>
+              <h3 class="kit__name">{tool.name}</h3>
+              <p class="kit__desc">{tool.desc}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </article>
+</BaseLayout>
