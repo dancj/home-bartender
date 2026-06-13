@@ -61,6 +61,15 @@ export const FAMILY_LABELS: Record<Family, string> = {
   'flip': "Flip",
 };
 
+export const FAMILY_NOTES: Record<Family, string> = {
+  'old-fashioned': "Spirit + sugar + bitters + water (dilution)",
+  'martini': "Spirit + fortified wine + flavoring (stirred)",
+  'daiquiri': "Spirit + citrus + sweetener (shaken)",
+  'sidecar': "Spirit + citrus + orange liqueur",
+  'whiskey-highball': "Spirit + bubbly modifier (built tall)",
+  'flip': "Spirit + sugar + whole egg",
+};
+
 export const GLASSES = ['coupe', 'nick-and-nora', 'rocks', 'double-rocks', 'highball', 'collins', 'flute', 'wine', 'margarita', 'martini', 'mug', 'snifter', 'julep-tin'] as const;
 export type Glass = (typeof GLASSES)[number];
 

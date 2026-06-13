@@ -80,6 +80,25 @@ describe('emitZodModule', () => {
     const out = emitZodModule({ occasions: [] });
     expect(out).toContain("export const OCCASIONS = [] as const;");
   });
+
+  it('emits a notes map for fields whose entries carry a note', () => {
+    const out = emitZodModule({
+      families: [
+        { slug: 'daiquiri', label: 'Daiquiri', note: 'Spirit + citrus + sweetener (shaken)' },
+        { slug: 'flip', label: 'Flip', note: 'Spirit + sugar + whole egg' },
+      ],
+    });
+    expect(out).toContain('export const FAMILY_NOTES: Record<Family, string> = {');
+    expect(out).toContain("'daiquiri': \"Spirit + citrus + sweetener (shaken)\"");
+    expect(out).toContain("'flip': \"Spirit + sugar + whole egg\"");
+  });
+
+  it('omits the notes map for fields whose entries have no note', () => {
+    const out = emitZodModule({
+      methods: [{ slug: 'shaken', label: 'Shaken' }],
+    });
+    expect(out).not.toContain('METHOD_NOTES');
+  });
 });
 
 describe('emitValidatorModule', () => {

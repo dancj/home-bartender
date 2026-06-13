@@ -52,7 +52,21 @@ export function emitZodModule(parsed) {
       .map((e) => `  '${e.slug}': ${JSON.stringify(e.label)},`)
       .join('\n');
     const mapBlock = `export const ${labelMapName}: Record<${typeName}, string> = {\n${mapLines}\n};`;
-    sections.push(`${constLine}\n${typeLine}\n\n${mapBlock}`);
+    const blocks = [`${constLine}\n${typeLine}\n\n${mapBlock}`];
+
+    // Emit a parallel notes map only for fields whose entries carry a `note`.
+    if (entries.some((e) => e.note)) {
+      const notesMapName = `${singularize(field).toUpperCase()}_NOTES`;
+      const noteLines = entries
+        .filter((e) => e.note)
+        .map((e) => `  '${e.slug}': ${JSON.stringify(e.note)},`)
+        .join('\n');
+      blocks.push(
+        `export const ${notesMapName}: Record<${typeName}, string> = {\n${noteLines}\n};`
+      );
+    }
+
+    sections.push(blocks.join('\n\n'));
   }
   return HEADER + '\n' + sections.join('\n\n') + '\n';
 }

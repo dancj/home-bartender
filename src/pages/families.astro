@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { publishedRecipes } from '../lib/recipes';
+import { groupByTax, FAMILIES, FAMILY_LABELS, FAMILY_NOTES } from '../lib/taxonomy';
+
+const recipes = await publishedRecipes();
+const counts = groupByTax(recipes, 'families');
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const roots = FAMILIES.map((slug) => ({
+  slug,
+  label: FAMILY_LABELS[slug],
+  note: FAMILY_NOTES[slug],
+  count: counts.get(slug)?.length ?? 0,
+}));
+---
+<BaseLayout
+  title="Families — Home Bartender"
+  description="The six Cocktail Codex root families every cocktail descends from."
+  width="wide"
+>
+  <section class="page-head">
+    <p class="families-lede">The six root families every cocktail descends from.</p>
+    <p class="family-credit">
+      Framework from <cite>Cocktail Codex</cite> by the team behind Death &amp; Co.
+    </p>
+  </section>
+  <ul class="family-list">
+    {roots.map((f) => {
+      // Empty roots have no /by-family/<slug>/ page (getStaticPaths only builds
+      // families with members), so render them as a non-link div, not a dead <a>.
+      const Tag = f.count === 0 ? 'div' : 'a';
+      const linkProps = f.count === 0 ? {} : { href: `${base}/by-family/${f.slug}/` };
+      return (
+        <li>
+          <Tag {...linkProps} class:list={['card', 'h-full', 'family-card', { 'is-empty': f.count === 0 }]}>
+            <Icon field="family" slug={f.slug} class="family-icon" />
+            <h2 class="family-title">{f.label}</h2>
+            <p class="family-note">{f.note}</p>
+            <p class="family-count">{f.count} {f.count === 1 ? 'recipe' : 'recipes'}</p>
+          </Tag>
+        </li>
+      );
+    })}
+  </ul>
+</BaseLayout>
+
+<style>
+  /* Mirrors .recipe-grid / .section-list so Families reads as a sibling browse page. */
+  .family-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 0.85rem;
+  }
+  .families-lede {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    line-height: 1.3;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+  }
+  .family-card {
+    /* --icon-size inherits through the child <Icon> component boundary; a
+       scoped .family-icon rule would not match the span Icon.astro renders. */
+    --icon-size: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .family-title {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-fg);
+    letter-spacing: -0.01em;
+  }
+  .family-note {
+    margin: 0;
+    color: var(--color-fg-muted);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+  .family-count {
+    margin: 0;
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: var(--color-fg-muted);
+  }
+  /* Empty roots (e.g. Flip) stay visible for the "all roots" framing, de-emphasised
+     and non-interactive (no page exists to link to). */
+  .family-card.is-empty {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .family-card.is-empty:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .family-credit {
+    margin: 0.6rem 0 0;
+    font-size: 0.85rem;
+    color: var(--color-fg-muted);
+  }
+  .family-credit cite {
+    font-style: italic;
+  }
+</style>
