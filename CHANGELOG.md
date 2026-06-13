@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.6.13.2] - 2026-06-13
+
+### Features
+
+- #78 — feat: breadcrumb navigation on by-* taxonomy pages (@dancj)
+
+### Platform
+
+- #79 — feat(learn): redesign Tools + Techniques pages, remove Glossary (@dancj)
+- #76 — docs: update CHANGELOG for release 2026.6.13.1 (@app/github-actions)
+- #73 — chore(deps): update tailwindcss monorepo to v4.3.1 (@app/renovate)
+- #72 — chore(deps): update dependency sharp to ^0.35.0 (@app/renovate)
+- #67 — chore(deps): update astro monorepo to v6.4.6 (@app/renovate)
 ## [2026.6.13.1] - 2026-06-13
 
 ### Features
