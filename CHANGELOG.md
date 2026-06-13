@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.6.13.1] - 2026-06-13
+
+### Features
+
+- #74 — feat: Add /families/ index page (@dancj)
+
+### Platform
+
+- #72 — chore(deps): update dependency sharp to ^0.35.0 (@app/renovate)
+- #71 — docs: update CHANGELOG for release 2026.6.10.1 (@app/github-actions)
 ## [2026.6.10.1] - 2026-06-10
 
 ### Features
