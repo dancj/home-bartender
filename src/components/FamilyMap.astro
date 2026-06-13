@@ -1,0 +1,258 @@
+---
+import type { Recipe } from '../lib/recipes';
+import { buildFamilyMap, layoutFamilyMap } from '../lib/familyMap';
+import { FAMILY_NOTES } from '../lib/taxonomy';
+import Icon from './Icon.astro';
+
+interface Props {
+  family: string;
+  recipes: Recipe[];
+}
+const { family, recipes } = Astro.props;
+
+const model = buildFamilyMap(recipes, family, import.meta.env.BASE_URL);
+const layout = layoutFamilyMap(model);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const [, , vbW, vbH] = layout.viewBox.split(' ').map(Number);
+// Position HTML nodes over the SVG by percentage of the viewBox so they track
+// the connectors as the SVG scales responsively.
+const pct = (n: number, total: number) => `${(n / total) * 100}%`;
+
+const isEmpty = model.branches.length === 0;
+// Non-empty roots have a /by-family/<slug>/ page; empty ones (Flip) do not.
+const rootHref = isEmpty ? null : `${base}/by-family/${family}/`;
+const note = FAMILY_NOTES[family as keyof typeof FAMILY_NOTES];
+const arrowId = `arrow-${family}`;
+const arrowSubId = `arrow-sub-${family}`;
+const titleId = `family-map-title-${family}`;
+const descId = `family-map-desc-${family}`;
+---
+
+<figure
+  class="family-map"
+  class:list={{ 'is-empty': isEmpty }}
+  data-family={family}
+  style={`--vb-w:${vbW};--vb-h:${vbH}`}
+>
+  <svg
+    class="family-map-wires"
+    viewBox={layout.viewBox}
+    preserveAspectRatio="xMidYMid meet"
+    role="img"
+    aria-labelledby={`${titleId} ${descId}`}
+  >
+    <title id={titleId}>{model.root.label} family map</title>
+    <desc id={descId}>
+      {isEmpty
+        ? `The ${model.root.label} family has no recipes yet.`
+        : `The ${model.root.label} root with ${model.branches.length} recipe${model.branches.length === 1 ? '' : 's'} branching from it.`}
+    </desc>
+    <defs>
+      <marker id={arrowId} viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M1 1 L6 4 L1 7" class="family-map-arrowhead" />
+      </marker>
+      <marker id={arrowSubId} viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M1 1 L6 4 L1 7" class="family-map-arrowhead is-sub" />
+      </marker>
+    </defs>
+    {layout.branches.map((branch) => (
+      <>
+        <path
+          class="family-map-wire"
+          d={branch.connector}
+          pathLength="1"
+          marker-end={`url(#${arrowId})`}
+        />
+        {branch.subBranches.map((sub) => (
+          <path
+            class="family-map-wire is-sub"
+            d={sub.connector}
+            pathLength="1"
+            marker-end={`url(#${arrowSubId})`}
+          />
+        ))}
+      </>
+    ))}
+  </svg>
+
+  <div class="family-map-nodes" aria-hidden="true">
+    <div class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
+      {rootHref
+        ? <a href={rootHref} class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span></a>
+        : <span class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span></span>}
+    </div>
+
+    {layout.branches.map((branch) => (
+      <>
+        <a class="family-map-node" href={branch.url} style={`left:${pct(branch.x, vbW)};top:${pct(branch.y, vbH)}`}>
+          <span class="family-map-label">{branch.title}</span>
+        </a>
+        {branch.subBranches.map((sub) => (
+          <a class="family-map-node is-sub" href={sub.url} style={`left:${pct(sub.x, vbW)};top:${pct(sub.y, vbH)}`}>
+            <span class="family-map-label">{sub.title}</span>
+          </a>
+        ))}
+      </>
+    ))}
+
+    {isEmpty && (
+      <p class="family-map-empty" style={`top:${pct(layout.root.y + 80, vbH)}`}>No recipes yet in this family.</p>
+    )}
+  </div>
+
+  {/* Text equivalent for assistive tech — the relationships, independent of the SVG. */}
+  <ul class="family-map-sr">
+    <li>
+      {model.root.label}{note ? ` — ${note}` : ''}
+      {!isEmpty && (
+        <ul>
+          {layout.branches.map((branch) => (
+            <li>
+              <a href={branch.url}>{branch.title}</a>
+              {branch.subBranches.length > 0 && (
+                <ul>
+                  {branch.subBranches.map((sub) => (
+                    <li><a href={sub.url}>{sub.title}</a></li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  </ul>
+</figure>
+
+<style>
+  .family-map {
+    position: relative;
+    width: 100%;
+    margin: 0;
+    /* viewBox aspect ratio keeps the node overlay aligned with the wires. */
+    aspect-ratio: var(--vb-w, 600) / var(--vb-h, 400);
+  }
+  .family-map-wires {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .family-map-wire {
+    fill: none;
+    stroke: var(--color-rule-strong);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .family-map-wire.is-sub {
+    stroke-opacity: 0.5;
+    stroke-width: 1.5;
+  }
+  .family-map-arrowhead {
+    fill: none;
+    stroke: var(--color-rule-strong);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .family-map-arrowhead.is-sub {
+    stroke-opacity: 0.5;
+  }
+
+  .family-map-nodes {
+    position: absolute;
+    inset: 0;
+  }
+  .family-map-node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: block;
+    text-decoration: none;
+  }
+  .family-map-node .family-map-label,
+  .family-map-node-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.7rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule-strong);
+    border-radius: 999px;
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    line-height: 1.2;
+    color: var(--color-fg);
+    white-space: nowrap;
+    transition: var(--transition-base);
+  }
+  .family-map-node.is-sub .family-map-label {
+    font-size: 0.85rem;
+    color: var(--color-fg-muted);
+  }
+  /* Hover + keyboard parity — SVG-area links don't inherit card styles. */
+  .family-map-node:hover .family-map-label,
+  .family-map-node:focus-visible .family-map-label {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+  .family-map-node:focus-visible {
+    outline: none;
+  }
+  .family-map-node:focus-visible .family-map-label {
+    box-shadow: 0 0 0 3px var(--color-accent-ring);
+  }
+
+  .family-map-node.is-root {
+    transform: translate(-50%, -50%);
+  }
+  .family-map-node.is-root .family-map-node-inner {
+    flex-direction: column;
+    padding: 0.7rem 1rem;
+    background: var(--color-surface-muted);
+    border-color: var(--color-rule-strong);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  a.family-map-node-inner:hover,
+  a.family-map-node-inner:focus-visible {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .family-map-glyph {
+    --icon-size: 40px;
+    color: var(--color-accent);
+  }
+
+  .family-map-empty {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    color: var(--color-fg-subtle);
+    font-family: var(--font-serif);
+    font-style: italic;
+    text-align: center;
+  }
+  .family-map.is-empty .family-map-node.is-root .family-map-node-inner {
+    opacity: 0.7;
+  }
+
+  /* Visually hidden but available to assistive tech (no global utility exists). */
+  .family-map-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
