@@ -267,6 +267,37 @@
     color: var(--color-fg-muted);
   }
 
+  /* Breadcrumb trail — shares the eyebrow's muted, small-caps treatment */
+  .breadcrumb {
+    margin: 0 0 0.75rem;
+  }
+  .breadcrumb ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-fg-muted);
+  }
+  .breadcrumb li {
+    display: inline-flex;
+    align-items: center;
+  }
+  /* Decorative separator; the <ol>/<li> structure carries the semantics */
+  .breadcrumb li:not(:first-child)::before {
+    content: "›";
+    margin: 0 0.5em;
+    color: var(--color-rule-strong);
+  }
+  .breadcrumb [aria-current="page"] {
+    color: var(--color-fg);
+  }
+
   /* Shared list-page primitives */
   .page-head {
     margin-bottom: 2rem;
