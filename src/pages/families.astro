@@ -1,19 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Icon from '../components/Icon.astro';
+import FamilyMap from '../components/FamilyMap.astro';
 import { publishedRecipes } from '../lib/recipes';
-import { groupByTax, FAMILIES, FAMILY_LABELS, FAMILY_NOTES } from '../lib/taxonomy';
+import { FAMILIES, label } from '../lib/taxonomy';
 
 const recipes = await publishedRecipes();
-const counts = groupByTax(recipes, 'families');
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-
-const roots = FAMILIES.map((slug) => ({
-  slug,
-  label: FAMILY_LABELS[slug],
-  note: FAMILY_NOTES[slug],
-  count: counts.get(slug)?.length ?? 0,
-}));
 ---
 <BaseLayout
   title="Families — Home Bartender"
@@ -26,36 +17,40 @@ const roots = FAMILIES.map((slug) => ({
       Framework from <cite>Cocktail Codex</cite> by the team behind Death &amp; Co.
     </p>
   </section>
-  <ul class="family-list">
-    {roots.map((f) => {
-      // Empty roots have no /by-family/<slug>/ page (getStaticPaths only builds
-      // families with members), so render them as a non-link div, not a dead <a>.
-      const Tag = f.count === 0 ? 'div' : 'a';
-      const linkProps = f.count === 0 ? {} : { href: `${base}/by-family/${f.slug}/` };
-      return (
-        <li>
-          <Tag {...linkProps} class:list={['card', 'h-full', 'family-card', { 'is-empty': f.count === 0 }]}>
-            <Icon field="family" slug={f.slug} class="family-icon" />
-            <h2 class="family-title">{f.label}</h2>
-            <p class="family-note">{f.note}</p>
-            <p class="family-count">{f.count} {f.count === 1 ? 'recipe' : 'recipes'}</p>
-          </Tag>
-        </li>
-      );
-    })}
-  </ul>
+
+  <div class="family-switcher">
+    <div class="family-tabs" role="tablist" aria-label="Cocktail families">
+      {FAMILIES.map((slug, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`tab-${slug}`}
+          class="family-tab"
+          data-family={slug}
+          aria-controls={`panel-${slug}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? 0 : -1}
+        >
+          {label('families', slug)}
+        </button>
+      ))}
+    </div>
+
+    {FAMILIES.map((slug, i) => (
+      <div
+        role="tabpanel"
+        id={`panel-${slug}`}
+        class="family-panel"
+        aria-labelledby={`tab-${slug}`}
+        hidden={i !== 0}
+      >
+        <FamilyMap family={slug} recipes={recipes} />
+      </div>
+    ))}
+  </div>
 </BaseLayout>
 
 <style>
-  /* Mirrors .recipe-grid / .section-list so Families reads as a sibling browse page. */
-  .family-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-    gap: 0.85rem;
-  }
   .families-lede {
     margin: 0;
     font-family: var(--font-serif);
@@ -63,46 +58,6 @@ const roots = FAMILIES.map((slug) => ({
     line-height: 1.3;
     color: var(--color-fg);
     letter-spacing: -0.01em;
-  }
-  .family-card {
-    /* --icon-size inherits through the child <Icon> component boundary; a
-       scoped .family-icon rule would not match the span Icon.astro renders. */
-    --icon-size: 48px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .family-title {
-    font-family: var(--font-serif);
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--color-fg);
-    letter-spacing: -0.01em;
-  }
-  .family-note {
-    margin: 0;
-    color: var(--color-fg-muted);
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 0.95rem;
-    line-height: 1.45;
-  }
-  .family-count {
-    margin: 0;
-    margin-top: auto;
-    font-size: 0.85rem;
-    color: var(--color-fg-muted);
-  }
-  /* Empty roots (e.g. Flip) stay visible for the "all roots" framing, de-emphasised
-     and non-interactive (no page exists to link to). */
-  .family-card.is-empty {
-    opacity: 0.6;
-    cursor: default;
-  }
-  .family-card.is-empty:hover {
-    transform: none;
-    box-shadow: none;
   }
   .family-credit {
     margin: 0.6rem 0 0;
@@ -112,4 +67,95 @@ const roots = FAMILIES.map((slug) => ({
   .family-credit cite {
     font-style: italic;
   }
+
+  .family-switcher {
+    margin-top: 1.5rem;
+  }
+  .family-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    border-bottom: 1px solid var(--color-rule);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .family-tab {
+    appearance: none;
+    border: 1px solid var(--color-rule-strong);
+    background: var(--color-surface);
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: var(--transition-base);
+  }
+  .family-tab:hover {
+    border-color: var(--color-accent);
+    color: var(--color-fg);
+  }
+  .family-tab[aria-selected='true'] {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-accent-fg);
+  }
+  .family-tab:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .family-panel {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 30rem) {
+    /* Keep all six tabs reachable on a phone without horizontal page scroll. */
+    .family-tabs {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+    }
+    .family-tab {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+    }
+  }
 </style>
+
+<script>
+  const tablist = document.querySelector<HTMLElement>('.family-tabs');
+  if (tablist) {
+    const tabs = Array.from(tablist.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const panelFor = (tab: HTMLButtonElement) =>
+      document.getElementById(tab.getAttribute('aria-controls') ?? '');
+
+    function select(index: number, moveFocus = true) {
+      tabs.forEach((tab, i) => {
+        const selected = i === index;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        const panel = panelFor(tab);
+        if (panel) panel.hidden = !selected;
+      });
+      if (moveFocus) tabs[index].focus();
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(i, false));
+      tab.addEventListener('keydown', (e) => {
+        let next: number | null = null;
+        if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = tabs.length - 1;
+        if (next !== null) {
+          e.preventDefault();
+          select(next);
+        }
+      });
+    });
+  }
+</script>
