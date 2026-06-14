@@ -55,6 +55,7 @@ export function buildFamilyMap(
   // leaf and is skipped as a parent (keeps it to one level, deterministic).
   const claimed = new Set<string>();
   const branches: BranchNode[] = [];
+  const memberBySlug = new Map(members.map((m) => [slugOf(m.id), m]));
 
   for (const member of members) {
     const slug = slugOf(member.id);
@@ -66,10 +67,9 @@ export function buildFamilyMap(
     );
     childSlugs.forEach((rs) => claimed.add(rs));
 
-    const childBySlug = new Map(members.map((m) => [slugOf(m.id), m]));
     branches.push({
       ...toNode(member, base),
-      subBranches: childSlugs.map((rs) => toNode(childBySlug.get(rs) as Recipe, base)),
+      subBranches: childSlugs.map((rs) => toNode(memberBySlug.get(rs) as Recipe, base)),
     });
   }
 
