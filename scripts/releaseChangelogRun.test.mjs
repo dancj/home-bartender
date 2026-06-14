@@ -197,7 +197,7 @@ describe('releaseChangelogRun — happy path', () => {
     const newIdx = body.indexOf('## [2026.5.23.1]');
     expect(unreleasedIdx).toBeGreaterThan(-1);
     expect(newIdx).toBeGreaterThan(unreleasedIdx);
-    expect(body).toContain('### Recipes');
+    expect(body).not.toContain('### ');
     expect(body).toContain('- #5 — feat(inbox): margarita (@dancj)');
   });
 
