@@ -360,6 +360,25 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, f
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-card);
     z-index: 30;
+    /* Cap height so long result lists scroll inside the panel rather than
+       running off the viewport; contain scroll so it doesn't chain to body. */
+    max-height: min(70vh, 32rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* Pagefind's defaults theme results for the cream page; inside the dark panel
+     they'd render dark-on-dark. Flip the result text/background to the header
+     palette so titles and excerpts stay legible. */
+  .header-search-panel :global(.pagefind-ui) {
+    --pagefind-ui-text: var(--color-header-fg);
+    --pagefind-ui-background: var(--color-header-bg);
+    --pagefind-ui-border: rgb(255 255 255 / 0.15);
+  }
+  .header-search-panel :global(.pagefind-ui__result-title a) {
+    color: var(--color-header-fg);
+  }
+  .header-search-panel :global(.pagefind-ui__result-excerpt) {
+    color: var(--color-header-fg-muted);
   }
 
   /* Softer footer underlines — global default uses --color-rule-strong */
