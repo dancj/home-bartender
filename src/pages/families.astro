@@ -2,9 +2,11 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FamilyMap from '../components/FamilyMap.astro';
 import { publishedRecipes } from '../lib/recipes';
-import { FAMILIES, label } from '../lib/taxonomy';
+import { FAMILIES, label, groupByTax } from '../lib/taxonomy';
 
 const recipes = await publishedRecipes();
+const counts = groupByTax(recipes, 'families');
+const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
 ---
 <BaseLayout
   title="Families — Home Bartender"
@@ -25,13 +27,14 @@ const recipes = await publishedRecipes();
           type="button"
           role="tab"
           id={`tab-${slug}`}
-          class="family-tab"
+          class:list={['family-tab', { 'is-empty': countFor(slug) === 0 }]}
           data-family={slug}
           aria-controls={`panel-${slug}`}
           aria-selected={i === 0 ? 'true' : 'false'}
           tabindex={i === 0 ? 0 : -1}
         >
           {label('families', slug)}
+          <span class="family-tab-count">{countFor(slug)}</span>
         </button>
       ))}
     </div>
@@ -103,6 +106,21 @@ const recipes = await publishedRecipes();
   .family-tab:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+  }
+  .family-tab-count {
+    margin-left: 0.4rem;
+    font-size: 0.8rem;
+    opacity: 0.55;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Families with no recipes (Flip) are greyed but still selectable. */
+  .family-tab.is-empty {
+    opacity: 0.5;
+  }
+  .family-tab.is-empty[aria-selected='true'] {
+    background: var(--color-surface-muted);
+    border-color: var(--color-rule-strong);
+    color: var(--color-fg-muted);
   }
 
   .family-panel {

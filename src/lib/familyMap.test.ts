@@ -76,6 +76,20 @@ describe('buildFamilyMap', () => {
     expect(model.branches[0].subBranches).toEqual([]);
   });
 
+  it('never places a member as both a top-level branch and a sub-branch', () => {
+    // Manhattan is emitted top-level first; a later branch (Chocolate) lists it
+    // in related[] — it must not be re-placed as Chocolate's sub-branch.
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+      makeRecipe('classics/chocolate', ['old-fashioned'], ['manhattan'], 'Chocolate'),
+    ];
+    const model = buildFamilyMap(recipes, 'old-fashioned', BASE);
+    const titles = model.branches.flatMap((b) => [b.title, ...b.subBranches.map((s) => s.title)]);
+    expect(titles.filter((t) => t === 'Manhattan')).toHaveLength(1);
+    expect(titles.filter((t) => t === 'Maple')).toHaveLength(1);
+  });
+
   it('returns no branches for an empty family — AE5', () => {
     const recipes = [makeRecipe('classics/daiquiri', ['daiquiri'], [], 'Daiquiri')];
     const model = buildFamilyMap(recipes, 'flip', BASE);

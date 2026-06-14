@@ -53,17 +53,21 @@ export function buildFamilyMap(
   // Assign same-family `related[]` recipes as sub-branches, one level deep.
   // Iterate in member order; a recipe already claimed as someone's child is a
   // leaf and is skipped as a parent (keeps it to one level, deterministic).
-  const claimed = new Set<string>();
+  const claimed = new Set<string>(); // slugs already placed as someone's sub-branch
+  const emitted = new Set<string>(); // slugs already placed as a top-level branch
   const branches: BranchNode[] = [];
   const memberBySlug = new Map(members.map((m) => [slugOf(m.id), m]));
 
   for (const member of members) {
     const slug = slugOf(member.id);
     if (claimed.has(slug)) continue;
+    emitted.add(slug);
 
     const related = (member.data.related ?? []) as string[];
+    // A child must be an unclaimed member that hasn't already been emitted as a
+    // top-level branch — otherwise it would appear twice (the screenshot bug).
     const childSlugs = related.filter(
-      (rs) => memberSlugs.has(rs) && rs !== slug && !claimed.has(rs),
+      (rs) => memberSlugs.has(rs) && rs !== slug && !claimed.has(rs) && !emitted.has(rs),
     );
     childSlugs.forEach((rs) => claimed.add(rs));
 
