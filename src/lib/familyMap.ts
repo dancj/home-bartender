@@ -93,6 +93,7 @@ const ROOT_X = VB_WIDTH / 2;
 const BRANCH_X = VB_WIDTH * 0.62;
 const SUB_BRANCH_X = VB_WIDTH * 0.82;
 const SUB_OFFSET_Y = 34;
+const BOTTOM_PAD = 56; // room below the lowest node for its overlay pill + arrowhead
 
 export interface PlacedNode extends MapNode {
   x: number;
@@ -144,8 +145,13 @@ export function layoutFamilyMap(model: FamilyMapModel): FamilyMapLayout {
     return placed;
   });
 
-  const lastY = branches.length ? branches[branches.length - 1].y : root.y;
-  const height = Math.max(FIRST_BRANCH_Y, lastY + ROW_HEIGHT);
+  // Height must clear the lowest node — which may be a sub-branch hanging below
+  // its parent, not the last branch itself.
+  const maxNodeY = branches.reduce((max, b) => {
+    const subMax = b.subBranches.reduce((m, s) => Math.max(m, s.y), b.y);
+    return Math.max(max, subMax);
+  }, root.y);
+  const height = Math.max(FIRST_BRANCH_Y, maxNodeY + BOTTOM_PAD);
 
   return {
     viewBox: `0 0 ${VB_WIDTH} ${height}`,

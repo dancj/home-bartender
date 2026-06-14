@@ -124,6 +124,20 @@ describe('layoutFamilyMap', () => {
     expect(layout.root).toBeTruthy();
   });
 
+  it('keeps sub-branch nodes inside the viewBox height when a branch has several', () => {
+    const withSubs = [
+      makeRecipe('c/parent', ['martini'], ['k1', 'k2', 'k3'], 'Parent'),
+      makeRecipe('c/k1', ['martini'], [], 'K1'),
+      makeRecipe('c/k2', ['martini'], [], 'K2'),
+      makeRecipe('c/k3', ['martini'], [], 'K3'),
+    ];
+    const layout = layoutFamilyMap(buildFamilyMap(withSubs, 'martini', BASE));
+    const vbH = Number(layout.viewBox.split(' ')[3]);
+    const subYs = layout.branches.flatMap((b) => b.subBranches.map((s) => s.y));
+    expect(subYs.length).toBeGreaterThanOrEqual(3);
+    for (const y of subYs) expect(y).toBeLessThanOrEqual(vbH);
+  });
+
   it('is deterministic across runs', () => {
     const a = layoutFamilyMap(buildFamilyMap(recipes, 'martini', BASE));
     const b = layoutFamilyMap(buildFamilyMap(recipes, 'martini', BASE));
