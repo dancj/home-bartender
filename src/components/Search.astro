@@ -2,17 +2,21 @@
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 interface Props {
   mode?: 'compact' | 'full';
+  /** Unique element id — required when more than one Search mounts on a page
+      (e.g. the header search + the 404's inline search). Defaults preserve the
+      single-instance case. */
+  id?: string;
 }
-const { mode = 'compact' } = Astro.props;
+const { mode = 'compact', id = 'search' } = Astro.props;
 ---
 <link rel="stylesheet" href={`${base}/pagefind/pagefind-ui.css`} />
-<div id="search" class:list={[mode]}></div>
-<script is:inline define:vars={{ base, mode }}>
+<div id={id} class:list={['search-ui', mode]}></div>
+<script is:inline define:vars={{ base, mode, id }}>
   (async function () {
     try {
       await import(`${base}/pagefind/pagefind-ui.js`);
       new PagefindUI({
-        element: '#search',
+        element: `#${id}`,
         bundleDirectory: `${base}/pagefind/`,
         showImages: false,
         resetStyles: false,
@@ -20,7 +24,7 @@ const { mode = 'compact' } = Astro.props;
         pageSize: mode === 'full' ? 20 : 5,
       });
     } catch (e) {
-      const el = document.getElementById('search');
+      const el = document.getElementById(id);
       if (el) el.innerHTML = '<p class="search-fallback">Search index not built yet. Run <code>npm run build</code>.</p>';
     }
   })();
@@ -59,8 +63,8 @@ const { mode = 'compact' } = Astro.props;
     background: var(--color-accent);
     color: var(--color-accent-fg);
   }
-  #search.compact { width: 100%; }
-  #search.full { max-width: 100%; }
+  .search-ui.compact { width: 100%; }
+  .search-ui.full { max-width: 100%; }
   .search-fallback {
     color: var(--color-fg-muted);
     font-size: 0.875rem;
@@ -70,21 +74,21 @@ const { mode = 'compact' } = Astro.props;
   /* Compact mode (in-header) — input chrome flips to dark to read on the
      header slab. Results area inherits the global cream theming since it
      renders below the input against the page bg. */
-  #search.compact .pagefind-ui input,
-  #search.compact .pagefind-ui .pagefind-ui__search-input {
+  .search-ui.compact .pagefind-ui input,
+  .search-ui.compact .pagefind-ui .pagefind-ui__search-input {
     background: rgb(255 255 255 / 0.06);
     color: var(--color-header-fg);
     border-color: rgb(255 255 255 / 0.1);
   }
-  #search.compact .pagefind-ui input::placeholder {
+  .search-ui.compact .pagefind-ui input::placeholder {
     color: var(--color-header-fg-muted);
   }
-  #search.compact .pagefind-ui input:focus,
-  #search.compact .pagefind-ui .pagefind-ui__search-input:focus {
+  .search-ui.compact .pagefind-ui input:focus,
+  .search-ui.compact .pagefind-ui .pagefind-ui__search-input:focus {
     border-color: var(--color-accent);
     box-shadow: 0 0 0 3px var(--color-accent-ring);
   }
-  #search.compact .pagefind-ui .pagefind-ui__search-clear {
+  .search-ui.compact .pagefind-ui .pagefind-ui__search-clear {
     background: rgb(255 255 255 / 0.08);
     color: var(--color-header-fg);
   }
