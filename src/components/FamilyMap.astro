@@ -1,7 +1,6 @@
 ---
 import type { Recipe } from '../lib/recipes';
 import { buildFamilyMap, layoutFamilyMap } from '../lib/familyMap';
-import { FAMILY_NOTES } from '../lib/taxonomy';
 import Icon from './Icon.astro';
 
 interface Props {
@@ -29,32 +28,24 @@ const wires = layout.branches.flatMap((branch) => [
 const isEmpty = model.branches.length === 0;
 // Non-empty roots have a /by-family/<slug>/ page; empty ones (Flip) do not.
 const rootHref = isEmpty ? null : `${base}/by-family/${family}/`;
-const note = FAMILY_NOTES[family as keyof typeof FAMILY_NOTES];
 const arrowId = `arrow-${family}`;
 const arrowSubId = `arrow-sub-${family}`;
-const titleId = `family-map-title-${family}`;
-const descId = `family-map-desc-${family}`;
 ---
 
 <figure
-  class="family-map"
-  class:list={{ 'is-empty': isEmpty }}
+  class:list={['family-map', { 'is-empty': isEmpty }]}
   data-family={family}
   style={`--vb-w:${vbW};--vb-h:${vbH}`}
+  role="group"
+  aria-label={`${model.root.label} family map`}
 >
+  {/* Connectors are decorative; the relationships live in the labelled links below. */}
   <svg
     class="family-map-wires"
     viewBox={layout.viewBox}
     preserveAspectRatio="xMidYMid meet"
-    role="img"
-    aria-labelledby={`${titleId} ${descId}`}
+    aria-hidden="true"
   >
-    <title id={titleId}>{model.root.label} family map</title>
-    <desc id={descId}>
-      {isEmpty
-        ? `The ${model.root.label} family has no recipes yet.`
-        : `The ${model.root.label} root with ${model.branches.length} recipe${model.branches.length === 1 ? '' : 's'} branching from it.`}
-    </desc>
     <defs>
       <marker id={arrowId} viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M1 1 L6 4 L1 7" class="family-map-arrowhead" />
@@ -74,7 +65,7 @@ const descId = `family-map-desc-${family}`;
     ))}
   </svg>
 
-  <div class="family-map-nodes" aria-hidden="true">
+  <div class="family-map-nodes">
     <div class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
       {rootHref
         ? <a href={rootHref} class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span></a>
@@ -87,7 +78,12 @@ const descId = `family-map-desc-${family}`;
           <span class="family-map-label">{branch.title}</span>
         </a>
         {branch.subBranches.map((sub) => (
-          <a class="family-map-node is-sub" href={sub.url} style={`left:${pct(sub.x, vbW)};top:${pct(sub.y, vbH)}`}>
+          <a
+            class="family-map-node is-sub"
+            href={sub.url}
+            style={`left:${pct(sub.x, vbW)};top:${pct(sub.y, vbH)}`}
+            aria-label={`${sub.title}, related to ${branch.title}`}
+          >
             <span class="family-map-label">{sub.title}</span>
           </a>
         ))}
@@ -99,28 +95,6 @@ const descId = `family-map-desc-${family}`;
     )}
   </div>
 
-  {/* Text equivalent for assistive tech — the relationships, independent of the SVG. */}
-  <ul class="family-map-sr">
-    <li>
-      {model.root.label}{note ? ` — ${note}` : ''}
-      {!isEmpty && (
-        <ul>
-          {layout.branches.map((branch) => (
-            <li>
-              <a href={branch.url}>{branch.title}</a>
-              {branch.subBranches.length > 0 && (
-                <ul>
-                  {branch.subBranches.map((sub) => (
-                    <li><a href={sub.url}>{sub.title}</a></li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </li>
-  </ul>
 </figure>
 
 <style>
@@ -262,20 +236,6 @@ const descId = `family-map-desc-${family}`;
   }
   .family-map.is-empty .family-map-node.is-root .family-map-node-inner {
     opacity: 0.7;
-  }
-
-  /* Visually hidden but available to assistive tech (no global utility exists). */
-  .family-map-sr {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
   }
 </style>
 
