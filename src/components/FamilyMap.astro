@@ -19,6 +19,13 @@ const [, , vbW, vbH] = layout.viewBox.split(' ').map(Number);
 // the connectors as the SVG scales responsively.
 const pct = (n: number, total: number) => `${(n / total) * 100}%`;
 
+// Flat connector list with a running index that drives the draw stagger (U4).
+let wireIndex = 0;
+const wires = layout.branches.flatMap((branch) => [
+  { d: branch.connector, sub: false, i: wireIndex++ },
+  ...branch.subBranches.map((sub) => ({ d: sub.connector, sub: true, i: wireIndex++ })),
+]);
+
 const isEmpty = model.branches.length === 0;
 // Non-empty roots have a /by-family/<slug>/ page; empty ones (Flip) do not.
 const rootHref = isEmpty ? null : `${base}/by-family/${family}/`;
@@ -56,23 +63,14 @@ const descId = `family-map-desc-${family}`;
         <path d="M1 1 L6 4 L1 7" class="family-map-arrowhead is-sub" />
       </marker>
     </defs>
-    {layout.branches.map((branch) => (
-      <>
-        <path
-          class="family-map-wire"
-          d={branch.connector}
-          pathLength="1"
-          marker-end={`url(#${arrowId})`}
-        />
-        {branch.subBranches.map((sub) => (
-          <path
-            class="family-map-wire is-sub"
-            d={sub.connector}
-            pathLength="1"
-            marker-end={`url(#${arrowSubId})`}
-          />
-        ))}
-      </>
+    {wires.map((w) => (
+      <path
+        class:list={['family-map-wire', { 'is-sub': w.sub }]}
+        style={`--i:${w.i}`}
+        d={w.d}
+        pathLength="1"
+        marker-end={`url(#${w.sub ? arrowSubId : arrowId})`}
+      />
     ))}
   </svg>
 
@@ -130,6 +128,9 @@ const descId = `family-map-desc-${family}`;
     position: relative;
     width: 100%;
     margin: 0;
+    /* Draw-on-scroll timing, chosen in the spike bake-off (U1). */
+    --draw-dur: 1200ms;
+    --draw-stagger: 200ms;
     /* viewBox aspect ratio keeps the node overlay aligned with the wires. */
     aspect-ratio: var(--vb-w, 600) / var(--vb-h, 400);
   }
@@ -145,10 +146,31 @@ const descId = `family-map-desc-${family}`;
     stroke: var(--color-rule-strong);
     stroke-width: 2;
     stroke-linecap: round;
+    /* pathLength="1" normalises every connector to a 0–1 dash range.
+       Default offset 0 = fully drawn (no-JS / reduced-motion fallback). */
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
   }
   .family-map-wire.is-sub {
     stroke-opacity: 0.5;
     stroke-width: 1.5;
+  }
+
+  /* Draw-on-scroll (U4): JS adds .is-armed (undrawn), then .is-drawn to
+     transition the stroke in, staggered per connector by --i. */
+  .family-map.is-armed .family-map-wire {
+    stroke-dashoffset: 1;
+  }
+  .family-map.is-drawn .family-map-wire {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset var(--draw-dur) ease-out;
+    transition-delay: calc(var(--i) * var(--draw-stagger));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .family-map .family-map-wire {
+      stroke-dashoffset: 0 !important;
+      transition: none !important;
+    }
   }
   .family-map-arrowhead {
     fill: none;
@@ -256,3 +278,34 @@ const descId = `family-map-desc-${family}`;
     border: 0;
   }
 </style>
+
+<script>
+  import { shouldAnimate } from '../lib/familyMap';
+
+  // shouldAnimate is the tested pure gate; the DOM wiring below stays here,
+  // untested, per the repo's headerProgress seam.
+  const animate = shouldAnimate({
+    prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    hasIntersectionObserver: 'IntersectionObserver' in window,
+  });
+
+  function draw(map: Element) {
+    map.classList.add('is-armed');
+    map.classList.remove('is-drawn');
+    void (map as HTMLElement).offsetWidth; // reflow → paint the undrawn state
+    map.classList.add('is-drawn');
+  }
+
+  if (animate) {
+    // Redraw each time a map enters view. Hidden (display:none) maps don't
+    // intersect, so a map drawn-in by U5's tab switch fires here on reveal —
+    // no separate switch wiring needed. No unobserve: re-entry replays.
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) draw(e.target);
+      },
+      { threshold: 0.35 },
+    );
+    document.querySelectorAll('.family-map').forEach((map) => io.observe(map));
+  }
+</script>
