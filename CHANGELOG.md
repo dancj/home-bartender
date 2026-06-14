@@ -7,12 +7,7 @@ Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N
 ## [Unreleased]
 ## [2026.6.13.2] - 2026-06-13
 
-### Features
-
 - #78 — feat: breadcrumb navigation on by-* taxonomy pages (@dancj)
-
-### Platform
-
 - #79 — feat(learn): redesign Tools + Techniques pages, remove Glossary (@dancj)
 - #76 — docs: update CHANGELOG for release 2026.6.13.1 (@app/github-actions)
 - #73 — chore(deps): update tailwindcss monorepo to v4.3.1 (@app/renovate)
@@ -20,22 +15,12 @@ Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N
 - #67 — chore(deps): update astro monorepo to v6.4.6 (@app/renovate)
 ## [2026.6.13.1] - 2026-06-13
 
-### Features
-
 - #74 — feat: Add /families/ index page (@dancj)
-
-### Platform
-
 - #72 — chore(deps): update dependency sharp to ^0.35.0 (@app/renovate)
 - #71 — docs: update CHANGELOG for release 2026.6.10.1 (@app/github-actions)
 ## [2026.6.10.1] - 2026-06-10
 
-### Features
-
 - #64 — feat: add Super Juice technique with integrated calculator (@dancj)
-
-### Platform
-
 - #70 — feat(icons): surface taxonomy icons across recipe pages, cards, and listings (@dancj)
 - #68 — feat(icons): grid-slicing icon pipeline + 75 vectorized taxonomy icons (@dancj)
 - #66 — docs(icons): icon-set generation prompts reference (@dancj)
@@ -45,15 +30,11 @@ Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N
 - #53 — chore(deps): update dependency lint-staged to v17.0.7 (@app/renovate)
 ## [2026.5.31.1] - 2026-05-31
 
-### Platform
-
 - #58 — feat(brand): transparent, higher-res logo (@dancj)
 - #56 — docs(intake): conservative attribution policy + no editorial origin c… (@dancj)
 - #54 — Feat promote inbox batch (@dancj)
 - #52 — docs: update CHANGELOG for release 2026.5.29.1 (@app/github-actions)
 ## [2026.5.29.1] - 2026-05-29
-
-### Features
 
 - #43 — feat: Stage A — typed recipe components with frontmatter-driven body sections (@dancj)
 - #36 — feat: core visual shift — tokens, cards, shell (U2+U3+U4) (@dancj)
@@ -64,13 +45,7 @@ Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N
 - #11 — feat: canonical taxonomy registry (single source of truth) (@dancj)
 - #6 — feat: auto-maintain staging→main release PR (with CHANGELOG) (@dancj)
 - #5 — feat: add Vitest with anchor test and CI gating (@dancj)
-
-### Fixes
-
 - #7 — fix: use origin/main..HEAD for the staging-ahead check (@dancj)
-
-### Platform
-
 - #51 — chore(deps): update dependency node to v24 (@app/renovate)
 - #50 — fix(ci): unbreak release-changelog tagging workflow (@dancj)
 - #48 — feat(layout): collapsing logo header (@dancj)
@@ -91,3 +66,5 @@ Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N
 - #12 — chore: add Renovate config (@dancj)
 - #2 — docs: spell out branch + PR steps for email recipe ingest (@dancj)
 - #1 — Docs/pr workflow and inbox copy (@dancj)
+</content>
+</invoke>
