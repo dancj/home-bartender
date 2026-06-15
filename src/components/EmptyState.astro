@@ -1,0 +1,50 @@
+---
+// Shared "nothing here" treatment. Minimal on the home zero-results state
+// (message only), rich on the 404 (title + browse links + inline search via
+// the default slot). Renders an `id` and is `hidden`-toggleable so the home
+// filter script can keep showing/hiding it via getElementById(...).hidden.
+interface Props {
+  message: string;
+  title?: string;
+  /** Set so callers (the home filter JS) can toggle visibility by id. */
+  id?: string;
+  hidden?: boolean;
+}
+const { message, title, id, hidden = false } = Astro.props;
+const hasExtras = Astro.slots.has('default');
+---
+<div class="empty-state" id={id} hidden={hidden}>
+  {title && <p class="empty-state__title">{title}</p>}
+  <p class="empty-state__message">{message}</p>
+  {hasExtras && (
+    <div class="empty-state__extras">
+      <slot />
+    </div>
+  )}
+</div>
+
+<style>
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+  .empty-state__title {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    color: var(--color-fg);
+    margin: 0 0 0.5rem;
+  }
+  .empty-state__message {
+    color: var(--color-fg-muted);
+    font-style: italic;
+    font-family: var(--font-serif);
+    margin: 0;
+  }
+  .empty-state__extras {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    align-items: center;
+  }
+</style>
