@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ideation — A More Polished, Cohesive Home Bartender</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F0E8; --surface:#FBF8F2; --surface-muted:#EEE8DD;
+    --rule:#E3DCCB; --rule-strong:#CFC4AC;
+    --fg:#1F1A14; --fg-muted:#6B5F50; --fg-subtle:#9A8E7C;
+    --accent:#9C3F2A; --accent-soft:#E8D5C9; --accent-fg:#FBF8F2;
+    --header-bg:#1A1810; --header-fg:#FBF8F2;
+    --radius:22px; --radius-md:8px;
+    --shadow:0 1px 2px rgb(0 0 0 / .04), 0 8px 24px -8px rgb(0 0 0 / .08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Newsreader",Georgia,serif;font-size:1.05rem;line-height:1.6;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:54rem;margin:0 auto;padding:0 1.25rem 6rem}
+  header.hero{background:var(--header-bg);color:var(--header-fg);padding:3rem 1.25rem 2.5rem;margin-bottom:2.5rem}
+  header.hero .inner{max-width:54rem;margin:0 auto}
+  .eyebrow{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    text-transform:uppercase;letter-spacing:.12em;font-size:.7rem;font-weight:600;color:var(--fg-subtle)}
+  header.hero .eyebrow{color:#A89B89}
+  h1{font-family:"Fraunces",serif;font-weight:600;line-height:1.1;
+    font-size:clamp(2rem,5vw,2.9rem);margin:.4rem 0 .6rem}
+  header.hero h1{color:var(--header-fg)}
+  .sub{color:var(--fg-muted);font-style:italic;font-size:1.15rem;margin:0}
+  header.hero .sub{color:#C9BEA9}
+  h2{font-family:"Fraunces",serif;font-weight:600;font-size:1.6rem;margin:3rem 0 1rem;
+    padding-bottom:.4rem;border-bottom:1px solid var(--rule)}
+  h3{font-family:"Fraunces",serif;font-weight:600;font-size:1.2rem;margin:0}
+  p{margin:.6rem 0}
+  .meta-line{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.85rem;color:var(--fg-muted)}
+  .grid-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:.75rem;margin:1rem 0}
+  .fact{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius-md);padding:.7rem .9rem}
+  .fact .k{font-family:ui-sans-serif,system-ui,sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:.62rem;color:var(--fg-subtle)}
+  .fact .v{font-size:.95rem}
+  ul.gaps{margin:.5rem 0;padding-left:1.1rem}
+  ul.gaps li{margin:.3rem 0}
+  .card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);
+    padding:1.4rem 1.5rem;margin:1.1rem 0;box-shadow:var(--shadow)}
+  .card .top{display:flex;align-items:baseline;gap:.6rem;flex-wrap:wrap}
+  .rank{font-family:"Fraunces",serif;font-size:1.5rem;color:var(--accent);font-weight:600;line-height:1}
+  .chips{margin:.55rem 0 .2rem;display:flex;gap:.4rem;flex-wrap:wrap}
+  .chip{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.68rem;font-weight:600;
+    text-transform:uppercase;letter-spacing:.06em;border-radius:999px;padding:.2rem .6rem;
+    background:var(--surface-muted);color:var(--fg-muted);border:1px solid var(--rule)}
+  .chip.axis{background:var(--accent-soft);color:#6e2a1b;border-color:#dcc3b4}
+  .chip.conf{background:#e7eee2;color:#3f5536;border-color:#cdddc2}
+  .basis{font-size:.95rem;color:var(--fg-muted);border-left:3px solid var(--accent-soft);
+    padding:.2rem 0 .2rem .8rem;margin:.7rem 0}
+  .basis code{font-family:ui-monospace,monospace;font-size:.8rem;background:var(--surface-muted);
+    padding:.05rem .3rem;border-radius:4px;color:var(--accent)}
+  .why{margin:.5rem 0 0}
+  .tag-bet{background:var(--header-bg);color:#C9BEA9;font-size:.68rem;font-weight:600;
+    font-family:ui-sans-serif,system-ui,sans-serif;text-transform:uppercase;letter-spacing:.06em;
+    border-radius:999px;padding:.2rem .6rem}
+  table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.92rem}
+  th,td{text-align:left;padding:.55rem .6rem;border-bottom:1px solid var(--rule);vertical-align:top}
+  th{font-family:ui-sans-serif,system-ui,sans-serif;text-transform:uppercase;letter-spacing:.08em;
+    font-size:.68rem;color:var(--fg-subtle)}
+  td.idea{font-weight:600;font-family:"Fraunces",serif;white-space:nowrap}
+  .next{background:var(--surface);border:1px dashed var(--rule-strong);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-top:1.5rem}
+  a{color:var(--accent)}
+  .foot{margin-top:3rem;color:var(--fg-subtle);font-size:.82rem;font-family:ui-sans-serif,system-ui,sans-serif}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <div class="eyebrow">Ideation · 2026-06-14 · repo-grounded</div>
+    <h1>A more polished, cohesive site</h1>
+    <p class="sub">Seven surface-and-system moves to make Home Bartender feel like one finished cookbook, not a stack of similar pages.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+<h2>Grounding context</h2>
+<p>The site already has a real, documented identity (<code>docs/design/direction.md</code>): warm editorial, light-only, <strong>Fraunces</strong> display + <strong>Newsreader</strong> body, cream surfaces (#F5F0E8) + terracotta accent (#9C3F2A), dark header chrome (#1A1810), full Tailwind v4 token set, reduced-motion handled. It is <em>cohesive in intent</em> — the gaps are execution: finished work that isn't wired up, edges that fall back to browser defaults, and per-page styling that drifts because it's copy-pasted instead of componentized.</p>
+
+<div class="grid-facts">
+  <div class="fact"><div class="k">Stack</div><div class="v">Astro 5 · Tailwind v4 · Pagefind · GH Pages</div></div>
+  <div class="fact"><div class="k">Content</div><div class="v">Markdown recipes, rich frontmatter</div></div>
+  <div class="fact"><div class="k">Frames run</div><div class="v">6 · ~48 raw ideas · all 5 axes covered</div></div>
+</div>
+
+<p class="eyebrow" style="margin-top:1.5rem">Topic axes</p>
+<p class="meta-line">1 · Visual-system cohesion &nbsp;•&nbsp; 2 · Recipe presentation &nbsp;•&nbsp; 3 · Browse &amp; discovery &nbsp;•&nbsp; 4 · Identity &amp; shareability &nbsp;•&nbsp; 5 · Robustness &amp; edge polish</p>
+
+<p class="eyebrow" style="margin-top:1.2rem">Concrete gaps found in the code</p>
+<ul class="gaps">
+  <li><strong>Search is dead code.</strong> <code>Search.astro</code> is fully built &amp; theme-styled but imported into <em>zero</em> pages/layouts — search effectively doesn't exist on the live site.</li>
+  <li><strong>Related links show mangled slugs.</strong> <code>RecipeLayout.astro:154</code> renders <code>slug.replace(/-/g,' ')</code> → "old fashioned" next to the page's own "Old Fashioned"; breaks "Naked &amp; Famous", "Penicillin No. 2".</li>
+  <li><strong>Nothing shareable.</strong> Only <code>twitter:card=summary</code>; no <code>og:image</code>, no schema.org Recipe JSON-LD — links unfurl as bare text, no Google rich results.</li>
+  <li><strong>Edges fall back to defaults.</strong> No <code>404.astro</code>; empty states only on home; print CSS only hides icons (the full spec in direction.md is unimplemented).</li>
+  <li><strong>Drift by copy-paste.</strong> Eyebrow styling hand-applied across ~8 files; <code>BASE_URL.replace(/\/$/,'')</code> duplicated in ~13 files; <code>.recipe-grid</code> duplicated; 7–8 near-identical <code>/by-*</code> index templates.</li>
+</ul>
+
+<h2>Ranked survivors</h2>
+
+<div class="card">
+  <div class="top"><span class="rank">1</span><h3>Wire up the orphaned Pagefind search</h3></div>
+  <div class="chips"><span class="chip axis">Browse &amp; discovery</span><span class="chip conf">Confidence 95%</span><span class="chip">Complexity Low</span></div>
+  <p>A finished, on-brand component renders nowhere. Mount <code>&lt;Search mode="compact"/&gt;</code> in <code>BaseLayout</code>'s header (an icon button in the dark chrome that expands to a Pagefind overlay, optionally a <kbd>/</kbd> or <kbd>⌘K</kbd> shortcut), and <code>mode="full"</code> on a <code>/search</code> route. It already self-degrades when the index isn't built.</p>
+  <div class="basis"><strong>basis</strong> · <code>direct:</code> <code>Search.astro</code> exists, themed, dual-mode — grepped as imported only by <code>inbox.astro</code>, never <code>BaseLayout</code>.</div>
+  <p class="why"><strong>Why it matters:</strong> the single highest polish-per-effort move on the list — a recipe collection with no search forces the filter bar for every lookup and can't answer freeform/ingredient queries Pagefind already indexes. Loudest possible "unfinished" signal, nearly free to fix.</p>
+</div>
+
+<div class="card">
+  <div class="top"><span class="rank">2</span><h3>Resolve related[] to real titles (then render as mini cards)</h3></div>
+  <div class="chips"><span class="chip axis">Browse &amp; discovery</span><span class="chip conf">Confidence 95%</span><span class="chip">Complexity Low</span></div>
+  <p>Build a slug→title map from the content collection at build time and render the actual title instead of the lowercased slug. The validator already guarantees every <code>related[]</code> slug resolves, so the lookup is total — no missing-key branch. Optionally upgrade related links from bare <code>&lt;li&gt;&lt;a&gt;</code> to the same RecipeCard treatment for cross-surface consistency.</p>
+  <div class="basis"><strong>basis</strong> · <code>direct:</code> <code>RecipeLayout.astro:154</code>; titles live in frontmatter, free via <code>getCollection('recipes')</code>.</div>
+  <p class="why"><strong>Why it matters:</strong> casing mismatch is exactly the "quiet failure" that makes a careful editorial site read as unfinished — and it currently breaks any title with internal caps or punctuation.</p>
+</div>
+
+<div class="card">
+  <div class="top"><span class="rank">3</span><h3>Branded 404 + one shared empty-state family</h3></div>
+  <div class="chips"><span class="chip axis">Robustness &amp; edge polish</span><span class="chip conf">Confidence 88%</span><span class="chip">Complexity Low</span></div>
+  <p>One <code>EmptyState.astro</code> (empty-coupe icon + message + "browse by spirit" links + the search box) reused for: zero-result filter views, empty <code>/by-*</code> facets, empty inbox, and <code>src/pages/404.astro</code>. A 404 is just an empty state that admits the URL was wrong — and 404s aren't hypothetical here: the inbox→category publish flow <em>renames slugs by design</em>, so promoted recipes generate dead inbound links.</p>
+  <div class="basis"><strong>basis</strong> · <code>direct:</code> no <code>404.*</code> in <code>src/pages</code>; empty states only on home; faceted pages can legitimately render zero matches.</div>
+  <p class="why"><strong>Why it matters:</strong> polish is judged at the edges — one shared component means a visitor can never hit a blank or browser-default page, everywhere at once.</p>
+</div>
+
+<div class="card">
+  <div class="top"><span class="rank">4</span><h3>Cohesion-by-construction: shared primitives + token tiers</h3></div>
+  <div class="chips"><span class="chip axis">Visual-system cohesion</span><span class="chip conf">Confidence 85%</span><span class="chip">Complexity Medium</span></div>
+  <p>The compounding bet. Extract <code>&lt;Eyebrow&gt;</code>, <code>&lt;PageHeader&gt;</code>, <code>&lt;RecipeGrid&gt;</code>, <code>&lt;EmptyState&gt;</code> so every index/card/header routes through one source; add a <code>href()</code> URL helper to kill the ~13 copies of the BASE_URL slash-strip; restructure <code>@theme</code> into three tiers (primitives → semantic aliases like <code>--surface</code>/<code>--ink</code>/<code>--accent</code> → component) and add the <strong>missing motion-token layer</strong> (<code>--ease-*</code>, <code>--dur-fast/base/slow</code>) so the header collapse, filter expand, FamilyMap draw, and card hovers move with one hand.</p>
+  <div class="basis"><strong>basis</strong> · <code>direct:</code> eyebrow styling across ~8 files, BASE_URL across ~13, <code>.recipe-grid</code> duplicated. <code>external:</code> Tailwind v4 best practice = 3-layer tokens; the motion layer is the most-skipped source of "unpolished" feel.</div>
+  <p class="why"><strong>Why it matters:</strong> turns cohesion from a vigilance problem into a structural property — one edit to the grid or a semantic token reflows/recolors every page in sync. Underpins survivors #1–#3, #5. Best split into a small first slice (Eyebrow + PageHeader + href helper) before the token refactor.</p>
+</div>
+
+<div class="card">
+  <div class="top"><span class="rank">5</span><h3>Type-only OG cards + schema.org Recipe (build-time)</h3></div>
+  <div class="chips"><span class="chip axis">Identity &amp; shareability</span><span class="chip conf">Confidence 85%</span><span class="chip">Complexity Medium</span></div>
+  <p>The site is deliberately photo-free — so make that the brand of the share card instead of the reason there isn't one. Generate a per-recipe <code>og:image</code> at build (title in Fraunces, terracotta-on-cream, spirit/glass icons, attribution credit line, on the dark-header field) via Astro endpoint + satori/resvg, and emit schema.org <code>Recipe</code> JSON-LD from the same <code>ingredients[]</code>/<code>steps[]</code>/<code>garnish</code> the page already renders. One <code>&lt;Meta&gt;</code> head component in BaseLayout; zero per-recipe asset work.</p>
+  <div class="basis"><strong>basis</strong> · <code>direct:</code> no <code>og:image</code>/<code>ld+json</code> in <code>BaseLayout</code>; frontmatter already rich enough to populate both. <code>external:</code> complete Recipe schema → measurable rich-result CTR lift.</div>
+  <p class="why"><strong>Why it matters:</strong> every shared link is currently invisible word-of-mouth loss. A type-driven card is distinctive in a feed full of food photos and locks shares to the palette so they can never go off-identity.</p>
+</div>
+
+<div class="card">
+  <div class="top"><span class="rank">6</span><h3>A flavor descriptor on every card — make the grid scannable</h3></div>
+  <div class="chips"><span class="chip axis">Visual-system cohesion</span><span class="chip conf">Confidence 78%</span><span class="chip">Complexity Low–Med</span></div>
+  <p>Difford's proves a one-line tasting descriptor turns a grid from "list of names" into browsable authority. Give every RecipeCard a uniform sub-line — either authored, or <em>derived</em> deterministically from <code>method</code> + base spirit + top two <code>flavors[]</code> ("Stirred bourbon · bitter, citrus") as a guaranteed fallback so no card is ever bare. Lands the same unit on the home grid and all <code>/by-*</code> pages.</p>
+  <div class="basis"><strong>basis</strong> · <code>external:</code> Difford's per-card descriptor. <code>direct:</code> <code>method</code>/<code>spirits[]</code>/<code>flavors[]</code> present on every recipe; "empty states only on home" + inconsistent eyebrows are listed gaps.</div>
+  <p class="why"><strong>Why it matters:</strong> an alphabetical grid of names forces click-to-evaluate; a descriptor lets the eye triage — what makes a reference site feel authoritative rather than thin. Decision to settle: derived vs authored (voice vs uniformity).</p>
+</div>
+
+<div class="card">
+  <div class="top"><span class="rank">7</span><h3>Recipe "make mode": spec plate + ingredient checkboxes + serving scaler</h3></div>
+  <div class="chips"><span class="chip axis">Recipe presentation</span><span class="chip conf">Confidence 72%</span><span class="chip">Complexity Medium</span></div>
+  <p>Make the detail page read like a cookbook and work like a tool. A fixed "spec plate" under the title (glass · method · ice · difficulty as iconed chips — the data-driven "hero" the no-photo direction actually wants); a register split between data sections (Ingredients/Steps) and prose (Notes); tappable ingredient checkboxes (highest-engagement recipe interaction, 80–90% mobile); and a servings stepper that scales parsed <code>oz</code> amounts. Small client islands over components that already exist.</p>
+  <div class="basis"><strong>basis</strong> · <code>external:</code> NYT Cooking register-split, SideChef checkboxes/mobile. <code>direct:</code> <code>recipe/{Ingredients,Steps,HouseMade,BatchInstructions}</code> already discrete; <code>Icon.astro</code> exists; <code>glass/method/ice/difficulty</code> populated but never used as a visual unit.</p></div>
+  <p class="why"><strong>Why it matters:</strong> recipes are <em>used</em> at the bar, not just read — make-mode is where the site beats a printed cookbook. Scope first: the scaler needs an amount-parsing contract (½ oz, "2 dashes", "to top").</p>
+</div>
+
+<h2>Bigger bets — scope before committing</h2>
+
+<div class="card">
+  <div class="top"><span class="tag-bet">Larger bet</span><h3 style="margin-top:.5rem">A · Collapse the 7–8 <code>/by-*</code> pages into one parametric Browse template</h3></div>
+  <div class="chips"><span class="chip axis">Browse &amp; discovery</span><span class="chip conf">Confidence 80%</span><span class="chip">Complexity Medium</span></div>
+  <p>Eight near-identical <code>[facet].astro</code> files differ only by which field they filter. Derive them from one <code>facets.ts</code> config feeding a single <code>TaxonomyIndex.astro</code> — adding a browse dimension becomes a one-line entry, and every facet page gets identical header/empty-state/grid by construction. Reframe further: <code>/by-spirit/gin</code> is just the home grid pre-filtered (<code>/?spirit=gin</code>), so the two discovery systems could merge into one surface.</p>
+  <div class="basis"><strong>basis</strong> · <code>direct:</code> 7–8 sibling <code>by-*</code> dirs, ~1.3KB each, structurally identical; home already has a URL-param filter grid.</div>
+</div>
+
+<div class="card">
+  <div class="top"><span class="tag-bet">Larger bet</span><h3 style="margin-top:.5rem">B · "What can I make?" cabinet lookup</h3></div>
+  <div class="chips"><span class="chip axis">Browse &amp; discovery</span><span class="chip conf">Confidence 68%</span><span class="chip">Complexity Medium</span></div>
+  <p>A client island where the visitor checks the spirits they own and sees fully-makeable recipes (plus "one bottle away"), computed from a build-time JSON of <code>spirits[]</code>. Difford's "Cabinet" pattern; the existing filter island proves the technique. Turns the collection from a catalog into a tool with zero new content — but it's arguably a feature beyond "polish," hence the scope flag.</p>
+  <div class="basis"><strong>basis</strong> · <code>external:</code> Difford's Cabinet reverse-lookup. <code>direct:</code> every recipe has validated <code>spirits[]</code>; <code>index.astro</code> filter island is the working precedent.</div>
+</div>
+
+<h2>Rejected / folded</h2>
+<table>
+  <tr><th>Idea</th><th>Disposition</th></tr>
+  <tr><td class="idea">Complete the print stylesheet</td><td>Worthy but narrow; fold into survivor #3's edge-polish pass or do as a standalone chore — the spec already exists in direction.md.</td></tr>
+  <tr><td class="idea">Editorial default sort ("Start here" vs A–Z)</td><td>Good instinct (alphabetical contradicts the stated "not a database printout" voice) but it's curation, not polish — better as a content decision than a build task.</td></tr>
+  <tr><td class="idea">Tombstone / mandatory attribution block</td><td>Folds into survivor #4/#7 header consistency; the project forbids invented attribution, so the real win (a designed "origin contested" empty state) is just header cohesion.</td></tr>
+  <tr><td class="idea">BASE_URL <code>href()</code> helper (standalone)</td><td>Real, but invisible internal cleanup — folded into survivor #4 as the enabling first slice.</td></tr>
+  <tr><td class="idea">Flavor floret / census line / crate-divider</td><td>Charming cross-domain ports, but each is a flavor of "consistent card/header treatment" already captured by #4 + #6; not worth separate tracks.</td></tr>
+  <tr><td class="idea">One-page printable field guide</td><td>Cool artifact, but scope creep ("the site is a book now"); revisit after the recipe block hierarchy is canonical (#7).</td></tr>
+</table>
+
+<div class="next">
+  <p class="eyebrow">Next steps</p>
+  <p>Survivors #1–#3 are low-complexity, high-confidence wins ready to ship now (#1 and #2 are nearly one-line each). #4 is the structural cohesion investment that makes the rest cheaper — start with its small slice (Eyebrow + PageHeader + <code>href()</code>) before the token refactor. #5–#7 each carry one open decision worth a brainstorm (OG tooling choice; derived-vs-authored descriptor; scaler parsing contract). The two larger bets need scoping discussion before committing.</p>
+  <p style="margin-bottom:0"><strong>From here:</strong> pick one to take into <code>/ce:brainstorm</code> (define it precisely), or batch #1–#3 straight into implementation as a "quick polish" PR.</p>
+</div>
+
+<p class="foot">Generated by ce-ideate · repo-grounded · 6 frames, ~48 candidates → 7 survivors + 2 bets · scratch: /tmp/compound-engineering/ce-ideate/a3f9c1e7</p>
+
+</div>
+</body>
+</html>

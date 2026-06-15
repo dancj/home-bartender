@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import RecipeCard from '../components/RecipeCard.astro';
+import EmptyState from '../components/EmptyState.astro';
 import { publishedRecipes } from '../lib/recipes';
 import { label, groupByTax } from '../lib/taxonomy';
 import Icon from '../components/Icon.astro';
@@ -83,7 +84,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     {recipes.map((r) => <RecipeCard recipe={r} />)}
   </ul>
 
-  <p id="empty-state" class="empty" hidden>No recipes match the current filters.</p>
+  <EmptyState id="empty-state" message="No recipes match the current filters." hidden />
 
   <script is:inline>
     (function () {
@@ -243,13 +244,5 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
   }
   .clear-btn:hover {
     color: var(--color-fg);
-  }
-
-  .empty {
-    text-align: center;
-    color: var(--color-fg-muted);
-    font-style: italic;
-    font-family: var(--font-serif);
-    padding: 3rem 1rem;
   }
 </style>

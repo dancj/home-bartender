@@ -6,6 +6,7 @@ import '@fontsource/fraunces/500.css';
 import '@fontsource/fraunces/600.css';
 import '../styles/global.css';
 import { getImage } from 'astro:assets';
+import Search from '../components/Search.astro';
 import logoFullSrc from '../assets/brand/logo-full.png';
 import logoCoupeSrc from '../assets/brand/logo-coupe.png';
 
@@ -63,9 +64,49 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, f
           {navLinks.map(link => (
             <a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}</a>
           ))}
+          <button
+            type="button"
+            class="nav-search-toggle"
+            aria-label="Search recipes"
+            aria-expanded="false"
+            aria-controls="header-search-panel"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
         </nav>
       </div>
+      <div id="header-search-panel" class="header-search-panel" hidden>
+        <Search mode="compact" id="header-search-input" />
+      </div>
     </header>
+    <script is:inline>
+      (function () {
+        const btn = document.querySelector('.nav-search-toggle');
+        const panel = document.getElementById('header-search-panel');
+        if (!btn || !panel) return;
+        const open = () => {
+          panel.hidden = false;
+          btn.setAttribute('aria-expanded', 'true');
+          const input = panel.querySelector('input');
+          if (input) input.focus();
+        };
+        const close = () => {
+          panel.hidden = true;
+          btn.setAttribute('aria-expanded', 'false');
+        };
+        btn.addEventListener('click', () => (panel.hidden ? open() : close()));
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && !panel.hidden) { close(); btn.focus(); }
+        });
+        document.addEventListener('click', (e) => {
+          if (panel.hidden) return;
+          if (!panel.contains(e.target) && !btn.contains(e.target)) close();
+        });
+      })();
+    </script>
     <main class={`${containerClass} flex-1 w-full pt-10 pb-16 lg:pt-12 lg:pb-20`}>
       <slot />
     </main>
@@ -277,6 +318,67 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, f
   .nav-links a[aria-current="page"]:hover {
     background: var(--color-bg);
     color: var(--color-fg);
+  }
+
+  /* Search affordance — an icon toggle that rides inside the nav cluster, so
+     it stays correctly placed in both header states without fighting the
+     --header-progress transforms. The panel is a separate, absolutely-
+     positioned dropdown (not inside .nav-links) so it doesn't inherit the
+     cluster's translate. Dark chrome to match the header + the compact input. */
+  .nav-search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--color-header-fg-muted);
+    cursor: pointer;
+    padding: 0 0.35rem;
+    margin-left: 0.15rem;
+    align-self: stretch;
+    transition: color var(--transition-base);
+  }
+  .nav-search-toggle:hover,
+  .nav-search-toggle[aria-expanded="true"] {
+    color: var(--color-header-fg);
+  }
+  .nav-search-toggle svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    display: block;
+  }
+
+  .header-search-panel {
+    position: absolute;
+    top: 100%;
+    right: 1rem;
+    width: min(24rem, calc(100vw - 2rem));
+    margin-top: 0.5rem;
+    padding: 0.85rem;
+    background: var(--color-header-bg);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    z-index: 30;
+    /* Cap height so long result lists scroll inside the panel rather than
+       running off the viewport; contain scroll so it doesn't chain to body. */
+    max-height: min(70vh, 32rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* Pagefind's defaults theme results for the cream page; inside the dark panel
+     they'd render dark-on-dark. Flip the result text/background to the header
+     palette so titles and excerpts stay legible. */
+  .header-search-panel :global(.pagefind-ui) {
+    --pagefind-ui-text: var(--color-header-fg);
+    --pagefind-ui-background: var(--color-header-bg);
+    --pagefind-ui-border: rgb(255 255 255 / 0.15);
+  }
+  .header-search-panel :global(.pagefind-ui__result-title a) {
+    color: var(--color-header-fg);
+  }
+  .header-search-panel :global(.pagefind-ui__result-excerpt) {
+    color: var(--color-header-fg-muted);
   }
 
   /* Softer footer underlines — global default uses --color-rule-strong */

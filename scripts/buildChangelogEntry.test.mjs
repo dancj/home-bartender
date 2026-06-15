@@ -24,13 +24,10 @@ describe('renderChangelogEntry', () => {
       prs: [],
     });
     expect(entry).toContain('## [2026.5.23.1] - 2026-05-23');
-    expect(entry).not.toContain('### Recipes');
-    expect(entry).not.toContain('### Features');
-    expect(entry).not.toContain('### Fixes');
-    expect(entry).not.toContain('### Platform');
+    expect(entry).not.toContain('### ');
   });
 
-  it('emits sections in fixed order: Recipes, Features, Fixes, Platform', () => {
+  it('renders a flat bullet list with no category headings', () => {
     const entry = renderChangelogEntry({
       version: '2026.5.23.1',
       date: new Date('2026-05-23T12:00:00Z'),
@@ -41,26 +38,29 @@ describe('renderChangelogEntry', () => {
         makePr({ number: 4, title: 'feat(inbox): gin fizz', author: { login: 'd' } }),
       ],
     });
-    const ri = entry.indexOf('### Recipes');
-    const fei = entry.indexOf('### Features');
-    const fxi = entry.indexOf('### Fixes');
-    const pi = entry.indexOf('### Platform');
-    expect(ri).toBeGreaterThan(-1);
-    expect(fei).toBeGreaterThan(ri);
-    expect(fxi).toBeGreaterThan(fei);
-    expect(pi).toBeGreaterThan(fxi);
+    expect(entry).not.toContain('### ');
+    expect(entry).toContain('- #1 — fix: bug (@a)');
+    expect(entry).toContain('- #2 — docs: tweak (@b)');
+    expect(entry).toContain('- #3 — feat: search (@c)');
+    expect(entry).toContain('- #4 — feat(inbox): gin fizz (@d)');
   });
 
-  it('skips empty categories', () => {
+  it('preserves PR order in the flat list', () => {
     const entry = renderChangelogEntry({
       version: '2026.5.23.1',
       date: new Date('2026-05-23T12:00:00Z'),
-      prs: [makePr({ number: 1, title: 'feat(inbox): margarita', author: { login: 'x' } })],
+      prs: [
+        makePr({ number: 3, title: 'feat: search', author: { login: 'c' } }),
+        makePr({ number: 1, title: 'fix: bug', author: { login: 'a' } }),
+        makePr({ number: 2, title: 'docs: tweak', author: { login: 'b' } }),
+      ],
     });
-    expect(entry).toContain('### Recipes');
-    expect(entry).not.toContain('### Features');
-    expect(entry).not.toContain('### Fixes');
-    expect(entry).not.toContain('### Platform');
+    const i3 = entry.indexOf('- #3 ');
+    const i1 = entry.indexOf('- #1 ');
+    const i2 = entry.indexOf('- #2 ');
+    expect(i3).toBeGreaterThan(-1);
+    expect(i1).toBeGreaterThan(i3);
+    expect(i2).toBeGreaterThan(i1);
   });
 
   it('renders bullets as - #N — title (@author)', () => {
@@ -121,8 +121,6 @@ describe('injectChangelogEntry', () => {
       '## [Unreleased]',
       '',
       '## [2026.5.22.1] - 2026-05-22',
-      '',
-      '### Features',
       '',
       '- #1 — feat: old (@a)',
       '',

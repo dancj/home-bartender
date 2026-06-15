@@ -1,6 +1,9 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import type { Recipe } from '../lib/recipes';
+import { publishedRecipes } from '../lib/recipes';
+import { resolveRelated } from '../lib/related';
+import RecipeCard from '../components/RecipeCard.astro';
 import { label } from '../lib/taxonomy';
 import Ingredients from '../components/recipe/Ingredients.astro';
 import Steps from '../components/recipe/Steps.astro';
@@ -17,6 +20,11 @@ const { data } = recipe;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const hasAttribution =
   data.attribution.creator || data.attribution.bar || data.attribution.year;
+
+// Resolve related[] slugs to full recipes so cards render real titles instead
+// of de-slugged text. Order follows the related[] list (see resolveRelated).
+const relatedRecipes =
+  data.related.length > 0 ? resolveRelated(await publishedRecipes(), data.related) : [];
 
 // Markdown-rendered headings (## Notes, ## Variations) can't host the Icon
 // component — their icons ride in via ::before masks fed by these custom
@@ -146,13 +154,11 @@ const mdHeadingIcons = [
       </aside>
     )}
 
-    {data.related.length > 0 && (
+    {relatedRecipes.length > 0 && (
       <aside class="related">
         <h2 class="aside-title"><Icon field="sections" slug="related" /> Related</h2>
-        <ul>
-          {data.related.map((slug: string) => (
-            <li><a href={`${base}/recipes/${slug}/`}>{slug.replace(/-/g, ' ')}</a></li>
-          ))}
+        <ul class="recipe-grid">
+          {relatedRecipes.map((r) => <RecipeCard recipe={r} />)}
         </ul>
       </aside>
     )}
@@ -379,29 +385,9 @@ const mdHeadingIcons = [
     color: var(--color-fg);
     font-weight: 600;
   }
-  .related ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-  .related li a {
-    text-transform: capitalize;
-    text-decoration: none;
-  }
-  .related li a {
-    display: inline-flex;
-    padding: 0.25rem 0.7rem;
-    border: 1px solid var(--color-rule);
-    border-radius: 999px;
-    font-size: 0.75rem;
-    color: var(--color-fg-muted);
-    transition: border-color 120ms ease, color 120ms ease;
-  }
-  .related li a:hover {
-    border-color: var(--color-rule-strong);
-    color: var(--color-fg);
+  /* Related uses the shared .recipe-grid (RecipeCard) — give the cards a little
+     more room to breathe below the muted aside-title. */
+  .related .recipe-grid {
+    margin-top: 0.25rem;
   }
 </style>
