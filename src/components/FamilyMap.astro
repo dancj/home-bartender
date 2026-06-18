@@ -1,6 +1,7 @@
 ---
 import type { Recipe } from '../lib/recipes';
 import { buildFamilyMap, layoutFamilyMap } from '../lib/familyMap';
+import { FAMILY_NOTES } from '../lib/taxonomy';
 import Icon from './Icon.astro';
 import FlavorIcons from './FlavorIcons.astro';
 
@@ -31,6 +32,9 @@ const isEmpty = model.branches.length === 0;
 const rootHref = isEmpty ? null : `${base}/by-family/${family}/`;
 const arrowId = `arrow-${family}`;
 const arrowSubId = `arrow-sub-${family}`;
+// Cocktail Codex template for this family — the distinguishing trait, shown
+// under the root name.
+const rootNote = FAMILY_NOTES[family as keyof typeof FAMILY_NOTES];
 ---
 
 <figure
@@ -69,8 +73,8 @@ const arrowSubId = `arrow-sub-${family}`;
   <div class="family-map-nodes">
     <div class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
       {rootHref
-        ? <a href={rootHref} class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span></a>
-        : <span class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span></span>}
+        ? <a href={rootHref} class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</a>
+        : <span class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</span>}
     </div>
 
     {layout.branches.map((branch) => (
@@ -240,6 +244,20 @@ const arrowSubId = `arrow-sub-${family}`;
   .family-map :global(.family-map-glyph) {
     --icon-size: 64px;
     color: var(--color-accent);
+  }
+
+  /* Distinguishing-trait tagline under the root name (Cocktail Codex template). */
+  .family-map-tagline {
+    margin-top: 0.2rem;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+    color: var(--color-fg-muted);
+    white-space: normal;
+    text-align: center;
+    max-width: 18ch;
   }
 
   /* Delta-flavor icons: what this drink adds over its base. Tucked into the
