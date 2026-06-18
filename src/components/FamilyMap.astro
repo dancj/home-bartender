@@ -270,6 +270,57 @@ const arrowSubId = `arrow-sub-${family}`;
   .family-map.is-empty .family-map-node.is-root .family-map-node-inner {
     opacity: 0.7;
   }
+
+  /* The right-fanning SVG layout doesn't fit a phone — long pills anchored at
+     62–82% of the viewBox overflow the right edge. Below 30rem, drop the
+     absolute overlay and reflow the nodes into a left-aligned vertical tree:
+     root on top, branches under it, sub-branches indented. Wires are decorative
+     and hidden. Inline left/top styles go inert under position: static. */
+  @media (max-width: 30rem) {
+    .family-map {
+      aspect-ratio: auto;
+      height: auto;
+      container-type: normal;
+    }
+    .family-map-wires {
+      display: none;
+    }
+    .family-map-empty {
+      position: static;
+      transform: none;
+      left: auto;
+      text-align: left;
+    }
+    .family-map-nodes {
+      position: static;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .family-map-node {
+      position: static;
+      transform: none;
+      max-width: 100%;
+    }
+    .family-map-node.is-sub {
+      margin-left: 1.5rem;
+    }
+    .family-map-label,
+    .family-map-node-inner {
+      font-size: 0.9rem;
+      white-space: normal;
+    }
+    .family-map-node.is-sub .family-map-label {
+      font-size: 0.82rem;
+    }
+    .family-map-glyph {
+      --icon-size: 44px;
+    }
+    .family-map-flavors :global(.family-map-flavor) {
+      --icon-size: 15px;
+    }
+  }
 </style>
 
 <script>
