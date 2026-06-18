@@ -15,6 +15,10 @@ export interface MapNode {
   slug: string;
   title: string;
   url: string;
+  /** The recipe's own `flavors[]`. */
+  flavors: string[];
+  /** Flavors this node adds over its base — see buildFamilyMap. */
+  deltaFlavors: string[];
 }
 
 export interface BranchNode extends MapNode {
@@ -33,14 +37,22 @@ const slugOf = (id: string): string => id.split('/').pop() as string;
 
 function toNode(recipe: Recipe, base: string): MapNode {
   const slug = slugOf(recipe.id);
+  const flavors = (recipe.data.flavors ?? []) as string[];
   return {
     slug,
     title: recipe.data.title,
     // Matches the recipe route (RecipeCard.astro): keyed on the bare slug, not
     // the full id. The `recipeUrl` helper takes the full id and is wrong here.
     url: `${base.replace(/\/$/, '')}/recipes/${slug}/`,
+    flavors,
+    // Filled in by buildFamilyMap once the node's base is known.
+    deltaFlavors: [],
   };
 }
+
+/** Flavors `node` adds over `base` — the set difference, base order preserved by node order. */
+const flavorDelta = (node: string[], base: string[]): string[] =>
+  node.filter((f) => !base.includes(f));
 
 export function buildFamilyMap(
   recipes: Recipe[],
@@ -49,6 +61,12 @@ export function buildFamilyMap(
 ): FamilyMapModel {
   const members = groupByTax(recipes, 'families').get(familySlug) ?? [];
   const memberSlugs = new Set(members.map((m) => slugOf(m.id)));
+
+  // Top-level branches measure their delta against the family archetype — the
+  // member whose slug is the family slug (e.g. `old-fashioned`). Absent one,
+  // the base is empty and a branch's delta is its full flavor set.
+  const archetype = members.find((m) => slugOf(m.id) === familySlug);
+  const baseFlavors = (archetype?.data.flavors ?? []) as string[];
 
   // Assign same-family `related[]` recipes as sub-branches, one level deep.
   // Iterate in member order; a recipe already claimed as someone's child is a
@@ -71,9 +89,16 @@ export function buildFamilyMap(
     );
     childSlugs.forEach((rs) => claimed.add(rs));
 
+    const branch = toNode(member, base);
+    branch.deltaFlavors = flavorDelta(branch.flavors, baseFlavors);
     branches.push({
-      ...toNode(member, base),
-      subBranches: childSlugs.map((rs) => toNode(memberBySlug.get(rs) as Recipe, base)),
+      ...branch,
+      // Sub-branches measure their delta against their parent branch, not the root.
+      subBranches: childSlugs.map((rs) => {
+        const sub = toNode(memberBySlug.get(rs) as Recipe, base);
+        sub.deltaFlavors = flavorDelta(sub.flavors, branch.flavors);
+        return sub;
+      }),
     });
   }
 
