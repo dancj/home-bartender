@@ -115,8 +115,8 @@ export function buildFamilyMap(
 
 const VB_WIDTH = 600;
 const ROW_HEIGHT = 92; // vertical pitch between branch nodes (> node height → no overlap)
-const TOP_PAD = 64; // root sits here
-const FIRST_BRANCH_Y = 158;
+const TOP_PAD = 84; // root sits here — clears the tall glyph + name + tagline card
+const FIRST_BRANCH_Y = 220; // first branch sits below the root card with breathing room
 const ROOT_X = VB_WIDTH / 2;
 const BRANCH_X = VB_WIDTH * 0.62;
 const SUB_BRANCH_X = VB_WIDTH * 0.82;
