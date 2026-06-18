@@ -234,7 +234,10 @@ const arrowSubId = `arrow-sub-${family}`;
     border-color: var(--color-accent);
     color: var(--color-accent);
   }
-  .family-map-glyph {
+  /* The glyph span is rendered by the Icon child component, so it doesn't
+     carry this component's scope hash — reach it with :global, scoped under
+     .family-map (which is in this template). */
+  .family-map :global(.family-map-glyph) {
     --icon-size: 64px;
     color: var(--color-accent);
   }
@@ -309,7 +312,7 @@ const arrowSubId = `arrow-sub-${family}`;
     .family-map-node.is-sub .family-map-label {
       font-size: 0.82rem;
     }
-    .family-map-glyph {
+    .family-map :global(.family-map-glyph) {
       --icon-size: 48px;
     }
     .family-map-flavors :global(.family-map-flavor) {
