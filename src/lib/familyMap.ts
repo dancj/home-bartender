@@ -1,4 +1,5 @@
 import type { Recipe } from './recipes';
+import type { Flavor } from '../taxonomy.generated';
 import { groupByTax, label } from './taxonomy';
 
 /**
@@ -16,9 +17,9 @@ export interface MapNode {
   title: string;
   url: string;
   /** The recipe's own `flavors[]`. */
-  flavors: string[];
+  flavors: Flavor[];
   /** Flavors this node adds over its base — see buildFamilyMap. */
-  deltaFlavors: string[];
+  deltaFlavors: Flavor[];
 }
 
 export interface BranchNode extends MapNode {
@@ -38,7 +39,7 @@ const slugOf = (id: string): string => id.split('/').pop() as string;
 /** A node minus its `deltaFlavors`, which only `buildFamilyMap` can fill once the base is known. */
 function toNode(recipe: Recipe, base: string): Omit<MapNode, 'deltaFlavors'> {
   const slug = slugOf(recipe.id);
-  const flavors = (recipe.data.flavors ?? []) as string[];
+  const flavors = recipe.data.flavors;
   return {
     slug,
     title: recipe.data.title,
@@ -49,8 +50,8 @@ function toNode(recipe: Recipe, base: string): Omit<MapNode, 'deltaFlavors'> {
   };
 }
 
-/** Flavors `node` adds over `base` — the set difference, base order preserved by node order. */
-const flavorDelta = (node: string[], base: string[]): string[] =>
+/** Flavors `node` adds over `base` — the set difference, in node order. */
+const flavorDelta = (node: Flavor[], base: Flavor[]): Flavor[] =>
   node.filter((f) => !base.includes(f));
 
 export function buildFamilyMap(
@@ -65,7 +66,7 @@ export function buildFamilyMap(
   // member whose slug is the family slug (e.g. `old-fashioned`). Absent one,
   // the base is empty and a branch's delta is its full flavor set.
   const archetype = members.find((m) => slugOf(m.id) === familySlug);
-  const baseFlavors = (archetype?.data.flavors ?? []) as string[];
+  const baseFlavors: Flavor[] = archetype?.data.flavors ?? [];
 
   // Assign same-family `related[]` recipes as sub-branches, one level deep.
   // Iterate in member order; a recipe already claimed as someone's child is a

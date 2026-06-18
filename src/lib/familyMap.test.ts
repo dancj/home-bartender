@@ -141,6 +141,17 @@ describe('buildFamilyMap', () => {
     expect(sazerac.deltaFlavors).toEqual(['herbal']);
   });
 
+  it('preserves node order in a multi-flavor delta', () => {
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], [], 'Old Fashioned', ['spirit-forward']),
+      makeRecipe('classics/loaded', ['old-fashioned'], [], 'Loaded', ['spirit-forward', 'rich', 'bitter']),
+    ];
+    const model = buildFamilyMap(recipes, 'old-fashioned', BASE);
+    const loaded = model.branches.find((b) => b.title === 'Loaded');
+    // Node order, not sorted/base order.
+    expect(loaded?.deltaFlavors).toEqual(['rich', 'bitter']);
+  });
+
   it('yields an empty delta when a node adds nothing over its base', () => {
     const recipes = [
       makeRecipe('classics/old-fashioned', ['old-fashioned'], [], 'Old Fashioned', ['spirit-forward', 'sweet']),
