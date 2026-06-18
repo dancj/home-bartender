@@ -2,6 +2,7 @@
 import type { Recipe } from '../lib/recipes';
 import { buildFamilyMap, layoutFamilyMap } from '../lib/familyMap';
 import Icon from './Icon.astro';
+import FlavorIcons from './FlavorIcons.astro';
 
 interface Props {
   family: string;
@@ -79,7 +80,7 @@ const arrowSubId = `arrow-sub-${family}`;
             {branch.title}
             {branch.deltaFlavors.length > 0 && (
               <span class="family-map-flavors" aria-hidden="true">
-                {branch.deltaFlavors.map((f) => <Icon field="flavor" slug={f} class="family-map-flavor" />)}
+                <FlavorIcons slugs={branch.deltaFlavors} iconClass="family-map-flavor" />
               </span>
             )}
           </span>
@@ -95,7 +96,7 @@ const arrowSubId = `arrow-sub-${family}`;
               {sub.title}
               {sub.deltaFlavors.length > 0 && (
                 <span class="family-map-flavors" aria-hidden="true">
-                  {sub.deltaFlavors.map((f) => <Icon field="flavor" slug={f} class="family-map-flavor" />)}
+                  <FlavorIcons slugs={sub.deltaFlavors} iconClass="family-map-flavor" />
                 </span>
               )}
             </span>

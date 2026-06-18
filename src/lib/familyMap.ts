@@ -35,7 +35,8 @@ export interface FamilyMapModel {
 /** Bare slug = file basename = URL segment. `id` is `category/slug` (no extension). */
 const slugOf = (id: string): string => id.split('/').pop() as string;
 
-function toNode(recipe: Recipe, base: string): MapNode {
+/** A node minus its `deltaFlavors`, which only `buildFamilyMap` can fill once the base is known. */
+function toNode(recipe: Recipe, base: string): Omit<MapNode, 'deltaFlavors'> {
   const slug = slugOf(recipe.id);
   const flavors = (recipe.data.flavors ?? []) as string[];
   return {
@@ -45,8 +46,6 @@ function toNode(recipe: Recipe, base: string): MapNode {
     // the full id. The `recipeUrl` helper takes the full id and is wrong here.
     url: `${base.replace(/\/$/, '')}/recipes/${slug}/`,
     flavors,
-    // Filled in by buildFamilyMap once the node's base is known.
-    deltaFlavors: [],
   };
 }
 
@@ -89,15 +88,14 @@ export function buildFamilyMap(
     );
     childSlugs.forEach((rs) => claimed.add(rs));
 
-    const branch = toNode(member, base);
-    branch.deltaFlavors = flavorDelta(branch.flavors, baseFlavors);
+    const node = toNode(member, base);
     branches.push({
-      ...branch,
+      ...node,
+      deltaFlavors: flavorDelta(node.flavors, baseFlavors),
       // Sub-branches measure their delta against their parent branch, not the root.
       subBranches: childSlugs.map((rs) => {
         const sub = toNode(memberBySlug.get(rs) as Recipe, base);
-        sub.deltaFlavors = flavorDelta(sub.flavors, branch.flavors);
-        return sub;
+        return { ...sub, deltaFlavors: flavorDelta(sub.flavors, node.flavors) };
       }),
     });
   }

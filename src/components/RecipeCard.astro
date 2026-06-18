@@ -2,6 +2,7 @@
 import type { Recipe } from '../lib/recipes';
 import { label } from '../lib/taxonomy';
 import Icon from './Icon.astro';
+import FlavorIcons from './FlavorIcons.astro';
 
 interface Props {
   recipe: Recipe;
@@ -34,7 +35,7 @@ const primarySpirit = data.spirits[0];
     </p>
     {data.flavors.length > 0 && (
       <p class="recipe-card-flavors" aria-hidden="true">
-        {data.flavors.map((f) => <Icon field="flavor" slug={f} class="recipe-card-flavor" />)}
+        <FlavorIcons slugs={data.flavors} iconClass="recipe-card-flavor" />
       </p>
     )}
   </a>
