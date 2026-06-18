@@ -115,13 +115,13 @@ export function buildFamilyMap(
 // viewports by viewBox scaling alone (no separate mobile coordinate set).
 
 const VB_WIDTH = 600;
-const ROW_HEIGHT = 76; // vertical pitch between branch nodes (> node height → no overlap)
+const ROW_HEIGHT = 92; // vertical pitch between branch nodes (> node height → no overlap)
 const TOP_PAD = 64; // root sits here
-const FIRST_BRANCH_Y = 150;
+const FIRST_BRANCH_Y = 158;
 const ROOT_X = VB_WIDTH / 2;
 const BRANCH_X = VB_WIDTH * 0.62;
 const SUB_BRANCH_X = VB_WIDTH * 0.82;
-const SUB_OFFSET_Y = 34;
+const SUB_OFFSET_Y = 46;
 const BOTTOM_PAD = 56; // room below the lowest node for its overlay pill + arrowhead
 
 export interface PlacedNode extends MapNode {
