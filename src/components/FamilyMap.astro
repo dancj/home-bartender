@@ -122,10 +122,6 @@ const arrowSubId = `arrow-sub-${family}`;
     --draw-stagger: 200ms;
     /* viewBox aspect ratio keeps the node overlay aligned with the wires. */
     aspect-ratio: var(--vb-w, 600) / var(--vb-h, 400);
-    /* Node pills are absolutely positioned over a scaling SVG; size them in
-       container units so they shrink with the map on narrow viewports instead
-       of overlapping the compressed anchor points. */
-    container-type: inline-size;
   }
   .family-map-wires {
     position: absolute;
@@ -196,16 +192,14 @@ const arrowSubId = `arrow-sub-${family}`;
     border: 1px solid var(--color-rule-strong);
     border-radius: 999px;
     font-family: var(--font-serif);
-    /* Scale with the map width (≈0.95rem at full size, smaller as it narrows)
-       so pills don't overrun their anchors on a phone. */
-    font-size: clamp(0.72rem, 2.6cqw, 0.95rem);
+    font-size: 0.95rem;
     line-height: 1.2;
     color: var(--color-fg);
     white-space: nowrap;
     transition: var(--transition-base);
   }
   .family-map-node.is-sub .family-map-label {
-    font-size: clamp(0.66rem, 2.3cqw, 0.85rem);
+    font-size: 0.85rem;
     color: var(--color-fg-muted);
   }
   /* Hover + keyboard parity — SVG-area links don't inherit card styles. */
@@ -241,7 +235,7 @@ const arrowSubId = `arrow-sub-${family}`;
     color: var(--color-accent);
   }
   .family-map-glyph {
-    --icon-size: clamp(40px, 9.5cqw, 56px);
+    --icon-size: 48px;
     color: var(--color-accent);
   }
 
@@ -254,7 +248,7 @@ const arrowSubId = `arrow-sub-${family}`;
     color: var(--color-fg-subtle);
   }
   .family-map-flavors :global(.family-map-flavor) {
-    --icon-size: clamp(13px, 2.8cqw, 16px);
+    --icon-size: 16px;
   }
 
   .family-map-empty {
@@ -298,7 +292,8 @@ const arrowSubId = `arrow-sub-${family}`;
       align-items: flex-start;
       gap: 0.5rem;
     }
-    .family-map-node {
+    .family-map-node,
+    .family-map-node.is-root {
       position: static;
       transform: none;
       max-width: 100%;
