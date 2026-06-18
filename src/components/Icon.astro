@@ -5,14 +5,19 @@ interface Props {
   field: string;
   slug: string;
   class?: string;
+  /** Hover tooltip. When set, the icon is also exposed to AT via aria-label
+      instead of being hidden. */
+  title?: string;
 }
-const { field, slug, class: className } = Astro.props;
+const { field, slug, class: className, title } = Astro.props;
 const url = iconUrl(field, slug);
 ---
 {url && (
   <span
     class:list={['tax-icon', className]}
     style={`--icon-url: url("${url}")`}
-    aria-hidden="true"
+    title={title}
+    aria-label={title}
+    aria-hidden={title ? undefined : 'true'}
   ></span>
 )}

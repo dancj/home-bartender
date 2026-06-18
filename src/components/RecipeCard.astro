@@ -26,6 +26,14 @@ const primarySpirit = data.spirits[0];
     <p class="font-serif italic text-[0.95rem] leading-[1.45] text-fg-muted flex-1">{data.blurb}</p>
     <p class="recipe-card-meta">
       <span><Icon field="method" slug={data.method} /> {label('method', data.method)}</span>
+      {data.flavors.length > 0 && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span class="recipe-card-flavors">
+            <FlavorIcons slugs={data.flavors} iconClass="recipe-card-flavor" />
+          </span>
+        </>
+      )}
       {data.format !== 'single' && (
         <>
           <span aria-hidden="true">·</span>
@@ -33,11 +41,6 @@ const primarySpirit = data.spirits[0];
         </>
       )}
     </p>
-    {data.flavors.length > 0 && (
-      <p class="recipe-card-flavors" aria-hidden="true">
-        <FlavorIcons slugs={data.flavors} iconClass="recipe-card-flavor" />
-      </p>
-    )}
   </a>
 </li>
 
@@ -68,18 +71,15 @@ const primarySpirit = data.spirits[0];
     vertical-align: -1.4em;
   }
 
-  /* Flavor row: a glance-able strip of the recipe's flavor icons, replacing
-     the difficulty badge. Decorative — the flavors stay machine-readable via
-     the card's data-flavors attribute for filtering. */
+  /* Flavor icons sit inline in the meta row, just right of the method, in
+     place of the old difficulty badge. Each icon carries a label tooltip. */
   .recipe-card-flavors {
-    margin-top: 0.45rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
+    display: inline-flex;
     align-items: center;
+    gap: 0.3rem;
     color: var(--color-fg-subtle);
   }
   .recipe-card-flavors :global(.recipe-card-flavor) {
-    --icon-size: 20px;
+    --icon-size: 18px;
   }
 </style>
