@@ -134,20 +134,14 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
   }
 
   @media (max-width: 30rem) {
-    /* Keep all six tabs reachable on a phone without horizontal page scroll:
-       the strip scrolls internally instead of widening the page. */
+    /* Wrap the six tabs onto multiple rows on a phone — nothing runs off the
+       edge, no horizontal scroll, no clipped last tab. */
     .family-tabs {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scroll-snap-type: x proximity;
-      -webkit-overflow-scrolling: touch;
-      /* room for the snapped tab + a hint of the next one */
-      scroll-padding-inline: 0.4rem;
-      padding-bottom: 0.85rem;
+      gap: 0.35rem;
     }
     .family-tab {
-      flex: 0 0 auto;
-      scroll-snap-align: start;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.7rem;
     }
   }
 </style>
