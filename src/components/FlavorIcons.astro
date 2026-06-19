@@ -1,0 +1,17 @@
+---
+import Icon from './Icon.astro';
+import { label } from '../lib/taxonomy';
+
+/** Renders a recipe's flavor slugs as icons, each with a label tooltip. Wrapper
+    element + layout are the caller's job; this owns the `field="flavor"` mapping
+    so it lives in one place. */
+interface Props {
+  slugs: string[];
+  /** Class applied to each icon (e.g. for per-context sizing). */
+  iconClass?: string;
+}
+const { slugs, iconClass } = Astro.props;
+---
+{slugs.map((slug) => (
+  <Icon field="flavor" slug={slug} class={iconClass} title={label('flavors', slug)} />
+))}

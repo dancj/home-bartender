@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.6.15.1] - 2026-06-15
+
+- #86 — feat: site polish batch — header search, related cards, branded 404 (@dancj)
+- #85 — chore(changelog): drop category sections, render flat PR list (@dancj)
+- #83 — docs: update CHANGELOG for release 2026.6.14.1 (@app/github-actions)
 ## [2026.6.14.1] - 2026-06-14
 
 ### Platform

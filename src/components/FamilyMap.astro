@@ -1,7 +1,9 @@
 ---
 import type { Recipe } from '../lib/recipes';
 import { buildFamilyMap, layoutFamilyMap } from '../lib/familyMap';
+import { FAMILY_NOTES } from '../lib/taxonomy';
 import Icon from './Icon.astro';
+import FlavorIcons from './FlavorIcons.astro';
 
 interface Props {
   family: string;
@@ -30,6 +32,9 @@ const isEmpty = model.branches.length === 0;
 const rootHref = isEmpty ? null : `${base}/by-family/${family}/`;
 const arrowId = `arrow-${family}`;
 const arrowSubId = `arrow-sub-${family}`;
+// Cocktail Codex template for this family — the distinguishing trait, shown
+// under the root name.
+const rootNote = FAMILY_NOTES[family as keyof typeof FAMILY_NOTES];
 ---
 
 <figure
@@ -68,14 +73,21 @@ const arrowSubId = `arrow-sub-${family}`;
   <div class="family-map-nodes">
     <div class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
       {rootHref
-        ? <a href={rootHref} class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span></a>
-        : <span class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span></span>}
+        ? <a href={rootHref} class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</a>
+        : <span class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</span>}
     </div>
 
     {layout.branches.map((branch) => (
       <>
         <a class="family-map-node" href={branch.url} style={`left:${pct(branch.x, vbW)};top:${pct(branch.y, vbH)}`}>
-          <span class="family-map-label">{branch.title}</span>
+          <span class="family-map-label">
+            {branch.title}
+            {branch.deltaFlavors.length > 0 && (
+              <span class="family-map-flavors" aria-hidden="true">
+                <FlavorIcons slugs={branch.deltaFlavors} iconClass="family-map-flavor" />
+              </span>
+            )}
+          </span>
         </a>
         {branch.subBranches.map((sub) => (
           <a
@@ -84,14 +96,21 @@ const arrowSubId = `arrow-sub-${family}`;
             style={`left:${pct(sub.x, vbW)};top:${pct(sub.y, vbH)}`}
             aria-label={`${sub.title}, related to ${branch.title}`}
           >
-            <span class="family-map-label">{sub.title}</span>
+            <span class="family-map-label">
+              {sub.title}
+              {sub.deltaFlavors.length > 0 && (
+                <span class="family-map-flavors" aria-hidden="true">
+                  <FlavorIcons slugs={sub.deltaFlavors} iconClass="family-map-flavor" />
+                </span>
+              )}
+            </span>
           </a>
         ))}
       </>
     ))}
 
     {isEmpty && (
-      <p class="family-map-empty" style={`top:${pct(layout.root.y + 80, vbH)}`}>No recipes yet in this family.</p>
+      <p class="family-map-empty" style={`top:${pct(layout.root.y + 115, vbH)}`}>No recipes yet in this family.</p>
     )}
   </div>
 
@@ -219,9 +238,38 @@ const arrowSubId = `arrow-sub-${family}`;
     border-color: var(--color-accent);
     color: var(--color-accent);
   }
-  .family-map-glyph {
-    --icon-size: 40px;
+  /* The glyph span is rendered by the Icon child component, so it doesn't
+     carry this component's scope hash — reach it with :global, scoped under
+     .family-map (which is in this template). */
+  .family-map :global(.family-map-glyph) {
+    --icon-size: 64px;
     color: var(--color-accent);
+  }
+
+  /* Distinguishing-trait tagline under the root name (Cocktail Codex template). */
+  .family-map-tagline {
+    margin-top: 0.2rem;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+    color: var(--color-fg-muted);
+    white-space: normal;
+    text-align: center;
+    max-width: 18ch;
+  }
+
+  /* Delta-flavor icons: what this drink adds over its base. Tucked into the
+     node pill after the title, muted so the recipe name stays primary. */
+  .family-map-flavors {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-fg-subtle);
+  }
+  .family-map-flavors :global(.family-map-flavor) {
+    --icon-size: 16px;
   }
 
   .family-map-empty {
@@ -236,6 +284,61 @@ const arrowSubId = `arrow-sub-${family}`;
   }
   .family-map.is-empty .family-map-node.is-root .family-map-node-inner {
     opacity: 0.7;
+  }
+
+  /* The right-fanning SVG layout doesn't fit a phone — long pills anchored at
+     62–82% of the viewBox overflow the right edge. Below 30rem, drop the
+     absolute overlay and reflow the nodes into a left-aligned vertical tree:
+     root on top, branches under it, sub-branches indented. Wires are decorative
+     and hidden. Inline left/top styles go inert under position: static. */
+  @media (max-width: 30rem) {
+    .family-map {
+      aspect-ratio: auto;
+      height: auto;
+      container-type: normal;
+    }
+    .family-map-wires {
+      display: none;
+    }
+    .family-map-empty {
+      position: static;
+      transform: none;
+      left: auto;
+      text-align: left;
+    }
+    .family-map-nodes {
+      position: static;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .family-map-node,
+    .family-map-node.is-root {
+      position: static;
+      transform: none;
+      max-width: 100%;
+    }
+    .family-map-node.is-root {
+      margin-bottom: 0.85rem;
+    }
+    .family-map-node.is-sub {
+      margin-left: 1.5rem;
+    }
+    .family-map-label,
+    .family-map-node-inner {
+      font-size: 0.9rem;
+      white-space: normal;
+    }
+    .family-map-node.is-sub .family-map-label {
+      font-size: 0.82rem;
+    }
+    .family-map :global(.family-map-glyph) {
+      --icon-size: 48px;
+    }
+    .family-map-flavors :global(.family-map-flavor) {
+      --icon-size: 15px;
+    }
   }
 </style>
 
