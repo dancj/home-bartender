@@ -17,7 +17,7 @@ const { mode = 'compact', id = 'search' } = Astro.props;
       await import(`${base}/pagefind/pagefind-ui.js`);
       new PagefindUI({
         element: `#${id}`,
-        bundleDirectory: `${base}/pagefind/`,
+        bundlePath: `${base}/pagefind/`,
         showImages: false,
         resetStyles: false,
         showSubResults: mode === 'full',

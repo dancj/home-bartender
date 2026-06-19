@@ -13,6 +13,7 @@ function makeRecipe(
   families: string[],
   related: string[] = [],
   title?: string,
+  flavors: string[] = [],
 ): Recipe {
   return {
     id,
@@ -20,6 +21,7 @@ function makeRecipe(
       title: title ?? id.split('/').pop(),
       families,
       related,
+      flavors,
     },
   } as unknown as Recipe;
 }
@@ -95,6 +97,69 @@ describe('buildFamilyMap', () => {
     const model = buildFamilyMap(recipes, 'flip', BASE);
     expect(model.root.slug).toBe('flip');
     expect(model.branches).toEqual([]);
+  });
+
+  it('carries each node\'s own flavors onto the model', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['martini'], [], 'Manhattan', ['spirit-forward', 'rich']),
+    ];
+    const model = buildFamilyMap(recipes, 'martini', BASE);
+    expect(model.branches[0].flavors).toEqual(['spirit-forward', 'rich']);
+  });
+
+  it('computes a top-level branch delta against the family archetype recipe', () => {
+    // old-fashioned is the archetype (slug === family); Maple adds maple/spice over it.
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], [], 'Old Fashioned', ['spirit-forward', 'sweet']),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple', ['spirit-forward', 'sweet', 'rich']),
+    ];
+    const model = buildFamilyMap(recipes, 'old-fashioned', BASE);
+    const archetype = model.branches.find((b) => b.title === 'Old Fashioned');
+    const maple = model.branches.find((b) => b.title === 'Maple');
+    // The archetype adds nothing over itself.
+    expect(archetype?.deltaFlavors).toEqual([]);
+    // Maple's delta is only the flavor not already on the archetype.
+    expect(maple?.deltaFlavors).toEqual(['rich']);
+  });
+
+  it('falls back to the full flavor set when the family has no archetype recipe', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['martini'], [], 'Manhattan', ['spirit-forward', 'rich']),
+    ];
+    const model = buildFamilyMap(recipes, 'martini', BASE);
+    // No member slug === 'martini', so base is empty → delta is the full set.
+    expect(model.branches[0].deltaFlavors).toEqual(['spirit-forward', 'rich']);
+  });
+
+  it('computes a sub-branch delta against its parent branch, not the root', () => {
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], ['sazerac'], 'Old Fashioned', ['spirit-forward']),
+      makeRecipe('classics/sazerac', ['old-fashioned'], [], 'Sazerac', ['spirit-forward', 'herbal']),
+    ];
+    const model = buildFamilyMap(recipes, 'old-fashioned', BASE);
+    const sazerac = model.branches[0].subBranches[0];
+    expect(sazerac.deltaFlavors).toEqual(['herbal']);
+  });
+
+  it('preserves node order in a multi-flavor delta', () => {
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], [], 'Old Fashioned', ['spirit-forward']),
+      makeRecipe('classics/loaded', ['old-fashioned'], [], 'Loaded', ['spirit-forward', 'rich', 'bitter']),
+    ];
+    const model = buildFamilyMap(recipes, 'old-fashioned', BASE);
+    const loaded = model.branches.find((b) => b.title === 'Loaded');
+    // Node order, not sorted/base order.
+    expect(loaded?.deltaFlavors).toEqual(['rich', 'bitter']);
+  });
+
+  it('yields an empty delta when a node adds nothing over its base', () => {
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], [], 'Old Fashioned', ['spirit-forward', 'sweet']),
+      makeRecipe('classics/twin', ['old-fashioned'], [], 'Twin', ['sweet']),
+    ];
+    const model = buildFamilyMap(recipes, 'old-fashioned', BASE);
+    const twin = model.branches.find((b) => b.title === 'Twin');
+    expect(twin?.deltaFlavors).toEqual([]);
   });
 });
 

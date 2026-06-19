@@ -1,4 +1,5 @@
 import type { Recipe } from './recipes';
+import type { Flavor } from '../taxonomy.generated';
 import { groupByTax, label } from './taxonomy';
 
 /**
@@ -15,6 +16,10 @@ export interface MapNode {
   slug: string;
   title: string;
   url: string;
+  /** The recipe's own `flavors[]`. */
+  flavors: Flavor[];
+  /** Flavors this node adds over its base — see buildFamilyMap. */
+  deltaFlavors: Flavor[];
 }
 
 export interface BranchNode extends MapNode {
@@ -31,16 +36,23 @@ export interface FamilyMapModel {
 /** Bare slug = file basename = URL segment. `id` is `category/slug` (no extension). */
 const slugOf = (id: string): string => id.split('/').pop() as string;
 
-function toNode(recipe: Recipe, base: string): MapNode {
+/** A node minus its `deltaFlavors`, which only `buildFamilyMap` can fill once the base is known. */
+function toNode(recipe: Recipe, base: string): Omit<MapNode, 'deltaFlavors'> {
   const slug = slugOf(recipe.id);
+  const flavors = recipe.data.flavors;
   return {
     slug,
     title: recipe.data.title,
     // Matches the recipe route (RecipeCard.astro): keyed on the bare slug, not
     // the full id. The `recipeUrl` helper takes the full id and is wrong here.
     url: `${base.replace(/\/$/, '')}/recipes/${slug}/`,
+    flavors,
   };
 }
+
+/** Flavors `node` adds over `base` — the set difference, in node order. */
+const flavorDelta = (node: Flavor[], base: Flavor[]): Flavor[] =>
+  node.filter((f) => !base.includes(f));
 
 export function buildFamilyMap(
   recipes: Recipe[],
@@ -49,6 +61,12 @@ export function buildFamilyMap(
 ): FamilyMapModel {
   const members = groupByTax(recipes, 'families').get(familySlug) ?? [];
   const memberSlugs = new Set(members.map((m) => slugOf(m.id)));
+
+  // Top-level branches measure their delta against the family archetype — the
+  // member whose slug is the family slug (e.g. `old-fashioned`). Absent one,
+  // the base is empty and a branch's delta is its full flavor set.
+  const archetype = members.find((m) => slugOf(m.id) === familySlug);
+  const baseFlavors: Flavor[] = archetype?.data.flavors ?? [];
 
   // Assign same-family `related[]` recipes as sub-branches, one level deep.
   // Iterate in member order; a recipe already claimed as someone's child is a
@@ -71,9 +89,15 @@ export function buildFamilyMap(
     );
     childSlugs.forEach((rs) => claimed.add(rs));
 
+    const node = toNode(member, base);
     branches.push({
-      ...toNode(member, base),
-      subBranches: childSlugs.map((rs) => toNode(memberBySlug.get(rs) as Recipe, base)),
+      ...node,
+      deltaFlavors: flavorDelta(node.flavors, baseFlavors),
+      // Sub-branches measure their delta against their parent branch, not the root.
+      subBranches: childSlugs.map((rs) => {
+        const sub = toNode(memberBySlug.get(rs) as Recipe, base);
+        return { ...sub, deltaFlavors: flavorDelta(sub.flavors, node.flavors) };
+      }),
     });
   }
 
@@ -90,13 +114,13 @@ export function buildFamilyMap(
 // viewports by viewBox scaling alone (no separate mobile coordinate set).
 
 const VB_WIDTH = 600;
-const ROW_HEIGHT = 76; // vertical pitch between branch nodes (> node height → no overlap)
-const TOP_PAD = 64; // root sits here
-const FIRST_BRANCH_Y = 150;
+const ROW_HEIGHT = 92; // vertical pitch between branch nodes (> node height → no overlap)
+const TOP_PAD = 84; // root sits here — clears the tall glyph + name + tagline card
+const FIRST_BRANCH_Y = 220; // first branch sits below the root card with breathing room
 const ROOT_X = VB_WIDTH / 2;
 const BRANCH_X = VB_WIDTH * 0.62;
 const SUB_BRANCH_X = VB_WIDTH * 0.82;
-const SUB_OFFSET_Y = 34;
+const SUB_OFFSET_Y = 46;
 const BOTTOM_PAD = 56; // room below the lowest node for its overlay pill + arrowhead
 
 export interface PlacedNode extends MapNode {

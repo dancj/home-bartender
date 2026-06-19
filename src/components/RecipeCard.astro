@@ -2,6 +2,7 @@
 import type { Recipe } from '../lib/recipes';
 import { label } from '../lib/taxonomy';
 import Icon from './Icon.astro';
+import FlavorIcons from './FlavorIcons.astro';
 
 interface Props {
   recipe: Recipe;
@@ -25,8 +26,14 @@ const primarySpirit = data.spirits[0];
     <p class="font-serif italic text-[0.95rem] leading-[1.45] text-fg-muted flex-1">{data.blurb}</p>
     <p class="recipe-card-meta">
       <span><Icon field="method" slug={data.method} /> {label('method', data.method)}</span>
-      <span aria-hidden="true">·</span>
-      <span><Icon field="difficulty" slug={data.difficulty} /> {label('difficulty', data.difficulty)}</span>
+      {data.flavors.length > 0 && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span class="recipe-card-flavors">
+            <FlavorIcons slugs={data.flavors} iconClass="recipe-card-flavor" />
+          </span>
+        </>
+      )}
       {data.format !== 'single' && (
         <>
           <span aria-hidden="true">·</span>
@@ -62,5 +69,17 @@ const primarySpirit = data.spirits[0];
   .recipe-card-meta :global(.tax-icon) {
     --icon-size: 3.6em;
     vertical-align: -1.4em;
+  }
+
+  /* Flavor icons sit inline in the meta row, just right of the method, in
+     place of the old difficulty badge. Each icon carries a label tooltip. */
+  .recipe-card-flavors {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--color-fg-subtle);
+  }
+  .recipe-card-flavors :global(.recipe-card-flavor) {
+    --icon-size: 18px;
   }
 </style>

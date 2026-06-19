@@ -81,6 +81,11 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
     border-bottom: 1px solid var(--color-rule);
     padding-bottom: 0.75rem;
     margin-bottom: 1.5rem;
+    /* Let the strip shrink to its container so its min-content width can't push
+       <main> wider than the viewport (the classic flexbox overflow). The mobile
+       rule below turns the overflow into a contained horizontal scroll. */
+    min-width: 0;
+    max-width: 100%;
   }
   .family-tab {
     appearance: none;
@@ -129,16 +134,14 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
   }
 
   @media (max-width: 30rem) {
-    /* Keep all six tabs reachable on a phone without horizontal page scroll. */
+    /* Wrap the six tabs onto multiple rows on a phone — nothing runs off the
+       edge, no horizontal scroll, no clipped last tab. */
     .family-tabs {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scroll-snap-type: x proximity;
-      -webkit-overflow-scrolling: touch;
+      gap: 0.35rem;
     }
     .family-tab {
-      flex: 0 0 auto;
-      scroll-snap-align: start;
+      font-size: 0.85rem;
+      padding: 0.35rem 0.7rem;
     }
   }
 </style>
