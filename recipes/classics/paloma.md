@@ -8,7 +8,7 @@ method: shaken
 method_note: topped
 ice: cubed
 difficulty: easy
-families: [whiskey-highball]
+roots: [whiskey-highball]
 spirits:
   - tequila
   - mezcal

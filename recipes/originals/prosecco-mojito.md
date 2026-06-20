@@ -9,7 +9,7 @@ method: built
 method_note: Muddled in glass, then built and topped
 ice: crushed
 difficulty: easy
-families: [daiquiri, whiskey-highball]
+roots: [daiquiri, whiskey-highball]
 spirits:
   - rum
   - champagne

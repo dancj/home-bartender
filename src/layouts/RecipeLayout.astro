@@ -47,15 +47,15 @@ const mdHeadingIcons = [
       <p class="blurb">{data.blurb}</p>
 
       <dl class="facts">
-        {data.families.length > 0 && (
+        {data.roots.length > 0 && (
           <div>
-            <dt class="eyebrow">Family</dt>
+            <dt class="eyebrow">Root</dt>
             <dd class="fact-stack">
-              {data.families.map((f: string) => (
+              {data.roots.map((f: string) => (
                 <span class="fact-line">
-                  <Icon field="family" slug={f} />
+                  <Icon field="root" slug={f} />
                   <span class="fact-text">
-                    <a href={`${base}/by-family/${f}/`}>{label('family', f)}</a>
+                    <a href={`${base}/by-root/${f}/`}>{label('root', f)}</a>
                   </span>
                 </span>
               ))}

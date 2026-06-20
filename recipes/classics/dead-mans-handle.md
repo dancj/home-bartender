@@ -8,7 +8,7 @@ method: shaken
 ice: none
 ice_note: (served up)
 difficulty: easy
-families: [daiquiri]
+roots: [daiquiri]
 spirits:
   - tequila
   - rum
