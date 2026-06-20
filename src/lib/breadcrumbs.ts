@@ -21,7 +21,7 @@ interface FacetMeta {
 const FACETS: Record<string, FacetMeta> = {
   flavor: { eyebrow: 'By flavor' },
   spirit: { eyebrow: 'By spirit' },
-  family: { eyebrow: 'By family', index: '/families/' },
+  root: { eyebrow: 'By root', index: '/roots/' },
   difficulty: { eyebrow: 'By difficulty' },
   occasion: { eyebrow: 'By occasion' },
   tag: { eyebrow: 'By tag' },

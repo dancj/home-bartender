@@ -3,7 +3,7 @@ import type { Flavor } from '../taxonomy.generated';
 import { groupByTax, label } from './taxonomy';
 
 /**
- * Pure data + geometry helpers for the per-family branching map on /families.
+ * Pure data + geometry helpers for the per-root branching map on /roots.
  *
  * `buildFamilyMap` turns the recipe collection into a root-plus-branches model
  * for one family; `layoutFamilyMap` turns that model into SVG coordinates and
@@ -59,7 +59,7 @@ export function buildFamilyMap(
   familySlug: string,
   base: string,
 ): FamilyMapModel {
-  const members = groupByTax(recipes, 'families').get(familySlug) ?? [];
+  const members = groupByTax(recipes, 'roots').get(familySlug) ?? [];
   const memberSlugs = new Set(members.map((m) => slugOf(m.id)));
 
   // Top-level branches measure their delta against the family archetype — the
@@ -103,7 +103,7 @@ export function buildFamilyMap(
 
   return {
     family: familySlug,
-    root: { slug: familySlug, label: label('families', familySlug) },
+    root: { slug: familySlug, label: label('roots', familySlug) },
     branches,
   };
 }

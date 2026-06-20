@@ -3,8 +3,8 @@ import { groupByTax, label } from './taxonomy';
 import type { Recipe } from './recipes';
 
 // Minimal Recipe-shaped stub — groupByTax only reads `data[field]`.
-function recipe(title: string, families: string[]): Recipe {
-  return { data: { title, families } } as unknown as Recipe;
+function recipe(title: string, roots: string[]): Recipe {
+  return { data: { title, roots } } as unknown as Recipe;
 }
 
 describe('label("format", _)', () => {
@@ -17,9 +17,9 @@ describe('label("format", _)', () => {
   });
 });
 
-describe('groupByTax(_, "families")', () => {
-  it('buckets a single-family recipe under its one root', () => {
-    const grouped = groupByTax([recipe('Gimlet', ['daiquiri'])], 'families');
+describe('groupByTax(_, "roots")', () => {
+  it('buckets a single-root recipe under its one root', () => {
+    const grouped = groupByTax([recipe('Gimlet', ['daiquiri'])], 'roots');
     expect([...grouped.keys()]).toEqual(['daiquiri']);
     expect(grouped.get('daiquiri')?.map((r) => r.data.title)).toEqual(['Gimlet']);
   });
@@ -27,7 +27,7 @@ describe('groupByTax(_, "families")', () => {
   it('lists a borderline recipe under BOTH of its roots', () => {
     const grouped = groupByTax(
       [recipe('French 75', ['daiquiri', 'whiskey-highball'])],
-      'families',
+      'roots',
     );
     expect(grouped.get('daiquiri')?.map((r) => r.data.title)).toEqual(['French 75']);
     expect(grouped.get('whiskey-highball')?.map((r) => r.data.title)).toEqual(['French 75']);
@@ -39,7 +39,7 @@ describe('groupByTax(_, "families")', () => {
         recipe('Manhattan', ['martini', 'old-fashioned']),
         recipe('Oaxaca OF', ['old-fashioned']),
       ],
-      'families',
+      'roots',
     );
     expect([...grouped.keys()]).toEqual(['martini', 'old-fashioned']);
     expect(grouped.get('old-fashioned')?.map((r) => r.data.title)).toEqual([

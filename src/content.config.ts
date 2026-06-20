@@ -7,7 +7,7 @@ import {
   DIFFICULTIES,
   FORMATS,
   GLASSES,
-  FAMILIES,
+  ROOTS,
   SPIRITS,
   FLAVORS,
   OCCASIONS,
@@ -30,7 +30,7 @@ const recipes = defineCollection({
     ice_note: z.string().optional().default(''),
     difficulty: z.enum(DIFFICULTIES),
 
-    families: z.array(z.enum(FAMILIES)).default([]),
+    roots: z.array(z.enum(ROOTS)).default([]),
 
     spirits: z.array(z.enum(SPIRITS)).default([]),
     format: z.enum(FORMATS).default('single'),

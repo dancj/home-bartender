@@ -22,8 +22,8 @@ ice: cubed                   # cubed | large-cube | crushed | none
 ice_note: ""                 # optional
 difficulty: easy             # easy | medium | advanced
 
-# Cocktail Codex root family — optional, populated intentionally per recipe
-family: old-fashioned        # old-fashioned | martini | daiquiri | sidecar | whiskey-highball | flip
+# Cocktail Codex root(s) — optional, populated intentionally per recipe
+roots: [old-fashioned]       # old-fashioned | martini | daiquiri | sidecar | whiskey-highball | flip
 
 # Format / serving
 spirits: [tequila]           # canonical set (see below); empty for mocktails
@@ -99,7 +99,7 @@ Add new values by editing `data/taxonomy.yaml` and running `npm run codegen` —
 | `ice` | `cubed`, `large-cube`, `crushed`, `none` |
 | `difficulty` | `easy`, `medium`, `advanced` |
 | `format` | `single`, `batch`, `punch` |
-| `family` | `old-fashioned`, `martini`, `daiquiri`, `sidecar`, `whiskey-highball`, `flip` |
+| `root` | `old-fashioned`, `martini`, `daiquiri`, `sidecar`, `whiskey-highball`, `flip` |
 | `glass` | `coupe`, `nick-and-nora`, `rocks`, `double-rocks`, `highball`, `collins`, `flute`, `wine`, `margarita`, `martini`, `mug`, `snifter`, `julep-tin` |
 | `spirits` | `tequila`, `mezcal`, `whiskey`, `bourbon`, `rye`, `scotch`, `gin`, `vodka`, `rum`, `brandy`, `aperitif`, `liqueur`, `wine`, `champagne` |
 | `flavors` | `citrus`, `nutty`, `smoky`, `sour`, `spice`, `herbal`, `floral`, `botanical`, `bright`, `chocolate`, `rich`, `sweet`, `spirit-forward`, `bitter`, `fruity`, `tart`, `bubbly`, `savory`, `refreshing` |

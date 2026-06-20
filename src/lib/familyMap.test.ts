@@ -7,10 +7,10 @@ import {
 } from './familyMap';
 
 // Minimal Recipe-shaped fixture. The family-map functions only read
-// `{ id, data.families, data.related }`, so the cast stays light.
+// `{ id, data.roots, data.related }`, so the cast stays light.
 function makeRecipe(
   id: string,
-  families: string[],
+  roots: string[],
   related: string[] = [],
   title?: string,
   flavors: string[] = [],
@@ -19,7 +19,7 @@ function makeRecipe(
     id,
     data: {
       title: title ?? id.split('/').pop(),
-      families,
+      roots,
       related,
       flavors,
     },

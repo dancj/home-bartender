@@ -4,9 +4,9 @@ import {
   DIFFICULTY_LABELS,
   METHOD_LABELS,
   GLASS_LABELS,
-  FAMILY_LABELS,
-  FAMILY_NOTES,
-  FAMILIES,
+  ROOT_LABELS,
+  ROOT_NOTES,
+  ROOTS,
   ICE_LABELS,
   CATEGORY_LABELS,
   FORMAT_LABELS,
@@ -20,9 +20,9 @@ export {
   DIFFICULTY_LABELS,
   METHOD_LABELS,
   GLASS_LABELS,
-  FAMILY_LABELS,
-  FAMILY_NOTES,
-  FAMILIES,
+  ROOT_LABELS,
+  ROOT_NOTES,
+  ROOTS,
   ICE_LABELS,
   CATEGORY_LABELS,
   FORMAT_LABELS,
@@ -36,8 +36,8 @@ const LABEL_MAPS: Record<string, Record<string, string>> = {
   difficulty: DIFFICULTY_LABELS,
   method: METHOD_LABELS,
   glass: GLASS_LABELS,
-  family: FAMILY_LABELS,
-  families: FAMILY_LABELS,
+  root: ROOT_LABELS,
+  roots: ROOT_LABELS,
   ice: ICE_LABELS,
   category: CATEGORY_LABELS,
   format: FORMAT_LABELS,
@@ -53,7 +53,7 @@ export function label(field: string, value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1).replace(/-/g, ' ');
 }
 
-type TaxField = 'spirits' | 'flavors' | 'tags' | 'occasions' | 'families';
+type TaxField = 'spirits' | 'flavors' | 'tags' | 'occasions' | 'roots';
 
 export function groupByTax(recipes: Recipe[], field: TaxField): Map<string, Recipe[]> {
   const map = new Map<string, Recipe[]>();

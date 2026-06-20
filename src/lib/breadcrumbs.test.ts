@@ -10,9 +10,9 @@ describe('breadcrumbTrail', () => {
     ]);
   });
 
-  it('links the family facet segment to the /families/ index', () => {
-    const trail = breadcrumbTrail('family', 'Sour');
-    expect(trail[1]).toEqual({ label: 'By family', href: '/families/' });
+  it('links the root facet segment to the /roots/ index', () => {
+    const trail = breadcrumbTrail('root', 'Sour');
+    expect(trail[1]).toEqual({ label: 'By root', href: '/roots/' });
   });
 
   it('leaves the facet segment unlinked for the five facets with no index', () => {
@@ -23,7 +23,7 @@ describe('breadcrumbTrail', () => {
   });
 
   it('always sets the root segment to All recipes → /', () => {
-    for (const key of ['flavor', 'spirit', 'family', 'difficulty', 'occasion', 'tag'] as const) {
+    for (const key of ['flavor', 'spirit', 'root', 'difficulty', 'occasion', 'tag'] as const) {
       expect(breadcrumbTrail(key, 'X')[0]).toEqual({ label: 'All recipes', href: '/' });
     }
   });
@@ -36,7 +36,7 @@ describe('breadcrumbTrail', () => {
   it('hardcodes the facet eyebrow labels to match the existing page labels', () => {
     expect(breadcrumbTrail('flavor', 'x')[1].label).toBe('By flavor');
     expect(breadcrumbTrail('spirit', 'x')[1].label).toBe('By spirit');
-    expect(breadcrumbTrail('family', 'x')[1].label).toBe('By family');
+    expect(breadcrumbTrail('root', 'x')[1].label).toBe('By root');
     expect(breadcrumbTrail('difficulty', 'x')[1].label).toBe('By difficulty');
     expect(breadcrumbTrail('occasion', 'x')[1].label).toBe('By occasion');
     expect(breadcrumbTrail('tag', 'x')[1].label).toBe('By tag');

@@ -6,7 +6,7 @@ import {
   SPIRITS,
   GLASSES,
   FLAVORS,
-  FAMILIES,
+  ROOTS,
   METHODS,
   ICES,
   DIFFICULTIES,
@@ -22,8 +22,8 @@ describe('resolveIconKey', () => {
     expect(resolveIconKey('format', 'batch')).toBe('format/batch');
     expect(resolveIconKey('spirit', 'gin')).toBe('spirits/gin');
     expect(resolveIconKey('spirits', 'gin')).toBe('spirits/gin');
-    expect(resolveIconKey('family', 'martini')).toBe('families/martini');
-    expect(resolveIconKey('families', 'martini')).toBe('families/martini');
+    expect(resolveIconKey('root', 'martini')).toBe('families/martini');
+    expect(resolveIconKey('roots', 'martini')).toBe('families/martini');
     expect(resolveIconKey('flavor', 'smoky')).toBe('flavors/smoky');
     expect(resolveIconKey('flavors', 'smoky')).toBe('flavors/smoky');
     expect(resolveIconKey('sections', 'house-made')).toBe('sections/house-made');
@@ -61,7 +61,7 @@ describe('taxonomy ↔ icon parity', () => {
     spirits: SPIRITS,
     glassware: GLASSES,
     flavors: FLAVORS,
-    families: FAMILIES,
+    families: ROOTS,
     methods: METHODS,
     ice: ICES,
     difficulty: DIFFICULTIES,

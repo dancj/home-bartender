@@ -1,7 +1,7 @@
 ---
 import type { Recipe } from '../lib/recipes';
 import { buildFamilyMap, layoutFamilyMap } from '../lib/familyMap';
-import { FAMILY_NOTES } from '../lib/taxonomy';
+import { ROOT_NOTES } from '../lib/taxonomy';
 import Icon from './Icon.astro';
 import FlavorIcons from './FlavorIcons.astro';
 
@@ -28,13 +28,13 @@ const wires = layout.branches.flatMap((branch) => [
 ]);
 
 const isEmpty = model.branches.length === 0;
-// Non-empty roots have a /by-family/<slug>/ page; empty ones (Flip) do not.
-const rootHref = isEmpty ? null : `${base}/by-family/${family}/`;
+// Non-empty roots have a /by-root/<slug>/ page; empty ones (Flip) do not.
+const rootHref = isEmpty ? null : `${base}/by-root/${family}/`;
 const arrowId = `arrow-${family}`;
 const arrowSubId = `arrow-sub-${family}`;
 // Cocktail Codex template for this family — the distinguishing trait, shown
 // under the root name.
-const rootNote = FAMILY_NOTES[family as keyof typeof FAMILY_NOTES];
+const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
 ---
 
 <figure
@@ -73,8 +73,8 @@ const rootNote = FAMILY_NOTES[family as keyof typeof FAMILY_NOTES];
   <div class="family-map-nodes">
     <div class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
       {rootHref
-        ? <a href={rootHref} class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</a>
-        : <span class="family-map-node-inner"><Icon field="family" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</span>}
+        ? <a href={rootHref} class="family-map-node-inner"><Icon field="root" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</a>
+        : <span class="family-map-node-inner"><Icon field="root" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</span>}
     </div>
 
     {layout.branches.map((branch) => (
