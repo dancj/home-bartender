@@ -4,7 +4,6 @@ import {
   buildArrowSpecs,
   buildFamilyMap,
   layoutFamilyMap,
-  shouldAnimate,
 } from './familyMap';
 
 // Minimal Recipe-shaped fixture. The family-map functions only read
@@ -189,16 +188,7 @@ describe('layoutFamilyMap', () => {
     }
   });
 
-  it('emits a connector path from the root to each branch', () => {
-    const layout = layoutFamilyMap(buildFamilyMap(recipes, 'martini', BASE));
-    for (const b of layout.branches) {
-      // cubic elbow: starts at root anchor, ends at the branch anchor
-      expect(b.connector).toMatch(/^M[\d.]+ [\d.]+ C/);
-      expect(b.connector.trim().endsWith(`${b.x} ${b.y}`)).toBe(true);
-    }
-  });
-
-  it('produces a root-only layout with no connectors for an empty family', () => {
+  it('produces a root-only layout with no branches for an empty family', () => {
     const layout = layoutFamilyMap(buildFamilyMap([], 'flip', BASE));
     expect(layout.branches).toEqual([]);
     expect(layout.root).toBeTruthy();
@@ -311,19 +301,5 @@ describe('buildArrowSpecs', () => {
   it('returns no specs for an empty family', () => {
     const specs = buildArrowSpecs(buildFamilyMap([], 'flip', BASE));
     expect(specs).toEqual([]);
-  });
-});
-
-describe('shouldAnimate', () => {
-  it('is false when the user prefers reduced motion', () => {
-    expect(shouldAnimate({ prefersReducedMotion: true, hasIntersectionObserver: true })).toBe(false);
-  });
-
-  it('is false when IntersectionObserver is unavailable', () => {
-    expect(shouldAnimate({ prefersReducedMotion: false, hasIntersectionObserver: false })).toBe(false);
-  });
-
-  it('is true only when motion is allowed and IntersectionObserver exists', () => {
-    expect(shouldAnimate({ prefersReducedMotion: false, hasIntersectionObserver: true })).toBe(true);
   });
 });

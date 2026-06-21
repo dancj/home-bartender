@@ -193,9 +193,7 @@ export interface PlacedNode extends MapNode {
 }
 
 export interface PlacedBranch extends PlacedNode {
-  /** Cubic "elbow" path `d` from the root anchor to this branch. */
-  connector: string;
-  subBranches: Array<PlacedNode & { connector: string }>;
+  subBranches: PlacedNode[];
 }
 
 export interface FamilyMapLayout {
@@ -203,12 +201,6 @@ export interface FamilyMapLayout {
   rowHeight: number;
   root: { slug: string; label: string; x: number; y: number };
   branches: PlacedBranch[];
-}
-
-/** Cubic elbow from (sx,sy) to (ex,ey): drops vertically then levels in. */
-function elbow(sx: number, sy: number, ex: number, ey: number): string {
-  const my = (sy + ey) / 2;
-  return `M${sx} ${sy} C${sx} ${my} ${ex} ${my} ${ex} ${ey}`;
 }
 
 export function layoutFamilyMap(model: FamilyMapModel): FamilyMapLayout {
@@ -221,15 +213,9 @@ export function layoutFamilyMap(model: FamilyMapModel): FamilyMapLayout {
       ...branch,
       x: BRANCH_X,
       y,
-      connector: elbow(root.x, root.y, BRANCH_X, y),
       subBranches: branch.subBranches.map((sub, i) => {
         const sy = y + SUB_OFFSET_Y * (i + 1);
-        return {
-          ...sub,
-          x: SUB_BRANCH_X,
-          y: sy,
-          connector: elbow(BRANCH_X, y, SUB_BRANCH_X, sy),
-        };
+        return { ...sub, x: SUB_BRANCH_X, y: sy };
       }),
     };
     // advance past this branch and any sub-branches it stacked below
@@ -251,19 +237,4 @@ export function layoutFamilyMap(model: FamilyMapModel): FamilyMapLayout {
     root,
     branches,
   };
-}
-
-// --- Animation gate -------------------------------------------------------
-
-/**
- * Whether the draw-on-scroll animation should run. False → the map stays in its
- * fully-drawn default state (also the no-JS fallback). The DOM wiring in
- * FamilyMap.astro reads `window.matchMedia` and `'IntersectionObserver' in window`
- * and passes the booleans here.
- */
-export function shouldAnimate(opts: {
-  prefersReducedMotion: boolean;
-  hasIntersectionObserver: boolean;
-}): boolean {
-  return !opts.prefersReducedMotion && opts.hasIntersectionObserver;
 }
