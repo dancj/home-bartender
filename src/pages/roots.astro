@@ -153,6 +153,8 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
     const panelFor = (tab: HTMLButtonElement) =>
       document.getElementById(tab.getAttribute('aria-controls') ?? '');
 
+    type ArrowGroups = Map<string, { refresh(): void }>;
+
     function select(index: number, moveFocus = true) {
       tabs.forEach((tab, i) => {
         const selected = i === index;
@@ -161,6 +163,11 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
         const panel = panelFor(tab);
         if (panel) panel.hidden = !selected;
       });
+      // The revealed panel was display:none, so its map's arrow anchors had no
+      // box — refresh now that it's laid out to draw (or redraw) the group.
+      const family = tabs[index].dataset.family;
+      const groups = (window as unknown as { rootMapGroups?: ArrowGroups }).rootMapGroups;
+      if (family) groups?.get(family)?.refresh();
       if (moveFocus) tabs[index].focus();
     }
 
