@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Recipe } from './recipes';
 import {
+  buildArrowSpecs,
   buildFamilyMap,
   layoutFamilyMap,
   shouldAnimate,
@@ -221,6 +222,95 @@ describe('layoutFamilyMap', () => {
     const a = layoutFamilyMap(buildFamilyMap(recipes, 'martini', BASE));
     const b = layoutFamilyMap(buildFamilyMap(recipes, 'martini', BASE));
     expect(a).toEqual(b);
+  });
+});
+
+describe('buildArrowSpecs', () => {
+  it('emits one root→branch spec per branch, in branch order', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['martini'], [], 'Manhattan'),
+      makeRecipe('classics/vesper', ['martini'], [], 'Vesper'),
+      makeRecipe('classics/gibson', ['martini'], [], 'Gibson'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'martini', BASE));
+    expect(specs).toHaveLength(3);
+    expect(specs.every((s) => s.startId === 'samap-martini-root')).toBe(true);
+    expect(specs.map((s) => s.endId)).toEqual([
+      'samap-martini-manhattan',
+      'samap-martini-vesper',
+      'samap-martini-gibson',
+    ]);
+    expect(specs.every((s) => s.sub === false)).toBe(true);
+  });
+
+  it('emits a branch→sub spec after the branch, flagged sub', () => {
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], ['sazerac', 'improved'], 'Old Fashioned'),
+      makeRecipe('classics/sazerac', ['old-fashioned'], [], 'Sazerac'),
+      makeRecipe('classics/improved', ['old-fashioned'], [], 'Improved'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    // root→OF, OF→sazerac, OF→improved
+    expect(specs).toHaveLength(3);
+    expect(specs[0]).toMatchObject({
+      startId: 'samap-old-fashioned-root',
+      endId: 'samap-old-fashioned-old-fashioned',
+      sub: false,
+    });
+    expect(specs[1]).toMatchObject({
+      startId: 'samap-old-fashioned-old-fashioned',
+      endId: 'samap-old-fashioned-old-fashioned-sazerac',
+      sub: true,
+    });
+    expect(specs[2]).toMatchObject({
+      startId: 'samap-old-fashioned-old-fashioned',
+      endId: 'samap-old-fashioned-old-fashioned-improved',
+      sub: true,
+    });
+  });
+
+  it('reveals root→branch then that branch\'s subs before the next branch', () => {
+    // Branch A (Old Fashioned) has a sub (Sazerac); branch B (Maple) stands alone.
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], ['sazerac'], 'Old Fashioned'),
+      makeRecipe('classics/sazerac', ['old-fashioned'], [], 'Sazerac'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    expect(specs.map((s) => [s.startId, s.endId])).toEqual([
+      ['samap-old-fashioned-root', 'samap-old-fashioned-old-fashioned'],
+      ['samap-old-fashioned-old-fashioned', 'samap-old-fashioned-old-fashioned-sazerac'],
+      ['samap-old-fashioned-root', 'samap-old-fashioned-maple'],
+    ]);
+  });
+
+  it('fans the root→branch sockets out symmetrically around centre', () => {
+    const recipes = Array.from({ length: 4 }, (_, i) =>
+      makeRecipe(`classics/b${i}`, ['martini'], [], `B${i}`),
+    );
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'martini', BASE));
+    const offsets = specs.map((s) => s.startSocketOffset);
+    // distinct
+    expect(new Set(offsets).size).toBe(offsets.length);
+    // symmetric around 0: first = -last, and they sum to ~0
+    expect(offsets[0]).toBeCloseTo(-offsets[offsets.length - 1]);
+    expect(offsets.reduce((a, b) => a + b, 0)).toBeCloseTo(0);
+    // monotonic increasing across the fan
+    for (let i = 1; i < offsets.length; i++) {
+      expect(offsets[i]).toBeGreaterThan(offsets[i - 1]);
+    }
+  });
+
+  it('centres a single branch on the root edge (offset 0)', () => {
+    const recipes = [makeRecipe('classics/manhattan', ['martini'], [], 'Manhattan')];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'martini', BASE));
+    expect(specs).toHaveLength(1);
+    expect(specs[0].startSocketOffset).toBe(0);
+  });
+
+  it('returns no specs for an empty family', () => {
+    const specs = buildArrowSpecs(buildFamilyMap([], 'flip', BASE));
+    expect(specs).toEqual([]);
   });
 });
 

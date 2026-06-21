@@ -108,6 +108,70 @@ export function buildFamilyMap(
   };
 }
 
+// --- Arrow specs ----------------------------------------------------------
+// Turn the model into the ordered arrow descriptors that drive a
+// `scrollArrowGroup` in FamilyMap.astro. Anchors are referenced by the stable
+// node ids that component renders (kept in lockstep with this scheme), so the
+// arrows attach to live boxes and scroll-arrows owns all geometry — no
+// hand-built connector paths. Pure + browser-free, same seam as buildFamilyMap.
+
+/** Fraction of the root edge the branch fan spreads across (±SPREAD/2). */
+const SOCKET_SPREAD = 0.8;
+
+export const rootNodeId = (family: string): string => `samap-${family}-root`;
+export const branchNodeId = (family: string, branchSlug: string): string =>
+  `samap-${family}-${branchSlug}`;
+export const subNodeId = (family: string, branchSlug: string, subSlug: string): string =>
+  `samap-${family}-${branchSlug}-${subSlug}`;
+
+export interface ArrowSpec {
+  /** Stable id of the node the arrow leaves. */
+  startId: string;
+  /** Stable id of the node the arrow points at. */
+  endId: string;
+  /** True for branch→sub-branch arrows (rendered subordinate). */
+  sub: boolean;
+  /**
+   * Slide the start point along the root edge so sibling branch arrows fan out
+   * instead of stacking on one point. 0 for sub arrows and a lone branch.
+   */
+  startSocketOffset: number;
+}
+
+/**
+ * Ordered arrow descriptors for one root map, in reveal order: each branch's
+ * root→branch arrow, immediately followed by that branch's branch→sub arrows,
+ * then the next branch — so the staggered group draws root-outward (mirrors the
+ * old connector flatten order).
+ */
+export function buildArrowSpecs(model: FamilyMapModel): ArrowSpec[] {
+  const { family, branches } = model;
+  const n = branches.length;
+  const specs: ArrowSpec[] = [];
+
+  branches.forEach((branch, i) => {
+    // Spread branch starts symmetrically across the root edge: centre at 0,
+    // ends at ±SOCKET_SPREAD/2. A single branch stays centred.
+    const startSocketOffset = n > 1 ? (i / (n - 1) - 0.5) * SOCKET_SPREAD : 0;
+    specs.push({
+      startId: rootNodeId(family),
+      endId: branchNodeId(family, branch.slug),
+      sub: false,
+      startSocketOffset,
+    });
+    for (const sub of branch.subBranches) {
+      specs.push({
+        startId: branchNodeId(family, branch.slug),
+        endId: subNodeId(family, branch.slug, sub.slug),
+        sub: true,
+        startSocketOffset: 0,
+      });
+    }
+  });
+
+  return specs;
+}
+
 // --- Geometry -------------------------------------------------------------
 // Deterministic vertical fan: root at top-center, branches stacked down the
 // right, sub-branches offset further right off their parent. Reflows to narrow
