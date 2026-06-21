@@ -71,7 +71,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   </svg>
 
   <div class="family-map-nodes">
-    <div class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
+    <div id={`samap-${family}-root`} class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
       {rootHref
         ? <a href={rootHref} class="family-map-node-inner"><Icon field="root" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</a>
         : <span class="family-map-node-inner"><Icon field="root" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</span>}
@@ -79,7 +79,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
 
     {layout.branches.map((branch) => (
       <>
-        <a class="family-map-node" href={branch.url} style={`left:${pct(branch.x, vbW)};top:${pct(branch.y, vbH)}`}>
+        <a id={`samap-${family}-${branch.slug}`} class="family-map-node" href={branch.url} style={`left:${pct(branch.x, vbW)};top:${pct(branch.y, vbH)}`}>
           <span class="family-map-label">
             {branch.title}
             {branch.deltaFlavors.length > 0 && (
@@ -91,6 +91,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
         </a>
         {branch.subBranches.map((sub) => (
           <a
+            id={`samap-${family}-${branch.slug}-${sub.slug}`}
             class="family-map-node is-sub"
             href={sub.url}
             style={`left:${pct(sub.x, vbW)};top:${pct(sub.y, vbH)}`}
