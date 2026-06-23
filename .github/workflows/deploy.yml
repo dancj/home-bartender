@@ -30,7 +30,7 @@ jobs:
           cache: npm
 
       - name: Cache Astro data store
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .astro/data-store.json
           key: ${{ runner.os }}-astro-data-store-${{ hashFiles('recipes/**', 'sections/**', 'data/taxonomy.yaml', 'package-lock.json', 'src/content.config.ts', 'astro.config.mjs') }}
