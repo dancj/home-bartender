@@ -1,6 +1,13 @@
 ---
 import type { Recipe } from '../lib/recipes';
-import { buildFamilyMap, layoutFamilyMap } from '../lib/familyMap';
+import {
+  buildFamilyMap,
+  layoutFamilyMap,
+  buildArrowSpecs,
+  rootNodeId,
+  branchNodeId,
+  subNodeId,
+} from '../lib/familyMap';
 import { ROOT_NOTES } from '../lib/taxonomy';
 import Icon from './Icon.astro';
 import FlavorIcons from './FlavorIcons.astro';
@@ -20,18 +27,13 @@ const [, , vbW, vbH] = layout.viewBox.split(' ').map(Number);
 // the connectors as the SVG scales responsively.
 const pct = (n: number, total: number) => `${(n / total) * 100}%`;
 
-// Flat connector list with a running index that drives the draw stagger (U4).
-let wireIndex = 0;
-const wires = layout.branches.flatMap((branch) => [
-  { d: branch.connector, sub: false, i: wireIndex++ },
-  ...branch.subBranches.map((sub) => ({ d: sub.connector, sub: true, i: wireIndex++ })),
-]);
+// Ordered arrow descriptors for the scroll-arrows group; serialized onto the
+// figure and consumed by the client script. Geometry comes from the live nodes.
+const arrowSpecs = buildArrowSpecs(model);
 
 const isEmpty = model.branches.length === 0;
 // Non-empty roots have a /by-root/<slug>/ page; empty ones (Flip) do not.
 const rootHref = isEmpty ? null : `${base}/by-root/${family}/`;
-const arrowId = `arrow-${family}`;
-const arrowSubId = `arrow-sub-${family}`;
 // Cocktail Codex template for this family — the distinguishing trait, shown
 // under the root name.
 const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
@@ -40,38 +42,15 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
 <figure
   class:list={['family-map', { 'is-empty': isEmpty }]}
   data-family={family}
+  data-arrow-specs={JSON.stringify(arrowSpecs)}
   style={`--vb-w:${vbW};--vb-h:${vbH}`}
   role="group"
   aria-label={`${model.root.label} family map`}
 >
-  {/* Connectors are decorative; the relationships live in the labelled links below. */}
-  <svg
-    class="family-map-wires"
-    viewBox={layout.viewBox}
-    preserveAspectRatio="xMidYMid meet"
-    aria-hidden="true"
-  >
-    <defs>
-      <marker id={arrowId} viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-        <path d="M1 1 L6 4 L1 7" class="family-map-arrowhead" />
-      </marker>
-      <marker id={arrowSubId} viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-        <path d="M1 1 L6 4 L1 7" class="family-map-arrowhead is-sub" />
-      </marker>
-    </defs>
-    {wires.map((w) => (
-      <path
-        class:list={['family-map-wire', { 'is-sub': w.sub }]}
-        style={`--i:${w.i}`}
-        d={w.d}
-        pathLength="1"
-        marker-end={`url(#${w.sub ? arrowSubId : arrowId})`}
-      />
-    ))}
-  </svg>
-
+  {/* Connectors are drawn by scroll-arrows on hydration (progressive enhancement);
+      the relationships live in the labelled links below for the no-JS path. */}
   <div class="family-map-nodes">
-    <div class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
+    <div id={rootNodeId(family)} class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
       {rootHref
         ? <a href={rootHref} class="family-map-node-inner"><Icon field="root" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</a>
         : <span class="family-map-node-inner"><Icon field="root" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</span>}
@@ -79,7 +58,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
 
     {layout.branches.map((branch) => (
       <>
-        <a class="family-map-node" href={branch.url} style={`left:${pct(branch.x, vbW)};top:${pct(branch.y, vbH)}`}>
+        <a id={branchNodeId(family, branch.slug)} class="family-map-node" href={branch.url} style={`left:${pct(branch.x, vbW)};top:${pct(branch.y, vbH)}`}>
           <span class="family-map-label">
             {branch.title}
             {branch.deltaFlavors.length > 0 && (
@@ -91,6 +70,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
         </a>
         {branch.subBranches.map((sub) => (
           <a
+            id={subNodeId(family, branch.slug, sub.slug)}
             class="family-map-node is-sub"
             href={sub.url}
             style={`left:${pct(sub.x, vbW)};top:${pct(sub.y, vbH)}`}
@@ -121,59 +101,9 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
     position: relative;
     width: 100%;
     margin: 0;
-    /* Draw-on-scroll timing, chosen in the spike bake-off (U1). */
-    --draw-dur: 1200ms;
-    --draw-stagger: 200ms;
-    /* viewBox aspect ratio keeps the node overlay aligned with the wires. */
+    /* viewBox aspect ratio reserves the canvas the absolutely-placed nodes sit
+       in (and that scroll-arrows draws across). */
     aspect-ratio: var(--vb-w, 600) / var(--vb-h, 400);
-  }
-  .family-map-wires {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-  .family-map-wire {
-    fill: none;
-    stroke: var(--color-rule-strong);
-    stroke-width: 2;
-    stroke-linecap: round;
-    /* pathLength="1" normalises every connector to a 0–1 dash range.
-       Default offset 0 = fully drawn (no-JS / reduced-motion fallback). */
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
-  }
-  .family-map-wire.is-sub {
-    stroke-opacity: 0.5;
-    stroke-width: 1.5;
-  }
-
-  /* Draw-on-scroll (U4): JS adds .is-armed (undrawn), then .is-drawn to
-     transition the stroke in, staggered per connector by --i. */
-  .family-map.is-armed .family-map-wire {
-    stroke-dashoffset: 1;
-  }
-  .family-map.is-drawn .family-map-wire {
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset var(--draw-dur) ease-out;
-    transition-delay: calc(var(--i) * var(--draw-stagger));
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .family-map .family-map-wire {
-      stroke-dashoffset: 0 !important;
-      transition: none !important;
-    }
-  }
-  .family-map-arrowhead {
-    fill: none;
-    stroke: var(--color-rule-strong);
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .family-map-arrowhead.is-sub {
-    stroke-opacity: 0.5;
   }
 
   .family-map-nodes {
@@ -182,7 +112,9 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   }
   .family-map-node {
     position: absolute;
-    transform: translate(-50%, -50%);
+    /* Left-anchored: the inline `left` is the node's left edge (the geometry in
+       familyMap.ts assumes this), vertically centered on its `top`. */
+    transform: translate(0, -50%);
     display: block;
     text-decoration: none;
   }
@@ -221,7 +153,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   }
 
   .family-map-node.is-root {
-    transform: translate(-50%, -50%);
+    transform: translate(0, -50%);
   }
   .family-map-node.is-root .family-map-node-inner {
     flex-direction: column;
@@ -297,9 +229,6 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
       height: auto;
       container-type: normal;
     }
-    .family-map-wires {
-      display: none;
-    }
     .family-map-empty {
       position: static;
       transform: none;
@@ -343,32 +272,165 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
 </style>
 
 <script>
-  import { shouldAnimate } from '../lib/familyMap';
+  import { scrollArrowGroup, easeInOutCubic } from 'scroll-arrows';
+  import type { ScrollArrowGroup, ScrollArrowOptions } from 'scroll-arrows';
+  import type { ArrowSpec } from '../lib/familyMap';
 
-  // shouldAnimate is the tested pure gate; the DOM wiring below stays here,
-  // untested, per the repo's headerProgress seam.
-  const animate = shouldAnimate({
-    prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    hasIntersectionObserver: 'IntersectionObserver' in window,
+  // One hand-drawn arrow group per root map. The maps are revealed by tab
+  // switching at the top of the page (not scrolled to), so a scroll-linked draw
+  // would already be complete on load. Instead drive each group manually
+  // (`scroll: false`) and play a one-shot draw on reveal — load and tab switch.
+  // The spec logic is the tested seam (buildArrowSpecs); this DOM wiring is not,
+  // per the repo's headerProgress convention.
+  const DRAW_MS = 1100;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Below this width the map reflows to a vertical stack — arrows off.
+  const mq = window.matchMedia('(max-width: 30rem)');
+
+  // The overlay <svg> mounts on <body>, so resolve the design token to a
+  // concrete color rather than relying on var() resolving in that context.
+  const stroke =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-rule-strong')
+      .trim() || '#cfc4ac';
+
+  interface MapCtl {
+    group: ScrollArrowGroup;
+    /** Recompute geometry then animate the draw (or snap to drawn). */
+    play(): void;
+    /** Recompute geometry and snap to fully drawn, no animation. */
+    redraw(): void;
+    /** Recompute geometry and hold the current draw progress (layout shifted). */
+    realign(): void;
+  }
+  const maps = new Map<string, MapCtl>();
+
+  function specToArrow(s: ArrowSpec): ScrollArrowOptions {
+    return {
+      start: `#${s.startId}`,
+      end: `#${s.endId}`,
+      // Lightly hand-drawn; sub-branch arrows read a touch softer.
+      roughness: s.sub ? 0.35 : 0.25,
+      strokeWidth: s.sub ? 1.5 : 2.5,
+      stroke,
+      head: 'end',
+      // Left-aligned tree: branch arrows leave the root's LEFT edge and enter
+      // each branch's LEFT edge, so the vertical runs stay in the gutter left of
+      // the pills (a lower branch's arrow passes beside upper pills, not through
+      // them). Subs drop from their branch's bottom onto the sub's left edge.
+      startSocket: s.sub ? 'bottom' : 'left',
+      endSocket: 'left',
+      startSocketOffset: s.startSocketOffset,
+    };
+  }
+
+  function figFor(family: string) {
+    return document.querySelector<HTMLElement>(`.family-map[data-family="${family}"]`);
+  }
+  // A panel hidden with display:none has no offsetParent.
+  const isVisible = (family: string) => figFor(family)?.offsetParent != null;
+
+  document.querySelectorAll<HTMLElement>('.family-map').forEach((fig) => {
+    const family = fig.dataset.family;
+    if (!family) return;
+
+    let specs: ArrowSpec[];
+    try {
+      specs = JSON.parse(fig.dataset.arrowSpecs || '[]');
+    } catch {
+      return;
+    }
+    if (!specs.length) return; // empty root (Flip) — no arrows
+
+    const group = scrollArrowGroup({
+      arrows: specs.map(specToArrow),
+      stagger: 1,
+      scroll: false, // driven manually below
+      enabled: !mq.matches,
+    });
+
+    let raf = 0;
+    let p = 0; // last applied draw progress, so realign can hold it
+    const setP = (v: number) => {
+      p = v;
+      group.setProgress(v);
+    };
+    const redraw = () => {
+      group.refresh();
+      setP(1);
+    };
+    const realign = () => {
+      group.refresh();
+      group.setProgress(p);
+    };
+    const play = () => {
+      group.refresh(); // anchors are laid out now — pick up correct geometry
+      if (reduce || mq.matches) {
+        setP(1);
+        return;
+      }
+      cancelAnimationFrame(raf);
+      let start = 0;
+      const tick = (now: number) => {
+        if (!start) start = now;
+        const t = Math.min(1, (now - start) / DRAW_MS);
+        setP(easeInOutCubic(t));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+
+    maps.set(family, { group, play, redraw, realign });
   });
 
-  function draw(map: Element) {
-    map.classList.add('is-armed');
-    map.classList.remove('is-drawn');
-    void (map as HTMLElement).offsetWidth; // reflow → paint the undrawn state
-    map.classList.add('is-drawn');
+  // Initial draw for the visible map, once fonts + layout have settled so the
+  // node boxes the arrows anchor to are at their final positions.
+  const ready = (document as Document & { fonts?: FontFaceSet }).fonts?.ready ?? Promise.resolve();
+  ready.then(() =>
+    requestAnimationFrame(() => {
+      for (const [family, ctl] of maps) if (isVisible(family)) ctl.play();
+    }),
+  );
+
+  // Reflow breakpoint: suspend/restore arrows without teardown; re-snap the
+  // visible map when arrows come back so they re-align to the desktop layout.
+  mq.addEventListener('change', () => {
+    for (const [family, ctl] of maps) {
+      ctl.group.setEnabled(!mq.matches);
+      if (!mq.matches && isVisible(family)) ctl.redraw();
+    }
+  });
+
+  // The nodes MOVE without resizing whenever the page reflows above them — most
+  // notably the scroll-linked collapsing header growing/shrinking as you scroll
+  // to the top. scroll-arrows places its overlay in document coordinates and
+  // only tracks per-anchor *resizes*, so a move leaves the arrows behind. Hold
+  // them glued by recomputing geometry (keeping current progress) on both
+  // signals: scroll position (rAF-throttled) and any body reflow (the header
+  // collapse transition settles here, which a scroll listener alone misses).
+  const realignVisible = () => {
+    if (mq.matches) return;
+    for (const [family, ctl] of maps) if (isVisible(family)) ctl.realign();
+  };
+
+  let scrollRaf = 0;
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        realignVisible();
+      });
+    },
+    { passive: true },
+  );
+
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(realignVisible).observe(document.body);
   }
 
-  if (animate) {
-    // Redraw each time a map enters view. Hidden (display:none) maps don't
-    // intersect, so a map drawn-in by U5's tab switch fires here on reveal —
-    // no separate switch wiring needed. No unobserve: re-entry replays.
-    // threshold 0 (any visibility) guarantees a tab-revealed map draws even if
-    // partly below the fold — the active map sits at the top of the page, shown
-    // via tabs rather than scrolled to, so an earlier trigger reads the same.
-    const io = new IntersectionObserver((entries) => {
-      for (const e of entries) if (e.isIntersecting) draw(e.target);
-    });
-    document.querySelectorAll('.family-map').forEach((map) => io.observe(map));
-  }
+  // Expose for the Roots tab handler (a separate component script): replay the
+  // draw for the map a tab just revealed.
+  (window as unknown as { rootMaps?: Map<string, MapCtl> }).rootMaps = maps;
 </script>

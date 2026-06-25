@@ -153,6 +153,8 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
     const panelFor = (tab: HTMLButtonElement) =>
       document.getElementById(tab.getAttribute('aria-controls') ?? '');
 
+    type RootMaps = Map<string, { play(): void }>;
+
     function select(index: number, moveFocus = true) {
       tabs.forEach((tab, i) => {
         const selected = i === index;
@@ -161,6 +163,11 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
         const panel = panelFor(tab);
         if (panel) panel.hidden = !selected;
       });
+      // The revealed panel was display:none, so its map's arrow anchors had no
+      // box — now that it's laid out, recompute geometry and replay the draw.
+      const family = tabs[index].dataset.family;
+      const maps = (window as unknown as { rootMaps?: RootMaps }).rootMaps;
+      if (family) maps?.get(family)?.play();
       if (moveFocus) tabs[index].focus();
     }
 
