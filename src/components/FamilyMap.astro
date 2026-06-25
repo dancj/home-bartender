@@ -112,7 +112,9 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   }
   .family-map-node {
     position: absolute;
-    transform: translate(-50%, -50%);
+    /* Left-anchored: the inline `left` is the node's left edge (the geometry in
+       familyMap.ts assumes this), vertically centered on its `top`. */
+    transform: translate(0, -50%);
     display: block;
     text-decoration: none;
   }
@@ -151,7 +153,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   }
 
   .family-map-node.is-root {
-    transform: translate(-50%, -50%);
+    transform: translate(0, -50%);
   }
   .family-map-node.is-root .family-map-node-inner {
     flex-direction: column;
@@ -270,16 +272,20 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
 </style>
 
 <script>
-  import { scrollArrowGroup } from 'scroll-arrows';
+  import { scrollArrowGroup, easeInOutCubic } from 'scroll-arrows';
   import type { ScrollArrowGroup, ScrollArrowOptions } from 'scroll-arrows';
   import type { ArrowSpec } from '../lib/familyMap';
 
-  // One hand-drawn arrow group per root map. scroll-arrows owns all geometry,
-  // reduced-motion handling (respectReducedMotion default true), and the
-  // hidden-anchor redraw for tab panels. This DOM wiring is the untested seam,
-  // per the repo's headerProgress convention; the spec logic lives in the
-  // tested buildArrowSpecs.
-  const groups = new Map<string, ScrollArrowGroup>();
+  // One hand-drawn arrow group per root map. The maps are revealed by tab
+  // switching at the top of the page (not scrolled to), so a scroll-linked draw
+  // would already be complete on load. Instead drive each group manually
+  // (`scroll: false`) and play a one-shot draw on reveal — load and tab switch.
+  // The spec logic is the tested seam (buildArrowSpecs); this DOM wiring is not,
+  // per the repo's headerProgress convention.
+  const DRAW_MS = 1100;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Below this width the map reflows to a vertical stack — arrows off.
+  const mq = window.matchMedia('(max-width: 30rem)');
 
   // The overlay <svg> mounts on <body>, so resolve the design token to a
   // concrete color rather than relying on var() resolving in that context.
@@ -288,21 +294,41 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
       .getPropertyValue('--color-rule-strong')
       .trim() || '#cfc4ac';
 
-  // Below this width the map reflows to a vertical stack — arrows off.
-  const mq = window.matchMedia('(max-width: 30rem)');
+  interface MapCtl {
+    group: ScrollArrowGroup;
+    /** Recompute geometry then animate the draw (or snap to drawn). */
+    play(): void;
+    /** Recompute geometry and snap to fully drawn, no animation. */
+    redraw(): void;
+    /** Recompute geometry and hold the current draw progress (layout shifted). */
+    realign(): void;
+  }
+  const maps = new Map<string, MapCtl>();
 
   function specToArrow(s: ArrowSpec): ScrollArrowOptions {
     return {
       start: `#${s.startId}`,
       end: `#${s.endId}`,
-      // Sketchy-curved look; sub-branch arrows read lighter and scratchier.
-      roughness: s.sub ? 0.9 : 0.7,
+      // Lightly hand-drawn; sub-branch arrows read a touch softer.
+      roughness: s.sub ? 0.35 : 0.25,
       strokeWidth: s.sub ? 1.5 : 2.5,
       stroke,
       head: 'end',
+      // Left-aligned tree: branch arrows leave the root's LEFT edge and enter
+      // each branch's LEFT edge, so the vertical runs stay in the gutter left of
+      // the pills (a lower branch's arrow passes beside upper pills, not through
+      // them). Subs drop from their branch's bottom onto the sub's left edge.
+      startSocket: s.sub ? 'bottom' : 'left',
+      endSocket: 'left',
       startSocketOffset: s.startSocketOffset,
     };
   }
+
+  function figFor(family: string) {
+    return document.querySelector<HTMLElement>(`.family-map[data-family="${family}"]`);
+  }
+  // A panel hidden with display:none has no offsetParent.
+  const isVisible = (family: string) => figFor(family)?.offsetParent != null;
 
   document.querySelectorAll<HTMLElement>('.family-map').forEach((fig) => {
     const family = fig.dataset.family;
@@ -316,25 +342,95 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
     }
     if (!specs.length) return; // empty root (Flip) — no arrows
 
-    groups.set(
-      family,
-      scrollArrowGroup({
-        arrows: specs.map(specToArrow),
-        stagger: 1,
-        scroll: { target: fig },
-        enabled: !mq.matches,
-      }),
-    );
+    const group = scrollArrowGroup({
+      arrows: specs.map(specToArrow),
+      stagger: 1,
+      scroll: false, // driven manually below
+      enabled: !mq.matches,
+    });
+
+    let raf = 0;
+    let p = 0; // last applied draw progress, so realign can hold it
+    const setP = (v: number) => {
+      p = v;
+      group.setProgress(v);
+    };
+    const redraw = () => {
+      group.refresh();
+      setP(1);
+    };
+    const realign = () => {
+      group.refresh();
+      group.setProgress(p);
+    };
+    const play = () => {
+      group.refresh(); // anchors are laid out now — pick up correct geometry
+      if (reduce || mq.matches) {
+        setP(1);
+        return;
+      }
+      cancelAnimationFrame(raf);
+      let start = 0;
+      const tick = (now: number) => {
+        if (!start) start = now;
+        const t = Math.min(1, (now - start) / DRAW_MS);
+        setP(easeInOutCubic(t));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+
+    maps.set(family, { group, play, redraw, realign });
   });
 
-  // Suspend/restore every group across the reflow breakpoint without teardown.
+  // Initial draw for the visible map, once fonts + layout have settled so the
+  // node boxes the arrows anchor to are at their final positions.
+  const ready = (document as Document & { fonts?: FontFaceSet }).fonts?.ready ?? Promise.resolve();
+  ready.then(() =>
+    requestAnimationFrame(() => {
+      for (const [family, ctl] of maps) if (isVisible(family)) ctl.play();
+    }),
+  );
+
+  // Reflow breakpoint: suspend/restore arrows without teardown; re-snap the
+  // visible map when arrows come back so they re-align to the desktop layout.
   mq.addEventListener('change', () => {
-    for (const g of groups.values()) g.setEnabled(!mq.matches);
+    for (const [family, ctl] of maps) {
+      ctl.group.setEnabled(!mq.matches);
+      if (!mq.matches && isVisible(family)) ctl.redraw();
+    }
   });
 
-  // Expose for the Roots tab handler (a separate component script): a panel
-  // hidden with display:none has no box, so its arrows must be refreshed the
-  // moment the tab reveals it.
-  (window as unknown as { rootMapGroups?: Map<string, ScrollArrowGroup> }).rootMapGroups =
-    groups;
+  // The nodes MOVE without resizing whenever the page reflows above them — most
+  // notably the scroll-linked collapsing header growing/shrinking as you scroll
+  // to the top. scroll-arrows places its overlay in document coordinates and
+  // only tracks per-anchor *resizes*, so a move leaves the arrows behind. Hold
+  // them glued by recomputing geometry (keeping current progress) on both
+  // signals: scroll position (rAF-throttled) and any body reflow (the header
+  // collapse transition settles here, which a scroll listener alone misses).
+  const realignVisible = () => {
+    if (mq.matches) return;
+    for (const [family, ctl] of maps) if (isVisible(family)) ctl.realign();
+  };
+
+  let scrollRaf = 0;
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        realignVisible();
+      });
+    },
+    { passive: true },
+  );
+
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(realignVisible).observe(document.body);
+  }
+
+  // Expose for the Roots tab handler (a separate component script): replay the
+  // draw for the map a tab just revealed.
+  (window as unknown as { rootMaps?: Map<string, MapCtl> }).rootMaps = maps;
 </script>

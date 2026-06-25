@@ -173,18 +173,21 @@ export function buildArrowSpecs(model: FamilyMapModel): ArrowSpec[] {
 }
 
 // --- Geometry -------------------------------------------------------------
-// Deterministic vertical fan: root at top-center, branches stacked down the
-// right, sub-branches offset further right off their parent. Reflows to narrow
-// viewports by viewBox scaling alone (no separate mobile coordinate set).
+// Deterministic left-aligned tree: root at the top, branches stacked below it,
+// sub-branches indented under their parent. All nodes are LEFT-anchored (the x
+// here is the node's left edge, see FamilyMap.astro), so their left edges line
+// up into a vertical "gutter" the curved arrows run through — branches enter
+// from the left without crossing the pills. Reflows to narrow viewports by
+// viewBox scaling alone (no separate mobile coordinate set).
 
 const VB_WIDTH = 600;
-const ROW_HEIGHT = 92; // vertical pitch between branch nodes (> node height → no overlap)
+const ROW_HEIGHT = 110; // vertical pitch between branch nodes — room for arrows between pills
 const TOP_PAD = 84; // root sits here — clears the tall glyph + name + tagline card
-const FIRST_BRANCH_Y = 220; // first branch sits below the root card with breathing room
-const ROOT_X = VB_WIDTH / 2;
-const BRANCH_X = VB_WIDTH * 0.62;
-const SUB_BRANCH_X = VB_WIDTH * 0.82;
-const SUB_OFFSET_Y = 46;
+const FIRST_BRANCH_Y = 230; // first branch sits below the root card with breathing room
+const ROOT_X = 60; // root left edge — the arrow gutter sits just left of this
+const BRANCH_X = 96; // branch left edge — indented from the root
+const SUB_BRANCH_X = 168; // sub-branch left edge — indented from its branch
+const SUB_OFFSET_Y = 64; // vertical drop per sub-branch — keeps the branch→sub arrow clear
 const BOTTOM_PAD = 56; // room below the lowest node for its overlay pill + arrowhead
 
 export interface PlacedNode extends MapNode {
