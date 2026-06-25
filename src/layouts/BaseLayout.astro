@@ -21,10 +21,10 @@ const containerClass = width === 'wide' ? 'container-wide' : 'container-prose';
 
 const path = Astro.url.pathname;
 const isLearn = path.startsWith(`${base}/learn`);
-const isFamilies = path.startsWith(`${base}/families`);
+const isRoots = path.startsWith(`${base}/roots`);
 const navLinks = [
-  { href: `${base}/`, label: 'Recipes', current: !isLearn && !isFamilies },
-  { href: `${base}/families/`, label: 'Families', current: isFamilies },
+  { href: `${base}/`, label: 'Recipes', current: !isLearn && !isRoots },
+  { href: `${base}/roots/`, label: 'Roots', current: isRoots },
   { href: `${base}/learn/`, label: 'Learn', current: isLearn },
 ];
 

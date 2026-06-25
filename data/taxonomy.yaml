@@ -45,7 +45,7 @@ formats:
   - { slug: batch, label: Batch }
   - { slug: punch, label: Punch }
 
-families:
+roots:
   - slug: old-fashioned
     label: Old Fashioned
     source: Cocktail Codex

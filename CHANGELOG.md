@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.6.19.1] - 2026-06-19
+
+- #95 — chore(deps): update actions/checkout action to v7 (@app/renovate)
+- #94 — fix: site polish batch 2 — cards, families view, mobile tabs, search (@dancj)
+- #87 — docs: update CHANGELOG for release 2026.6.15.1 (@app/github-actions)
 ## [2026.6.15.1] - 2026-06-15
 
 - #86 — feat: site polish batch — header search, related cards, branded 404 (@dancj)

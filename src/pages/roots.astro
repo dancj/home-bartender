@@ -2,14 +2,14 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import FamilyMap from '../components/FamilyMap.astro';
 import { publishedRecipes } from '../lib/recipes';
-import { FAMILIES, label, groupByTax } from '../lib/taxonomy';
+import { ROOTS, label, groupByTax } from '../lib/taxonomy';
 
 const recipes = await publishedRecipes();
-const counts = groupByTax(recipes, 'families');
+const counts = groupByTax(recipes, 'roots');
 const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
 ---
 <BaseLayout
-  title="Families — Home Bartender"
+  title="Roots — Home Bartender"
   description="The six Cocktail Codex root families every cocktail descends from."
   width="wide"
 >
@@ -21,8 +21,8 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
   </section>
 
   <div class="family-switcher">
-    <div class="family-tabs" role="tablist" aria-label="Cocktail families">
-      {FAMILIES.map((slug, i) => (
+    <div class="family-tabs" role="tablist" aria-label="Cocktail roots">
+      {ROOTS.map((slug, i) => (
         <button
           type="button"
           role="tab"
@@ -33,13 +33,13 @@ const countFor = (slug: string) => counts.get(slug)?.length ?? 0;
           aria-selected={i === 0 ? 'true' : 'false'}
           tabindex={i === 0 ? 0 : -1}
         >
-          {label('families', slug)}
+          {label('roots', slug)}
           <span class="family-tab-count">{countFor(slug)}</span>
         </button>
       ))}
     </div>
 
-    {FAMILIES.map((slug, i) => (
+    {ROOTS.map((slug, i) => (
       <div
         role="tabpanel"
         id={`panel-${slug}`}

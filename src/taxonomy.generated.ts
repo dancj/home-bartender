@@ -49,10 +49,10 @@ export const FORMAT_LABELS: Record<Format, string> = {
   'punch': "Punch",
 };
 
-export const FAMILIES = ['old-fashioned', 'martini', 'daiquiri', 'sidecar', 'whiskey-highball', 'flip'] as const;
-export type Family = (typeof FAMILIES)[number];
+export const ROOTS = ['old-fashioned', 'martini', 'daiquiri', 'sidecar', 'whiskey-highball', 'flip'] as const;
+export type Root = (typeof ROOTS)[number];
 
-export const FAMILY_LABELS: Record<Family, string> = {
+export const ROOT_LABELS: Record<Root, string> = {
   'old-fashioned': "Old Fashioned",
   'martini': "Martini",
   'daiquiri': "Daiquiri",
@@ -61,7 +61,7 @@ export const FAMILY_LABELS: Record<Family, string> = {
   'flip': "Flip",
 };
 
-export const FAMILY_NOTES: Record<Family, string> = {
+export const ROOT_NOTES: Record<Root, string> = {
   'old-fashioned': "Spirit + sugar + bitters + water (dilution)",
   'martini': "Spirit + fortified wine + flavoring (stirred)",
   'daiquiri': "Spirit + citrus + sweetener (shaken)",

@@ -7,7 +7,7 @@ glass: rocks
 method: stirred
 ice: large-cube
 difficulty: medium
-families: [old-fashioned]
+roots: [old-fashioned]
 spirits:
   - tequila
   - mezcal

@@ -7,7 +7,7 @@ glass: rocks
 method: shaken
 ice: large-cube
 difficulty: medium
-families: [daiquiri]
+roots: [daiquiri]
 spirits:
   - scotch
   - whiskey

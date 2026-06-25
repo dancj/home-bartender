@@ -9,24 +9,24 @@ import { breadcrumbTrail } from '../../lib/breadcrumbs';
 
 export async function getStaticPaths() {
   const recipes = await publishedRecipes();
-  const grouped = groupByTax(recipes, 'families');
-  return [...grouped].map(([family, items]) => ({
-    params: { family },
-    props: { family, items },
+  const grouped = groupByTax(recipes, 'roots');
+  return [...grouped].map(([root, items]) => ({
+    params: { root },
+    props: { root, items },
   }));
 }
 
-const { family, items } = Astro.props;
-const displayName = label('family', family);
+const { root, items } = Astro.props;
+const displayName = label('root', root);
 ---
 <BaseLayout
-  title={`${displayName} family — Home Bartender`}
+  title={`${displayName} root — Home Bartender`}
   description={`${items.length} cocktails in the ${displayName} root family.`}
   width="wide"
 >
   <section class="page-head">
-    <Breadcrumb segments={breadcrumbTrail('family', displayName)} />
-    <h1><Icon field="family" slug={family} class="head-icon" /> {displayName}</h1>
+    <Breadcrumb segments={breadcrumbTrail('root', displayName)} />
+    <h1><Icon field="root" slug={root} class="head-icon" /> {displayName}</h1>
     <p class="lede">{items.length} {items.length === 1 ? 'recipe' : 'recipes'}.</p>
   </section>
   <ul class="recipe-grid">
