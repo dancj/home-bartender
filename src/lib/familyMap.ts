@@ -117,6 +117,14 @@ export function buildFamilyMap(
 
 /** Fraction of the root edge the branch fan spreads across (±SPREAD/2). */
 const SOCKET_SPREAD = 0.8;
+/**
+ * Fraction of the branch's bottom edge the sub fan spreads across (±SPREAD/2).
+ * The fan runs right-to-left: the first (highest) sub leaves nearest its entry
+ * side and each lower sub leaves further left, so a lower sub's arrow descends
+ * through the sub gutter beside its upper siblings instead of over them.
+ * Magnitude (and, if visual tuning demands, direction) is settled in U3.
+ */
+const SUB_SOCKET_SPREAD = 0.6;
 
 export const rootNodeId = (family: string): string => `samap-${family}-root`;
 export const branchNodeId = (family: string, branchSlug: string): string =>
@@ -132,10 +140,20 @@ export interface ArrowSpec {
   /** True for branch→sub-branch arrows (rendered subordinate). */
   sub: boolean;
   /**
-   * Slide the start point along the root edge so sibling branch arrows fan out
-   * instead of stacking on one point. 0 for sub arrows and a lone branch.
+   * Slide the start point along the start edge so sibling arrows fan out
+   * instead of stacking on one point. Branch arrows fan along the root's left
+   * edge; sub arrows fan along their branch's bottom edge. 0 for a lone
+   * branch or a lone sub.
    */
   startSocketOffset: number;
+  /**
+   * Node ids (of pills rendered by FamilyMap.astro) this arrow should bow
+   * around instead of crossing — a sub arrow's earlier siblings, which sit
+   * between the branch's bottom edge and a lower sub. Root→branch arrows
+   * carry none: their chord runs the empty gutter left of every pill, where
+   * the single-bend router has nothing useful to detect.
+   */
+  avoidIds: string[];
 }
 
 /**
@@ -158,15 +176,24 @@ export function buildArrowSpecs(model: FamilyMapModel): ArrowSpec[] {
       endId: branchNodeId(family, branch.slug),
       sub: false,
       startSocketOffset,
+      avoidIds: [],
     });
-    for (const sub of branch.subBranches) {
+    const k = branch.subBranches.length;
+    branch.subBranches.forEach((sub, j) => {
       specs.push({
         startId: branchNodeId(family, branch.slug),
         endId: subNodeId(family, branch.slug, sub.slug),
         sub: true,
-        startSocketOffset: 0,
+        // Fan sibling sub arrows along the branch's bottom edge, right-to-left
+        // (see SUB_SOCKET_SPREAD). A lone sub stays centred.
+        startSocketOffset: k > 1 ? (0.5 - j / (k - 1)) * SUB_SOCKET_SPREAD : 0,
+        // Earlier siblings sit between this arrow's start and its target —
+        // the pills it must bow around.
+        avoidIds: branch.subBranches
+          .slice(0, j)
+          .map((prev) => subNodeId(family, branch.slug, prev.slug)),
       });
-    }
+    });
   });
 
   return specs;

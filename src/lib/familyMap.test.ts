@@ -302,4 +302,64 @@ describe('buildArrowSpecs', () => {
     const specs = buildArrowSpecs(buildFamilyMap([], 'flip', BASE));
     expect(specs).toEqual([]);
   });
+
+  it('fans branch→sub start sockets: distinct, symmetric, monotonic (sign-agnostic)', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple', 'oaxaca', 'perfect'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+      makeRecipe('classics/oaxaca', ['old-fashioned'], [], 'Oaxaca'),
+      makeRecipe('classics/perfect', ['old-fashioned'], [], 'Perfect'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const offsets = specs.filter((s) => s.sub).map((s) => s.startSocketOffset);
+    expect(offsets).toHaveLength(3);
+    // distinct
+    expect(new Set(offsets).size).toBe(offsets.length);
+    // symmetric around the socket centre: first mirrors last, fan sums to ~0
+    expect(offsets[0]).toBeCloseTo(-offsets[offsets.length - 1]);
+    expect(offsets.reduce((a, b) => a + b, 0)).toBeCloseTo(0);
+    // strictly monotonic in ONE direction — sign-agnostic so U3 tuning of
+    // SUB_SOCKET_SPREAD's sign/magnitude only changes the constant, not these assertions
+    const diffs = offsets.slice(1).map((o, i) => o - offsets[i]);
+    expect(diffs.every((d) => d > 0) || diffs.every((d) => d < 0)).toBe(true);
+  });
+
+  it('centres a lone sub on the branch edge with an empty avoid list', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const sub = specs.find((s) => s.sub);
+    expect(sub?.startSocketOffset).toBe(0);
+    expect(sub?.avoidIds).toEqual([]);
+  });
+
+  it('gives each sub spec exactly its earlier siblings as avoidIds, in order', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple', 'oaxaca', 'perfect'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+      makeRecipe('classics/oaxaca', ['old-fashioned'], [], 'Oaxaca'),
+      makeRecipe('classics/perfect', ['old-fashioned'], [], 'Perfect'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const subs = specs.filter((s) => s.sub);
+    expect(subs.map((s) => s.avoidIds)).toEqual([
+      [],
+      ['samap-old-fashioned-manhattan-maple'],
+      ['samap-old-fashioned-manhattan-maple', 'samap-old-fashioned-manhattan-oaxaca'],
+    ]);
+  });
+
+  it('carries no avoid list on root→branch specs', () => {
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], ['sazerac'], 'Old Fashioned'),
+      makeRecipe('classics/sazerac', ['old-fashioned'], [], 'Sazerac'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const roots = specs.filter((s) => !s.sub);
+    expect(roots.length).toBeGreaterThan(0);
+    expect(roots.every((s) => s.avoidIds.length === 0)).toBe(true);
+  });
 });
