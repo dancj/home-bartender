@@ -321,6 +321,15 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
       startSocket: s.sub ? 'bottom' : 'left',
       endSocket: 'left',
       startSocketOffset: s.startSocketOffset,
+      // Sibling pills between this arrow and its target (sub arrows only —
+      // see buildArrowSpecs). Resolved live per refresh, so the router sees
+      // real DOM-measured pill widths.
+      ...(s.avoidIds.length > 0 && {
+        avoid: s.avoidIds.map((id) => `#${id}`),
+        // Slightly under the library's 14px default: the sub rows sit 64
+        // viewBox-units apart, so a fat clearance bows into neighbours.
+        avoidPadding: 10,
+      }),
     };
   }
 
