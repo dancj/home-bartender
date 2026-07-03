@@ -126,6 +126,14 @@ const SOCKET_SPREAD = 0.8;
  */
 const SUB_SOCKET_SPREAD = 0.6;
 
+/**
+ * Spread point `i` of `n` evenly across ±spread/2 (centred; a lone point
+ * stays at 0). Shared by the root→branch and branch→sub fans — the sub fan
+ * passes a reversed index to run right-to-left.
+ */
+const fanOffset = (i: number, n: number, spread: number): number =>
+  n > 1 ? (i / (n - 1) - 0.5) * spread : 0;
+
 export const rootNodeId = (family: string): string => `samap-${family}-root`;
 export const branchNodeId = (family: string, branchSlug: string): string =>
   `samap-${family}-${branchSlug}`;
@@ -170,7 +178,7 @@ export function buildArrowSpecs(model: FamilyMapModel): ArrowSpec[] {
   branches.forEach((branch, i) => {
     // Spread branch starts symmetrically across the root edge: centre at 0,
     // ends at ±SOCKET_SPREAD/2. A single branch stays centred.
-    const startSocketOffset = n > 1 ? (i / (n - 1) - 0.5) * SOCKET_SPREAD : 0;
+    const startSocketOffset = fanOffset(i, n, SOCKET_SPREAD);
     specs.push({
       startId: rootNodeId(family),
       endId: branchNodeId(family, branch.slug),
@@ -186,9 +194,12 @@ export function buildArrowSpecs(model: FamilyMapModel): ArrowSpec[] {
         sub: true,
         // Fan sibling sub arrows along the branch's bottom edge, right-to-left
         // (see SUB_SOCKET_SPREAD). A lone sub stays centred.
-        startSocketOffset: k > 1 ? (0.5 - j / (k - 1)) * SUB_SOCKET_SPREAD : 0,
+        startSocketOffset: fanOffset(k - 1 - j, k, SUB_SOCKET_SPREAD),
         // Earlier siblings sit between this arrow's start and its target —
-        // the pills it must bow around.
+        // the pills it must bow around. O(k²) refs per branch, re-measured by
+        // the library each refresh — fine at today's k≤3 fan-out; a much
+        // bigger `related[]` fan would want rect caching upstream
+        // (dancj/scroll-arrows#55 territory).
         avoidIds: branch.subBranches
           .slice(0, j)
           .map((prev) => subNodeId(family, branch.slug, prev.slug)),
