@@ -118,13 +118,17 @@ export function buildFamilyMap(
 /** Fraction of the root edge the branch fan spreads across (±SPREAD/2). */
 const SOCKET_SPREAD = 0.8;
 /**
- * Fraction of the branch's bottom edge the sub fan spreads across (±SPREAD/2).
- * The fan runs right-to-left: the first (highest) sub leaves nearest its entry
- * side and each lower sub leaves further left, so a lower sub's arrow descends
- * through the sub gutter beside its upper siblings instead of over them.
- * Magnitude (and, if visual tuning demands, direction) is settled in U3.
+ * Where the sub fan sits on the branch's bottom edge, as edge-length
+ * fractions (0 = centre, ±0.5 = corners). The whole fan lives on the LEFT
+ * half: a sub arrow must start left of its target's left-edge entry
+ * (SUB_BRANCH_X) so it drops DOWN into the pill — a start right of the entry
+ * hooks back over the target's top (the Maple Bacon crossover, PR #111
+ * feedback). Centre −0.35 keeps starts left of the entry for pill widths up
+ * to ~2x today's widest; the fan spreads ±SPREAD/2 around it, lower subs
+ * further left so arrows nest without crossing.
  */
-const SUB_SOCKET_SPREAD = 0.6;
+const SUB_SOCKET_CENTER = -0.35;
+const SUB_SOCKET_SPREAD = 0.2;
 
 /**
  * Spread point `i` of `n` evenly across ±spread/2 (centred; a lone point
@@ -192,9 +196,10 @@ export function buildArrowSpecs(model: FamilyMapModel): ArrowSpec[] {
         startId: branchNodeId(family, branch.slug),
         endId: subNodeId(family, branch.slug, sub.slug),
         sub: true,
-        // Fan sibling sub arrows along the branch's bottom edge, right-to-left
-        // (see SUB_SOCKET_SPREAD). A lone sub stays centred.
-        startSocketOffset: fanOffset(k - 1 - j, k, SUB_SOCKET_SPREAD),
+        // Fan sibling sub arrows across the left portion of the branch's
+        // bottom edge (see SUB_SOCKET_CENTER). A lone sub sits at the centre
+        // of that fan; lower subs leave further left.
+        startSocketOffset: SUB_SOCKET_CENTER + fanOffset(k - 1 - j, k, SUB_SOCKET_SPREAD),
         // Earlier siblings sit between this arrow's start and its target —
         // the pills it must bow around. O(k²) refs per branch, re-measured by
         // the library each refresh — fine at today's k≤3 fan-out; a much

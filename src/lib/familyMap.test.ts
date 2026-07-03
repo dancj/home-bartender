@@ -303,7 +303,7 @@ describe('buildArrowSpecs', () => {
     expect(specs).toEqual([]);
   });
 
-  it('fans branch→sub start sockets: distinct, symmetric, monotonic (sign-agnostic)', () => {
+  it('fans branch→sub start sockets on the LEFT of the bottom edge, lower subs further left', () => {
     const recipes = [
       makeRecipe('classics/manhattan', ['old-fashioned'], ['maple', 'oaxaca', 'perfect'], 'Manhattan'),
       makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
@@ -313,15 +313,16 @@ describe('buildArrowSpecs', () => {
     const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
     const offsets = specs.filter((s) => s.sub).map((s) => s.startSocketOffset);
     expect(offsets).toHaveLength(3);
-    // distinct
+    // distinct sockets
     expect(new Set(offsets).size).toBe(offsets.length);
-    // symmetric around the socket centre: first mirrors last, fan sums to ~0
-    expect(offsets[0]).toBeCloseTo(-offsets[offsets.length - 1]);
-    expect(offsets.reduce((a, b) => a + b, 0)).toBeCloseTo(0);
-    // strictly monotonic in ONE direction — sign-agnostic so U3 tuning of
-    // SUB_SOCKET_SPREAD's sign/magnitude only changes the constant, not these assertions
-    const diffs = offsets.slice(1).map((o, i) => o - offsets[i]);
-    expect(diffs.every((d) => d > 0) || diffs.every((d) => d < 0)).toBe(true);
+    // every start sits on the LEFT half of the branch's bottom edge, so the
+    // arrow drops DOWN into the sub's left-edge entry instead of crossing
+    // over the top of the target pill (PR #111 feedback)
+    offsets.forEach((o) => expect(o).toBeLessThan(0));
+    // strictly monotonic: each lower sub leaves further left
+    for (let i = 1; i < offsets.length; i++) {
+      expect(offsets[i]).toBeLessThan(offsets[i - 1]);
+    }
     // scroll-arrows clamps socket offsets to ±0.5 of the edge; past that,
     // distinct spec offsets silently render as identical corner-pinned
     // sockets. Guard the tuning knob.
@@ -337,20 +338,24 @@ describe('buildArrowSpecs', () => {
     const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
     const offsets = specs.filter((s) => s.sub).map((s) => s.startSocketOffset);
     expect(offsets).toHaveLength(2);
-    // mirrored endpoints of the fan, never a shared socket
-    expect(offsets[0]).toBeCloseTo(-offsets[1]);
-    expect(offsets[0]).not.toBe(0);
+    // distinct sockets, both on the left half, lower sub further left
+    expect(offsets[0]).not.toBe(offsets[1]);
+    offsets.forEach((o) => expect(o).toBeLessThan(0));
+    expect(offsets[1]).toBeLessThan(offsets[0]);
     offsets.forEach((o) => expect(Math.abs(o)).toBeLessThanOrEqual(0.5));
   });
 
-  it('centres a lone sub on the branch edge with an empty avoid list', () => {
+  it('starts a lone sub arrow left of the bottom-edge centre, with an empty avoid list', () => {
     const recipes = [
       makeRecipe('classics/manhattan', ['old-fashioned'], ['maple'], 'Manhattan'),
       makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
     ];
     const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
     const sub = specs.find((s) => s.sub);
-    expect(sub?.startSocketOffset).toBe(0);
+    // Even a lone sub must start left of its target's left-edge entry so the
+    // arrow drops down into it rather than crossing over its top.
+    expect(sub?.startSocketOffset).toBeLessThan(0);
+    expect(Math.abs(sub?.startSocketOffset ?? 1)).toBeLessThanOrEqual(0.5);
     expect(sub?.avoidIds).toEqual([]);
   });
 
