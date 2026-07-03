@@ -322,6 +322,25 @@ describe('buildArrowSpecs', () => {
     // SUB_SOCKET_SPREAD's sign/magnitude only changes the constant, not these assertions
     const diffs = offsets.slice(1).map((o, i) => o - offsets[i]);
     expect(diffs.every((d) => d > 0) || diffs.every((d) => d < 0)).toBe(true);
+    // scroll-arrows clamps socket offsets to ±0.5 of the edge; past that,
+    // distinct spec offsets silently render as identical corner-pinned
+    // sockets. Guard the tuning knob.
+    offsets.forEach((o) => expect(Math.abs(o)).toBeLessThanOrEqual(0.5));
+  });
+
+  it('fans a 2-sub branch (the issue #105 Manhattan shape) onto two mirrored sockets', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple', 'oaxaca'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+      makeRecipe('classics/oaxaca', ['old-fashioned'], [], 'Oaxaca'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const offsets = specs.filter((s) => s.sub).map((s) => s.startSocketOffset);
+    expect(offsets).toHaveLength(2);
+    // mirrored endpoints of the fan, never a shared socket
+    expect(offsets[0]).toBeCloseTo(-offsets[1]);
+    expect(offsets[0]).not.toBe(0);
+    offsets.forEach((o) => expect(Math.abs(o)).toBeLessThanOrEqual(0.5));
   });
 
   it('centres a lone sub on the branch edge with an empty avoid list', () => {
