@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.7.4.1] - 2026-07-04
+
+- #111 — fix(roots): route arrows around sibling pills and fan sub sockets (@dancj)
+- #110 — chore(deps): update dependency sharp to v0.35.3 (@app/renovate)
+- #109 — chore(deps): update tailwindcss monorepo to v4.3.2 (@app/renovate)
+- #106 — feat(roots): draw root maps with scroll-arrows (@dancj)
+- #104 — chore(deps): update actions/cache action to v6 (@app/renovate)
+- #102 — chore(deps): update dependency lint-staged to v17.0.8 (@app/renovate)
+- #101 — feat(taxonomy)!: rename "family" to "root" (@dancj)
+- #98 — docs: update CHANGELOG for release 2026.6.19.1 (@app/github-actions)
+- #97 — chore(deps): update dependency sharp to v0.35.2 (@app/renovate)
+- #89 — chore(deps): update vitest monorepo to v4.1.9 (@app/renovate)
+- #88 — chore(deps): update astro monorepo to v6.4.8 (@app/renovate)
 ## [2026.6.19.1] - 2026-06-19
 
 - #95 — chore(deps): update actions/checkout action to v7 (@app/renovate)
