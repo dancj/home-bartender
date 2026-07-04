@@ -122,8 +122,8 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
 
   <script>
     // Processed module (not is:inline) so the tested lib code IS the shipped
-    // code — see plan KTD3. It's a deferred module, but so was the previous
-    // end-of-body inline script; both run after the DOM is parsed.
+    // code. It's a deferred module, but so was the previous end-of-body
+    // inline script; both run after the DOM is parsed.
     import { isMakeable, parseOwnedSpirits, MY_BAR_STORAGE_KEY } from '../lib/myBar';
     import { compareCards, parseSortMode } from '../lib/indexSort';
     import { SPIRITS } from '../taxonomy.generated';
@@ -154,24 +154,29 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       const FIELDS = ['spirit', 'difficulty', 'method', 'flavor', 'makeable'];
 
       // localStorage can throw (private mode, disabled) — degrade to
-      // session-only ownership rather than breaking the page.
-      function readOwned(): string[] {
-        try {
-          return parseOwnedSpirits(localStorage.getItem(MY_BAR_STORAGE_KEY), SPIRITS);
-        } catch {
-          return owned;
-        }
-      }
+      // session-only state rather than breaking the page.
+      const storage = {
+        get(key: string): string | null {
+          try {
+            return localStorage.getItem(key);
+          } catch {
+            return null;
+          }
+        },
+        set(key: string, value: string) {
+          try {
+            localStorage.setItem(key, value);
+          } catch {
+            /* session-only fallback */
+          }
+        },
+      };
+
+      let owned: string[] = parseOwnedSpirits(storage.get(MY_BAR_STORAGE_KEY), SPIRITS);
       function writeOwned(next: string[]) {
         owned = next;
-        try {
-          localStorage.setItem(MY_BAR_STORAGE_KEY, JSON.stringify(next));
-        } catch {
-          /* session-only fallback */
-        }
+        storage.set(MY_BAR_STORAGE_KEY, JSON.stringify(next));
       }
-      let owned: string[] = [];
-      owned = readOwned();
 
       function readFilters(): Record<string, string> {
         const params = new URLSearchParams(location.search);
@@ -205,20 +210,23 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
       }
 
-      // data-spirits="" must read as "no spirits required", not [""] — the
-      // zero-spirit-makeable edge the lib tests enshrine.
-      function cardSpirits(card: HTMLElement): string[] {
-        return (card.dataset.spirits ?? '').split(',').filter(Boolean);
+      // Comma-list data attribute → array. "" must read as empty, not [""] —
+      // the zero-spirit-makeable edge the lib tests enshrine.
+      function dataList(v: string | undefined): string[] {
+        return (v ?? '').split(',').filter(Boolean);
       }
 
-      function cardMatches(card: HTMLElement, filters: Record<string, string>): boolean {
+      function cardMatches(
+        card: HTMLElement,
+        filters: Record<string, string>,
+        ownedSet: Set<string>
+      ): boolean {
         const ds = card.dataset;
-        if (filters.spirit && !cardSpirits(card).includes(filters.spirit)) return false;
-        if (filters.flavor && !(ds.flavors ?? '').split(',').includes(filters.flavor))
-          return false;
+        if (filters.spirit && !dataList(ds.spirits).includes(filters.spirit)) return false;
+        if (filters.flavor && !dataList(ds.flavors).includes(filters.flavor)) return false;
         if (filters.method && ds.method !== filters.method) return false;
         if (filters.difficulty && ds.difficulty !== filters.difficulty) return false;
-        if (filters.makeable && !isMakeable(cardSpirits(card), owned)) return false;
+        if (filters.makeable && !isMakeable(dataList(ds.spirits), ownedSet)) return false;
         return true;
       }
 
@@ -227,7 +235,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         if (sortSelect instanceof HTMLSelectElement) sortSelect.value = mode;
         const record = (c: HTMLElement) => ({
           title: c.dataset.title ?? '',
-          primarySpirit: cardSpirits(c)[0] ?? '',
+          primarySpirit: dataList(c.dataset.spirits)[0] ?? '',
           difficulty: c.dataset.difficulty ?? '',
         });
         // appendChild moves in-place; hidden state is untouched by reordering.
@@ -235,12 +243,14 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           grid.appendChild(c);
       }
 
-      function apply() {
-        applySort();
+      // Filtering never changes order — only init, ?sort= changes (select,
+      // popstate) re-run applySort.
+      function applyFilters() {
         const filters = readFilters();
+        const ownedSet = new Set(owned);
         let visible = 0;
         for (const c of cards) {
-          const show = cardMatches(c, filters);
+          const show = cardMatches(c, filters, ownedSet);
           c.hidden = !show;
           if (show) visible++;
         }
@@ -264,6 +274,11 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           summary.parentElement.open = true;
       }
 
+      function apply() {
+        applySort();
+        applyFilters();
+      }
+
       for (const btn of buttons) {
         btn.addEventListener('click', () => {
           const f = readFilters();
@@ -272,7 +287,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           if (f[key] === val) delete f[key];
           else f[key] = val;
           writeFilters(f);
-          apply();
+          applyFilters();
         });
       }
       for (const btn of myBarButtons) {
@@ -281,12 +296,12 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           writeOwned(
             owned.includes(slug) ? owned.filter((s) => s !== slug) : [...owned, slug]
           );
-          apply();
+          applyFilters();
         });
       }
       clearBtn?.addEventListener('click', () => {
         writeFilters({});
-        apply();
+        applyFilters();
       });
       sortSelect?.addEventListener('change', () => {
         if (sortSelect instanceof HTMLSelectElement) {
@@ -306,22 +321,12 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
       }
-      let storedView = '';
-      try {
-        storedView = localStorage.getItem(INDEX_VIEW_STORAGE_KEY) ?? '';
-      } catch {
-        /* session-only fallback */
-      }
-      applyView(storedView === 'compact' ? 'compact' : 'cards');
+      applyView(storage.get(INDEX_VIEW_STORAGE_KEY) === 'compact' ? 'compact' : 'cards');
       for (const btn of viewButtons) {
         btn.addEventListener('click', () => {
           const view = btn.dataset.view === 'compact' ? 'compact' : 'cards';
           applyView(view);
-          try {
-            localStorage.setItem(INDEX_VIEW_STORAGE_KEY, view);
-          } catch {
-            /* session-only fallback */
-          }
+          storage.set(INDEX_VIEW_STORAGE_KEY, view);
         });
       }
 
