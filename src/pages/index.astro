@@ -76,6 +76,22 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           ))}
         </ul>
       </div>
+      <div class="filter-group filter-group-mybar">
+        <h3 class="eyebrow">My Bar</h3>
+        <p class="mybar-hint">Mark the spirits you own — the selection sticks around.</p>
+        <ul>
+          {spirits.map((s) => (
+            <li>
+              <button type="button" class="chip chip-mybar" data-mybar={s} aria-pressed="false">
+                <Icon field="spirits" slug={s} /> {label('spirits', s)}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <button type="button" class="chip chip-makeable" data-filter="makeable" data-value="1">
+          What can I make?
+        </button>
+      </div>
     </div>
     <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
   </details>
@@ -85,22 +101,60 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
   </ul>
 
   <EmptyState id="empty-state" message="No recipes match the current filters." hidden />
+  <EmptyState
+    id="empty-state-mybar"
+    message="Mark spirits in My Bar to see what you can make."
+    hidden
+  />
 
-  <script is:inline>
+  <script>
+    // Processed module (not is:inline) so the tested lib code IS the shipped
+    // code — see plan KTD3. It's a deferred module, but so was the previous
+    // end-of-body inline script; both run after the DOM is parsed.
+    import { isMakeable, parseOwnedSpirits, MY_BAR_STORAGE_KEY } from '../lib/myBar';
+    import { SPIRITS } from '../taxonomy.generated';
+
     (function () {
       const grid = document.getElementById('recipe-grid');
-      const cards = Array.from(grid.querySelectorAll('.recipe-card'));
+      if (!grid) return;
+      const cards = Array.from(grid.querySelectorAll<HTMLElement>('.recipe-card'));
       const emptyEl = document.getElementById('empty-state');
+      const emptyMyBarEl = document.getElementById('empty-state-mybar');
       const countEl = document.getElementById('filter-count');
       const summary = document.querySelector('.filter-bar > summary');
-      const buttons = Array.from(document.querySelectorAll('button[data-filter]'));
+      const buttons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('button[data-filter]')
+      );
+      const myBarButtons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('button[data-mybar]')
+      );
       const clearBtn = document.getElementById('clear-filters');
 
-      const FIELDS = ['spirit', 'difficulty', 'method', 'flavor'];
+      const FIELDS = ['spirit', 'difficulty', 'method', 'flavor', 'makeable'];
 
-      function readFilters() {
+      // localStorage can throw (private mode, disabled) — degrade to
+      // session-only ownership rather than breaking the page.
+      function readOwned(): string[] {
+        try {
+          return parseOwnedSpirits(localStorage.getItem(MY_BAR_STORAGE_KEY), SPIRITS);
+        } catch {
+          return owned;
+        }
+      }
+      function writeOwned(next: string[]) {
+        owned = next;
+        try {
+          localStorage.setItem(MY_BAR_STORAGE_KEY, JSON.stringify(next));
+        } catch {
+          /* session-only fallback */
+        }
+      }
+      let owned: string[] = [];
+      owned = readOwned();
+
+      function readFilters(): Record<string, string> {
         const params = new URLSearchParams(location.search);
-        const f = {};
+        const f: Record<string, string> = {};
         for (const key of FIELDS) {
           const v = params.get(key);
           if (v) f[key] = v;
@@ -108,19 +162,27 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         return f;
       }
 
-      function writeFilters(filters) {
+      function writeFilters(filters: Record<string, string>) {
         const params = new URLSearchParams();
         for (const [k, v] of Object.entries(filters)) if (v) params.set(k, v);
         const qs = params.toString();
         history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
       }
 
-      function cardMatches(card, filters) {
+      // data-spirits="" must read as "no spirits required", not [""] — the
+      // zero-spirit-makeable edge the lib tests enshrine.
+      function cardSpirits(card: HTMLElement): string[] {
+        return (card.dataset.spirits ?? '').split(',').filter(Boolean);
+      }
+
+      function cardMatches(card: HTMLElement, filters: Record<string, string>): boolean {
         const ds = card.dataset;
-        if (filters.spirit && !ds.spirits.split(',').includes(filters.spirit)) return false;
-        if (filters.flavor && !ds.flavors.split(',').includes(filters.flavor)) return false;
+        if (filters.spirit && !cardSpirits(card).includes(filters.spirit)) return false;
+        if (filters.flavor && !(ds.flavors ?? '').split(',').includes(filters.flavor))
+          return false;
         if (filters.method && ds.method !== filters.method) return false;
         if (filters.difficulty && ds.difficulty !== filters.difficulty) return false;
+        if (filters.makeable && !isMakeable(cardSpirits(card), owned)) return false;
         return true;
       }
 
@@ -132,28 +194,50 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           c.hidden = !show;
           if (show) visible++;
         }
-        emptyEl.hidden = visible > 0;
+        const myBarEmpty = Boolean(filters.makeable) && owned.length === 0;
+        if (emptyEl) emptyEl.hidden = visible > 0 || myBarEmpty;
+        if (emptyMyBarEl) emptyMyBarEl.hidden = visible > 0 || !myBarEmpty;
         const active = Object.keys(filters).length;
-        countEl.textContent = active ? `${active} active · ${visible}/${cards.length}` : '';
+        if (countEl)
+          countEl.textContent = active ? `${active} active · ${visible}/${cards.length}` : '';
         for (const b of buttons) {
-          const on = filters[b.dataset.filter] === b.dataset.value;
+          const key = b.dataset.filter ?? '';
+          const on = filters[key] === b.dataset.value;
           b.classList.toggle('chip-active', on);
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
-        if (active > 0 && summary) summary.parentElement.open = true;
+        for (const b of myBarButtons) {
+          const on = owned.includes(b.dataset.mybar ?? '');
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+        if (active > 0 && summary?.parentElement instanceof HTMLDetailsElement)
+          summary.parentElement.open = true;
       }
 
       for (const btn of buttons) {
         btn.addEventListener('click', () => {
           const f = readFilters();
-          const key = btn.dataset.filter, val = btn.dataset.value;
+          const key = btn.dataset.filter ?? '';
+          const val = btn.dataset.value ?? '';
           if (f[key] === val) delete f[key];
           else f[key] = val;
           writeFilters(f);
           apply();
         });
       }
-      clearBtn.addEventListener('click', () => { writeFilters({}); apply(); });
+      for (const btn of myBarButtons) {
+        btn.addEventListener('click', () => {
+          const slug = btn.dataset.mybar ?? '';
+          writeOwned(
+            owned.includes(slug) ? owned.filter((s) => s !== slug) : [...owned, slug]
+          );
+          apply();
+        });
+      }
+      clearBtn?.addEventListener('click', () => {
+        writeFilters({});
+        apply();
+      });
       window.addEventListener('popstate', apply);
       apply();
     })();
@@ -244,5 +328,27 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
   }
   .clear-btn:hover {
     color: var(--color-fg);
+  }
+
+  /* My Bar: persistent ownership, not a transient filter — owned chips get an
+     outlined check treatment distinct from the filled accent filter chips. */
+  .mybar-hint {
+    margin: -0.35rem 0 0.65rem;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--color-fg-subtle);
+  }
+  .chip-mybar[aria-pressed='true'] {
+    background: var(--color-surface);
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    font-weight: 600;
+  }
+  .chip-mybar[aria-pressed='true']::before {
+    content: '✓';
+    font-weight: 700;
+  }
+  .chip-makeable {
+    margin-top: 0.75rem;
   }
 </style>
