@@ -117,6 +117,26 @@ export function buildFamilyMap(
 
 /** Fraction of the root edge the branch fan spreads across (±SPREAD/2). */
 const SOCKET_SPREAD = 0.8;
+/**
+ * Where the sub fan sits on the branch's bottom edge, as edge-length
+ * fractions (0 = centre, ±0.5 = corners). The whole fan lives on the LEFT
+ * half: a sub arrow must start left of its target's left-edge entry
+ * (SUB_BRANCH_X) so it drops DOWN into the pill — a start right of the entry
+ * hooks back over the target's top (the Maple Bacon crossover, PR #111
+ * feedback). Centre −0.35 keeps starts left of the entry for pill widths up
+ * to ~2x today's widest; the fan spreads ±SPREAD/2 around it, lower subs
+ * further left so arrows nest without crossing.
+ */
+const SUB_SOCKET_CENTER = -0.35;
+const SUB_SOCKET_SPREAD = 0.2;
+
+/**
+ * Spread point `i` of `n` evenly across ±spread/2 (centred; a lone point
+ * stays at 0). Shared by the root→branch and branch→sub fans — the sub fan
+ * passes a reversed index to run right-to-left.
+ */
+const fanOffset = (i: number, n: number, spread: number): number =>
+  n > 1 ? (i / (n - 1) - 0.5) * spread : 0;
 
 export const rootNodeId = (family: string): string => `samap-${family}-root`;
 export const branchNodeId = (family: string, branchSlug: string): string =>
@@ -132,10 +152,20 @@ export interface ArrowSpec {
   /** True for branch→sub-branch arrows (rendered subordinate). */
   sub: boolean;
   /**
-   * Slide the start point along the root edge so sibling branch arrows fan out
-   * instead of stacking on one point. 0 for sub arrows and a lone branch.
+   * Slide the start point along the start edge so sibling arrows fan out
+   * instead of stacking on one point. Branch arrows fan along the root's left
+   * edge; sub arrows fan along their branch's bottom edge. 0 for a lone
+   * branch or a lone sub.
    */
   startSocketOffset: number;
+  /**
+   * Node ids (of pills rendered by FamilyMap.astro) this arrow should bow
+   * around instead of crossing — a sub arrow's earlier siblings, which sit
+   * between the branch's bottom edge and a lower sub. Root→branch arrows
+   * carry none: their chord runs the empty gutter left of every pill, where
+   * the single-bend router has nothing useful to detect.
+   */
+  avoidIds: string[];
 }
 
 /**
@@ -152,21 +182,34 @@ export function buildArrowSpecs(model: FamilyMapModel): ArrowSpec[] {
   branches.forEach((branch, i) => {
     // Spread branch starts symmetrically across the root edge: centre at 0,
     // ends at ±SOCKET_SPREAD/2. A single branch stays centred.
-    const startSocketOffset = n > 1 ? (i / (n - 1) - 0.5) * SOCKET_SPREAD : 0;
+    const startSocketOffset = fanOffset(i, n, SOCKET_SPREAD);
     specs.push({
       startId: rootNodeId(family),
       endId: branchNodeId(family, branch.slug),
       sub: false,
       startSocketOffset,
+      avoidIds: [],
     });
-    for (const sub of branch.subBranches) {
+    const k = branch.subBranches.length;
+    branch.subBranches.forEach((sub, j) => {
       specs.push({
         startId: branchNodeId(family, branch.slug),
         endId: subNodeId(family, branch.slug, sub.slug),
         sub: true,
-        startSocketOffset: 0,
+        // Fan sibling sub arrows across the left portion of the branch's
+        // bottom edge (see SUB_SOCKET_CENTER). A lone sub sits at the centre
+        // of that fan; lower subs leave further left.
+        startSocketOffset: SUB_SOCKET_CENTER + fanOffset(k - 1 - j, k, SUB_SOCKET_SPREAD),
+        // Earlier siblings sit between this arrow's start and its target —
+        // the pills it must bow around. O(k²) refs per branch, re-measured by
+        // the library each refresh — fine at today's k≤3 fan-out; a much
+        // bigger `related[]` fan would want rect caching upstream
+        // (dancj/scroll-arrows#55 territory).
+        avoidIds: branch.subBranches
+          .slice(0, j)
+          .map((prev) => subNodeId(family, branch.slug, prev.slug)),
       });
-    }
+    });
   });
 
   return specs;
