@@ -15,6 +15,7 @@ const primarySpirit = data.spirits[0];
 ---
 <li
   class="recipe-card"
+  data-title={data.title}
   data-spirits={data.spirits.join(',')}
   data-flavors={data.flavors.join(',')}
   data-method={data.method}
@@ -23,7 +24,7 @@ const primarySpirit = data.spirits[0];
   <a href={`${base}/recipes/${slug}/`} class="card h-full">
     <h2 class="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.01em] text-fg">{data.title}</h2>
     {primarySpirit && <p class="eyebrow card-spirit">{label('spirits', primarySpirit)}</p>}
-    <p class="font-serif italic text-[0.95rem] leading-[1.45] text-fg-muted flex-1">{data.blurb}</p>
+    <p class="card-blurb font-serif italic text-[0.95rem] leading-[1.45] text-fg-muted flex-1">{data.blurb}</p>
     <p class="recipe-card-meta">
       <span><Icon field="method" slug={data.method} /> {label('method', data.method)}</span>
       {data.flavors.length > 0 && (
