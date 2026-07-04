@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import type { Recipe } from './recipes';
 import {
+  buildArrowSpecs,
   buildFamilyMap,
   layoutFamilyMap,
-  shouldAnimate,
 } from './familyMap';
 
 // Minimal Recipe-shaped fixture. The family-map functions only read
@@ -188,16 +188,7 @@ describe('layoutFamilyMap', () => {
     }
   });
 
-  it('emits a connector path from the root to each branch', () => {
-    const layout = layoutFamilyMap(buildFamilyMap(recipes, 'martini', BASE));
-    for (const b of layout.branches) {
-      // cubic elbow: starts at root anchor, ends at the branch anchor
-      expect(b.connector).toMatch(/^M[\d.]+ [\d.]+ C/);
-      expect(b.connector.trim().endsWith(`${b.x} ${b.y}`)).toBe(true);
-    }
-  });
-
-  it('produces a root-only layout with no connectors for an empty family', () => {
+  it('produces a root-only layout with no branches for an empty family', () => {
     const layout = layoutFamilyMap(buildFamilyMap([], 'flip', BASE));
     expect(layout.branches).toEqual([]);
     expect(layout.root).toBeTruthy();
@@ -224,16 +215,175 @@ describe('layoutFamilyMap', () => {
   });
 });
 
-describe('shouldAnimate', () => {
-  it('is false when the user prefers reduced motion', () => {
-    expect(shouldAnimate({ prefersReducedMotion: true, hasIntersectionObserver: true })).toBe(false);
+describe('buildArrowSpecs', () => {
+  it('emits one root→branch spec per branch, in branch order', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['martini'], [], 'Manhattan'),
+      makeRecipe('classics/vesper', ['martini'], [], 'Vesper'),
+      makeRecipe('classics/gibson', ['martini'], [], 'Gibson'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'martini', BASE));
+    expect(specs).toHaveLength(3);
+    expect(specs.every((s) => s.startId === 'samap-martini-root')).toBe(true);
+    expect(specs.map((s) => s.endId)).toEqual([
+      'samap-martini-manhattan',
+      'samap-martini-vesper',
+      'samap-martini-gibson',
+    ]);
+    expect(specs.every((s) => s.sub === false)).toBe(true);
   });
 
-  it('is false when IntersectionObserver is unavailable', () => {
-    expect(shouldAnimate({ prefersReducedMotion: false, hasIntersectionObserver: false })).toBe(false);
+  it('emits a branch→sub spec after the branch, flagged sub', () => {
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], ['sazerac', 'improved'], 'Old Fashioned'),
+      makeRecipe('classics/sazerac', ['old-fashioned'], [], 'Sazerac'),
+      makeRecipe('classics/improved', ['old-fashioned'], [], 'Improved'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    // root→OF, OF→sazerac, OF→improved
+    expect(specs).toHaveLength(3);
+    expect(specs[0]).toMatchObject({
+      startId: 'samap-old-fashioned-root',
+      endId: 'samap-old-fashioned-old-fashioned',
+      sub: false,
+    });
+    expect(specs[1]).toMatchObject({
+      startId: 'samap-old-fashioned-old-fashioned',
+      endId: 'samap-old-fashioned-old-fashioned-sazerac',
+      sub: true,
+    });
+    expect(specs[2]).toMatchObject({
+      startId: 'samap-old-fashioned-old-fashioned',
+      endId: 'samap-old-fashioned-old-fashioned-improved',
+      sub: true,
+    });
   });
 
-  it('is true only when motion is allowed and IntersectionObserver exists', () => {
-    expect(shouldAnimate({ prefersReducedMotion: false, hasIntersectionObserver: true })).toBe(true);
+  it('reveals root→branch then that branch\'s subs before the next branch', () => {
+    // Branch A (Old Fashioned) has a sub (Sazerac); branch B (Maple) stands alone.
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], ['sazerac'], 'Old Fashioned'),
+      makeRecipe('classics/sazerac', ['old-fashioned'], [], 'Sazerac'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    expect(specs.map((s) => [s.startId, s.endId])).toEqual([
+      ['samap-old-fashioned-root', 'samap-old-fashioned-old-fashioned'],
+      ['samap-old-fashioned-old-fashioned', 'samap-old-fashioned-old-fashioned-sazerac'],
+      ['samap-old-fashioned-root', 'samap-old-fashioned-maple'],
+    ]);
+  });
+
+  it('fans the root→branch sockets out symmetrically around centre', () => {
+    const recipes = Array.from({ length: 4 }, (_, i) =>
+      makeRecipe(`classics/b${i}`, ['martini'], [], `B${i}`),
+    );
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'martini', BASE));
+    const offsets = specs.map((s) => s.startSocketOffset);
+    // distinct
+    expect(new Set(offsets).size).toBe(offsets.length);
+    // symmetric around 0: first = -last, and they sum to ~0
+    expect(offsets[0]).toBeCloseTo(-offsets[offsets.length - 1]);
+    expect(offsets.reduce((a, b) => a + b, 0)).toBeCloseTo(0);
+    // monotonic increasing across the fan
+    for (let i = 1; i < offsets.length; i++) {
+      expect(offsets[i]).toBeGreaterThan(offsets[i - 1]);
+    }
+  });
+
+  it('centres a single branch on the root edge (offset 0)', () => {
+    const recipes = [makeRecipe('classics/manhattan', ['martini'], [], 'Manhattan')];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'martini', BASE));
+    expect(specs).toHaveLength(1);
+    expect(specs[0].startSocketOffset).toBe(0);
+  });
+
+  it('returns no specs for an empty family', () => {
+    const specs = buildArrowSpecs(buildFamilyMap([], 'flip', BASE));
+    expect(specs).toEqual([]);
+  });
+
+  it('fans branch→sub start sockets on the LEFT of the bottom edge, lower subs further left', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple', 'oaxaca', 'perfect'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+      makeRecipe('classics/oaxaca', ['old-fashioned'], [], 'Oaxaca'),
+      makeRecipe('classics/perfect', ['old-fashioned'], [], 'Perfect'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const offsets = specs.filter((s) => s.sub).map((s) => s.startSocketOffset);
+    expect(offsets).toHaveLength(3);
+    // distinct sockets
+    expect(new Set(offsets).size).toBe(offsets.length);
+    // every start sits on the LEFT half of the branch's bottom edge, so the
+    // arrow drops DOWN into the sub's left-edge entry instead of crossing
+    // over the top of the target pill (PR #111 feedback)
+    offsets.forEach((o) => expect(o).toBeLessThan(0));
+    // strictly monotonic: each lower sub leaves further left
+    for (let i = 1; i < offsets.length; i++) {
+      expect(offsets[i]).toBeLessThan(offsets[i - 1]);
+    }
+    // scroll-arrows clamps socket offsets to ±0.5 of the edge; past that,
+    // distinct spec offsets silently render as identical corner-pinned
+    // sockets. Guard the tuning knob.
+    offsets.forEach((o) => expect(Math.abs(o)).toBeLessThanOrEqual(0.5));
+  });
+
+  it('fans a 2-sub branch (the issue #105 Manhattan shape) onto two mirrored sockets', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple', 'oaxaca'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+      makeRecipe('classics/oaxaca', ['old-fashioned'], [], 'Oaxaca'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const offsets = specs.filter((s) => s.sub).map((s) => s.startSocketOffset);
+    expect(offsets).toHaveLength(2);
+    // distinct sockets, both on the left half, lower sub further left
+    expect(offsets[0]).not.toBe(offsets[1]);
+    offsets.forEach((o) => expect(o).toBeLessThan(0));
+    expect(offsets[1]).toBeLessThan(offsets[0]);
+    offsets.forEach((o) => expect(Math.abs(o)).toBeLessThanOrEqual(0.5));
+  });
+
+  it('starts a lone sub arrow left of the bottom-edge centre, with an empty avoid list', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const sub = specs.find((s) => s.sub);
+    // Even a lone sub must start left of its target's left-edge entry so the
+    // arrow drops down into it rather than crossing over its top.
+    expect(sub?.startSocketOffset).toBeLessThan(0);
+    expect(Math.abs(sub?.startSocketOffset ?? 1)).toBeLessThanOrEqual(0.5);
+    expect(sub?.avoidIds).toEqual([]);
+  });
+
+  it('gives each sub spec exactly its earlier siblings as avoidIds, in order', () => {
+    const recipes = [
+      makeRecipe('classics/manhattan', ['old-fashioned'], ['maple', 'oaxaca', 'perfect'], 'Manhattan'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+      makeRecipe('classics/oaxaca', ['old-fashioned'], [], 'Oaxaca'),
+      makeRecipe('classics/perfect', ['old-fashioned'], [], 'Perfect'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const subs = specs.filter((s) => s.sub);
+    expect(subs.map((s) => s.avoidIds)).toEqual([
+      [],
+      ['samap-old-fashioned-manhattan-maple'],
+      ['samap-old-fashioned-manhattan-maple', 'samap-old-fashioned-manhattan-oaxaca'],
+    ]);
+  });
+
+  it('carries no avoid list on root→branch specs', () => {
+    const recipes = [
+      makeRecipe('classics/old-fashioned', ['old-fashioned'], ['sazerac'], 'Old Fashioned'),
+      makeRecipe('classics/sazerac', ['old-fashioned'], [], 'Sazerac'),
+      makeRecipe('classics/maple', ['old-fashioned'], [], 'Maple'),
+    ];
+    const specs = buildArrowSpecs(buildFamilyMap(recipes, 'old-fashioned', BASE));
+    const roots = specs.filter((s) => !s.sub);
+    expect(roots.length).toBeGreaterThan(0);
+    expect(roots.every((s) => s.avoidIds.length === 0)).toBe(true);
   });
 });

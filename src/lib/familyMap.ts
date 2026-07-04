@@ -108,19 +108,129 @@ export function buildFamilyMap(
   };
 }
 
+// --- Arrow specs ----------------------------------------------------------
+// Turn the model into the ordered arrow descriptors that drive a
+// `scrollArrowGroup` in FamilyMap.astro. Anchors are referenced by the stable
+// node ids that component renders (kept in lockstep with this scheme), so the
+// arrows attach to live boxes and scroll-arrows owns all geometry — no
+// hand-built connector paths. Pure + browser-free, same seam as buildFamilyMap.
+
+/** Fraction of the root edge the branch fan spreads across (±SPREAD/2). */
+const SOCKET_SPREAD = 0.8;
+/**
+ * Where the sub fan sits on the branch's bottom edge, as edge-length
+ * fractions (0 = centre, ±0.5 = corners). The whole fan lives on the LEFT
+ * half: a sub arrow must start left of its target's left-edge entry
+ * (SUB_BRANCH_X) so it drops DOWN into the pill — a start right of the entry
+ * hooks back over the target's top (the Maple Bacon crossover, PR #111
+ * feedback). Centre −0.35 keeps starts left of the entry for pill widths up
+ * to ~2x today's widest; the fan spreads ±SPREAD/2 around it, lower subs
+ * further left so arrows nest without crossing.
+ */
+const SUB_SOCKET_CENTER = -0.35;
+const SUB_SOCKET_SPREAD = 0.2;
+
+/**
+ * Spread point `i` of `n` evenly across ±spread/2 (centred; a lone point
+ * stays at 0). Shared by the root→branch and branch→sub fans — the sub fan
+ * passes a reversed index to run right-to-left.
+ */
+const fanOffset = (i: number, n: number, spread: number): number =>
+  n > 1 ? (i / (n - 1) - 0.5) * spread : 0;
+
+export const rootNodeId = (family: string): string => `samap-${family}-root`;
+export const branchNodeId = (family: string, branchSlug: string): string =>
+  `samap-${family}-${branchSlug}`;
+export const subNodeId = (family: string, branchSlug: string, subSlug: string): string =>
+  `samap-${family}-${branchSlug}-${subSlug}`;
+
+export interface ArrowSpec {
+  /** Stable id of the node the arrow leaves. */
+  startId: string;
+  /** Stable id of the node the arrow points at. */
+  endId: string;
+  /** True for branch→sub-branch arrows (rendered subordinate). */
+  sub: boolean;
+  /**
+   * Slide the start point along the start edge so sibling arrows fan out
+   * instead of stacking on one point. Branch arrows fan along the root's left
+   * edge; sub arrows fan along their branch's bottom edge. 0 for a lone
+   * branch or a lone sub.
+   */
+  startSocketOffset: number;
+  /**
+   * Node ids (of pills rendered by FamilyMap.astro) this arrow should bow
+   * around instead of crossing — a sub arrow's earlier siblings, which sit
+   * between the branch's bottom edge and a lower sub. Root→branch arrows
+   * carry none: their chord runs the empty gutter left of every pill, where
+   * the single-bend router has nothing useful to detect.
+   */
+  avoidIds: string[];
+}
+
+/**
+ * Ordered arrow descriptors for one root map, in reveal order: each branch's
+ * root→branch arrow, immediately followed by that branch's branch→sub arrows,
+ * then the next branch — so the staggered group draws root-outward (mirrors the
+ * old connector flatten order).
+ */
+export function buildArrowSpecs(model: FamilyMapModel): ArrowSpec[] {
+  const { family, branches } = model;
+  const n = branches.length;
+  const specs: ArrowSpec[] = [];
+
+  branches.forEach((branch, i) => {
+    // Spread branch starts symmetrically across the root edge: centre at 0,
+    // ends at ±SOCKET_SPREAD/2. A single branch stays centred.
+    const startSocketOffset = fanOffset(i, n, SOCKET_SPREAD);
+    specs.push({
+      startId: rootNodeId(family),
+      endId: branchNodeId(family, branch.slug),
+      sub: false,
+      startSocketOffset,
+      avoidIds: [],
+    });
+    const k = branch.subBranches.length;
+    branch.subBranches.forEach((sub, j) => {
+      specs.push({
+        startId: branchNodeId(family, branch.slug),
+        endId: subNodeId(family, branch.slug, sub.slug),
+        sub: true,
+        // Fan sibling sub arrows across the left portion of the branch's
+        // bottom edge (see SUB_SOCKET_CENTER). A lone sub sits at the centre
+        // of that fan; lower subs leave further left.
+        startSocketOffset: SUB_SOCKET_CENTER + fanOffset(k - 1 - j, k, SUB_SOCKET_SPREAD),
+        // Earlier siblings sit between this arrow's start and its target —
+        // the pills it must bow around. O(k²) refs per branch, re-measured by
+        // the library each refresh — fine at today's k≤3 fan-out; a much
+        // bigger `related[]` fan would want rect caching upstream
+        // (dancj/scroll-arrows#55 territory).
+        avoidIds: branch.subBranches
+          .slice(0, j)
+          .map((prev) => subNodeId(family, branch.slug, prev.slug)),
+      });
+    });
+  });
+
+  return specs;
+}
+
 // --- Geometry -------------------------------------------------------------
-// Deterministic vertical fan: root at top-center, branches stacked down the
-// right, sub-branches offset further right off their parent. Reflows to narrow
-// viewports by viewBox scaling alone (no separate mobile coordinate set).
+// Deterministic left-aligned tree: root at the top, branches stacked below it,
+// sub-branches indented under their parent. All nodes are LEFT-anchored (the x
+// here is the node's left edge, see FamilyMap.astro), so their left edges line
+// up into a vertical "gutter" the curved arrows run through — branches enter
+// from the left without crossing the pills. Reflows to narrow viewports by
+// viewBox scaling alone (no separate mobile coordinate set).
 
 const VB_WIDTH = 600;
-const ROW_HEIGHT = 92; // vertical pitch between branch nodes (> node height → no overlap)
+const ROW_HEIGHT = 110; // vertical pitch between branch nodes — room for arrows between pills
 const TOP_PAD = 84; // root sits here — clears the tall glyph + name + tagline card
-const FIRST_BRANCH_Y = 220; // first branch sits below the root card with breathing room
-const ROOT_X = VB_WIDTH / 2;
-const BRANCH_X = VB_WIDTH * 0.62;
-const SUB_BRANCH_X = VB_WIDTH * 0.82;
-const SUB_OFFSET_Y = 46;
+const FIRST_BRANCH_Y = 230; // first branch sits below the root card with breathing room
+const ROOT_X = 60; // root left edge — the arrow gutter sits just left of this
+const BRANCH_X = 96; // branch left edge — indented from the root
+const SUB_BRANCH_X = 168; // sub-branch left edge — indented from its branch
+const SUB_OFFSET_Y = 64; // vertical drop per sub-branch — keeps the branch→sub arrow clear
 const BOTTOM_PAD = 56; // room below the lowest node for its overlay pill + arrowhead
 
 export interface PlacedNode extends MapNode {
@@ -129,9 +239,7 @@ export interface PlacedNode extends MapNode {
 }
 
 export interface PlacedBranch extends PlacedNode {
-  /** Cubic "elbow" path `d` from the root anchor to this branch. */
-  connector: string;
-  subBranches: Array<PlacedNode & { connector: string }>;
+  subBranches: PlacedNode[];
 }
 
 export interface FamilyMapLayout {
@@ -139,12 +247,6 @@ export interface FamilyMapLayout {
   rowHeight: number;
   root: { slug: string; label: string; x: number; y: number };
   branches: PlacedBranch[];
-}
-
-/** Cubic elbow from (sx,sy) to (ex,ey): drops vertically then levels in. */
-function elbow(sx: number, sy: number, ex: number, ey: number): string {
-  const my = (sy + ey) / 2;
-  return `M${sx} ${sy} C${sx} ${my} ${ex} ${my} ${ex} ${ey}`;
 }
 
 export function layoutFamilyMap(model: FamilyMapModel): FamilyMapLayout {
@@ -157,15 +259,9 @@ export function layoutFamilyMap(model: FamilyMapModel): FamilyMapLayout {
       ...branch,
       x: BRANCH_X,
       y,
-      connector: elbow(root.x, root.y, BRANCH_X, y),
       subBranches: branch.subBranches.map((sub, i) => {
         const sy = y + SUB_OFFSET_Y * (i + 1);
-        return {
-          ...sub,
-          x: SUB_BRANCH_X,
-          y: sy,
-          connector: elbow(BRANCH_X, y, SUB_BRANCH_X, sy),
-        };
+        return { ...sub, x: SUB_BRANCH_X, y: sy };
       }),
     };
     // advance past this branch and any sub-branches it stacked below
@@ -187,19 +283,4 @@ export function layoutFamilyMap(model: FamilyMapModel): FamilyMapLayout {
     root,
     branches,
   };
-}
-
-// --- Animation gate -------------------------------------------------------
-
-/**
- * Whether the draw-on-scroll animation should run. False → the map stays in its
- * fully-drawn default state (also the no-JS fallback). The DOM wiring in
- * FamilyMap.astro reads `window.matchMedia` and `'IntersectionObserver' in window`
- * and passes the booleans here.
- */
-export function shouldAnimate(opts: {
-  prefersReducedMotion: boolean;
-  hasIntersectionObserver: boolean;
-}): boolean {
-  return !opts.prefersReducedMotion && opts.hasIntersectionObserver;
 }
