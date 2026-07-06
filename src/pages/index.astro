@@ -22,7 +22,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
   description="Personal cocktail recipe collection."
   width="wide"
 >
-  <details class="filter-bar">
+  <details class="filter-bar" id="filter-panel">
     <summary>
       <span class="filter-label">Filters</span>
       <span class="filter-count" id="filter-count"></span>
@@ -76,8 +76,17 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           ))}
         </ul>
       </div>
-      <div class="filter-group filter-group-mybar">
-        <h3 class="eyebrow">My Bar</h3>
+    </div>
+    <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
+  </details>
+
+  <div class="my-bar-wrap">
+    <details class="filter-bar my-bar" id="my-bar">
+      <summary>
+        <span class="filter-label">My Bar</span>
+        <span class="filter-count" id="mybar-count"></span>
+      </summary>
+      <div class="mybar-body">
         <p class="mybar-hint">Mark the spirits you own — the selection sticks around.</p>
         <ul>
           {spirits.map((s) => (
@@ -88,13 +97,12 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
             </li>
           ))}
         </ul>
-        <button type="button" class="chip chip-makeable" data-filter="makeable" data-value="1">
-          What can I make?
-        </button>
       </div>
-    </div>
-    <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
-  </details>
+    </details>
+    <button type="button" class="chip chip-makeable" data-filter="makeable" data-value="1">
+      What can I make?
+    </button>
+  </div>
 
   <div class="grid-toolbar">
     <label class="eyebrow sort-label" for="sort-select">Sort by</label>
@@ -138,7 +146,9 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       const emptyEl = document.getElementById('empty-state');
       const emptyMyBarEl = document.getElementById('empty-state-mybar');
       const countEl = document.getElementById('filter-count');
-      const summary = document.querySelector('.filter-bar > summary');
+      const summary = document.querySelector('#filter-panel > summary');
+      const myBarEl = document.getElementById('my-bar');
+      const myBarCountEl = document.getElementById('mybar-count');
       const buttons = Array.from(
         document.querySelectorAll<HTMLButtonElement>('button[data-filter]')
       );
@@ -152,6 +162,9 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       );
 
       const FIELDS = ['spirit', 'difficulty', 'method', 'flavor', 'makeable'];
+      // The Filters panel's own axes — its count, auto-open, and Clear button
+      // ignore `makeable`, which lives in the separate My Bar bar.
+      const PANEL_FIELDS = ['spirit', 'difficulty', 'method', 'flavor'];
 
       // localStorage can throw (private mode, disabled) — degrade to
       // session-only state rather than breaking the page.
@@ -257,7 +270,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         const myBarEmpty = Boolean(filters.makeable) && owned.length === 0;
         if (emptyEl) emptyEl.hidden = visible > 0 || myBarEmpty;
         if (emptyMyBarEl) emptyMyBarEl.hidden = visible > 0 || !myBarEmpty;
-        const active = Object.keys(filters).length;
+        const active = PANEL_FIELDS.filter((k) => filters[k]).length;
         if (countEl)
           countEl.textContent = active ? `${active} active · ${visible}/${cards.length}` : '';
         for (const b of buttons) {
@@ -270,8 +283,22 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           const on = owned.includes(b.dataset.mybar ?? '');
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
+        if (myBarCountEl)
+          myBarCountEl.textContent = owned.length ? `${owned.length} owned` : '';
         if (active > 0 && summary?.parentElement instanceof HTMLDetailsElement)
           summary.parentElement.open = true;
+      }
+
+      // The empty state says "Mark spirits in My Bar" — make sure the marking
+      // UI is actually visible whenever that state is reachable: on load, on a
+      // makeable click with nothing owned, and when the last spirit is unowned.
+      function maybeRevealMyBar() {
+        if (
+          readFilters().makeable &&
+          owned.length === 0 &&
+          myBarEl instanceof HTMLDetailsElement
+        )
+          myBarEl.open = true;
       }
 
       function apply() {
@@ -288,6 +315,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           else f[key] = val;
           writeFilters(f);
           applyFilters();
+          if (key === 'makeable' && f[key]) maybeRevealMyBar();
         });
       }
       for (const btn of myBarButtons) {
@@ -297,10 +325,14 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
             owned.includes(slug) ? owned.filter((s) => s !== slug) : [...owned, slug]
           );
           applyFilters();
+          maybeRevealMyBar();
         });
       }
       clearBtn?.addEventListener('click', () => {
-        writeFilters({});
+        // Clear only the panel's axes; makeable belongs to the My Bar bar and
+        // is preserved explicitly (writeFilters deletes all FIELDS keys, so
+        // the makeable chip itself can still toggle its param off).
+        writeFilters({ makeable: readFilters().makeable ?? '' });
         applyFilters();
       });
       sortSelect?.addEventListener('change', () => {
@@ -332,6 +364,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
 
       window.addEventListener('popstate', apply);
       apply();
+      maybeRevealMyBar();
     })();
   </script>
 </BaseLayout>
@@ -440,8 +473,32 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     content: '✓';
     font-weight: 700;
   }
+  /* Standalone My Bar bar. The makeable chip renders in the header row but is
+     a sibling of the <details> (positioned via the wrapper), so it stays
+     visible/clickable while collapsed and out of the disclosure's accessible
+     name — no interactive-inside-interactive nesting. */
+  .my-bar-wrap {
+    position: relative;
+  }
+  .my-bar > summary {
+    padding-right: 11.5rem;
+  }
   .chip-makeable {
-    margin-top: 0.75rem;
+    position: absolute;
+    top: 0.55rem;
+    right: 1rem;
+  }
+  .mybar-body {
+    padding: 0.5rem 1rem 1.25rem;
+    border-top: 1px solid var(--color-rule);
+  }
+  .mybar-body ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
   }
 
   /* Toolbar: sort + view density controls above the grid */
