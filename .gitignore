@@ -15,5 +15,8 @@ dist/pagefind/
 # Icon pipeline scratch space (npm run icons)
 .icon-work/
 
+# Raw recipe material staged for /ingest (never committed; drafts land in recipes/inbox/)
+intake/
+
 # OS
 .DS_Store
