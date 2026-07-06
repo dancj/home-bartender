@@ -96,6 +96,19 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
   </details>
 
+  <div class="grid-toolbar">
+    <label class="eyebrow sort-label" for="sort-select">Sort by</label>
+    <select id="sort-select" class="sort-select">
+      <option value="title">Title A–Z</option>
+      <option value="spirit">Spirit</option>
+      <option value="difficulty">Difficulty</option>
+    </select>
+    <div class="view-toggle" role="group" aria-label="View density">
+      <button type="button" class="chip" data-view="cards" aria-pressed="true">Cards</button>
+      <button type="button" class="chip" data-view="compact" aria-pressed="false">Compact</button>
+    </div>
+  </div>
+
   <ul class="recipe-grid" id="recipe-grid">
     {recipes.map((r) => <RecipeCard recipe={r} />)}
   </ul>
@@ -109,14 +122,18 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
 
   <script>
     // Processed module (not is:inline) so the tested lib code IS the shipped
-    // code — see plan KTD3. It's a deferred module, but so was the previous
-    // end-of-body inline script; both run after the DOM is parsed.
+    // code. It's a deferred module, but so was the previous end-of-body
+    // inline script; both run after the DOM is parsed.
     import { isMakeable, parseOwnedSpirits, MY_BAR_STORAGE_KEY } from '../lib/myBar';
+    import { compareCards, parseSortMode } from '../lib/indexSort';
     import { SPIRITS } from '../taxonomy.generated';
 
+    const INDEX_VIEW_STORAGE_KEY = 'hb:index-view';
+
     (function () {
-      const grid = document.getElementById('recipe-grid');
-      if (!grid) return;
+      const gridOrNull = document.getElementById('recipe-grid');
+      if (!gridOrNull) return;
+      const grid: HTMLElement = gridOrNull;
       const cards = Array.from(grid.querySelectorAll<HTMLElement>('.recipe-card'));
       const emptyEl = document.getElementById('empty-state');
       const emptyMyBarEl = document.getElementById('empty-state-mybar');
@@ -129,28 +146,37 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         document.querySelectorAll<HTMLButtonElement>('button[data-mybar]')
       );
       const clearBtn = document.getElementById('clear-filters');
+      const sortSelect = document.getElementById('sort-select');
+      const viewButtons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('button[data-view]')
+      );
 
       const FIELDS = ['spirit', 'difficulty', 'method', 'flavor', 'makeable'];
 
       // localStorage can throw (private mode, disabled) — degrade to
-      // session-only ownership rather than breaking the page.
-      function readOwned(): string[] {
-        try {
-          return parseOwnedSpirits(localStorage.getItem(MY_BAR_STORAGE_KEY), SPIRITS);
-        } catch {
-          return owned;
-        }
-      }
+      // session-only state rather than breaking the page.
+      const storage = {
+        get(key: string): string | null {
+          try {
+            return localStorage.getItem(key);
+          } catch {
+            return null;
+          }
+        },
+        set(key: string, value: string) {
+          try {
+            localStorage.setItem(key, value);
+          } catch {
+            /* session-only fallback */
+          }
+        },
+      };
+
+      let owned: string[] = parseOwnedSpirits(storage.get(MY_BAR_STORAGE_KEY), SPIRITS);
       function writeOwned(next: string[]) {
         owned = next;
-        try {
-          localStorage.setItem(MY_BAR_STORAGE_KEY, JSON.stringify(next));
-        } catch {
-          /* session-only fallback */
-        }
+        storage.set(MY_BAR_STORAGE_KEY, JSON.stringify(next));
       }
-      let owned: string[] = [];
-      owned = readOwned();
 
       function readFilters(): Record<string, string> {
         const params = new URLSearchParams(location.search);
@@ -162,35 +188,69 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         return f;
       }
 
+      // Merge-safe: seed from the current URL and touch only filter keys, so
+      // non-filter params (?sort=) survive chip clicks and clear-filters.
       function writeFilters(filters: Record<string, string>) {
-        const params = new URLSearchParams();
+        const params = new URLSearchParams(location.search);
+        for (const key of FIELDS) params.delete(key);
         for (const [k, v] of Object.entries(filters)) if (v) params.set(k, v);
         const qs = params.toString();
         history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
       }
 
-      // data-spirits="" must read as "no spirits required", not [""] — the
-      // zero-spirit-makeable edge the lib tests enshrine.
-      function cardSpirits(card: HTMLElement): string[] {
-        return (card.dataset.spirits ?? '').split(',').filter(Boolean);
+      function readSort() {
+        return parseSortMode(new URLSearchParams(location.search).get('sort'));
       }
 
-      function cardMatches(card: HTMLElement, filters: Record<string, string>): boolean {
+      function writeSort(mode: string) {
+        const params = new URLSearchParams(location.search);
+        if (mode === 'title') params.delete('sort');
+        else params.set('sort', mode);
+        const qs = params.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+      }
+
+      // Comma-list data attribute → array. "" must read as empty, not [""] —
+      // the zero-spirit-makeable edge the lib tests enshrine.
+      function dataList(v: string | undefined): string[] {
+        return (v ?? '').split(',').filter(Boolean);
+      }
+
+      function cardMatches(
+        card: HTMLElement,
+        filters: Record<string, string>,
+        ownedSet: Set<string>
+      ): boolean {
         const ds = card.dataset;
-        if (filters.spirit && !cardSpirits(card).includes(filters.spirit)) return false;
-        if (filters.flavor && !(ds.flavors ?? '').split(',').includes(filters.flavor))
-          return false;
+        if (filters.spirit && !dataList(ds.spirits).includes(filters.spirit)) return false;
+        if (filters.flavor && !dataList(ds.flavors).includes(filters.flavor)) return false;
         if (filters.method && ds.method !== filters.method) return false;
         if (filters.difficulty && ds.difficulty !== filters.difficulty) return false;
-        if (filters.makeable && !isMakeable(cardSpirits(card), owned)) return false;
+        if (filters.makeable && !isMakeable(dataList(ds.spirits), ownedSet)) return false;
         return true;
       }
 
-      function apply() {
+      function applySort() {
+        const mode = readSort();
+        if (sortSelect instanceof HTMLSelectElement) sortSelect.value = mode;
+        const record = (c: HTMLElement) => ({
+          title: c.dataset.title ?? '',
+          primarySpirit: dataList(c.dataset.spirits)[0] ?? '',
+          difficulty: c.dataset.difficulty ?? '',
+        });
+        // appendChild moves in-place; hidden state is untouched by reordering.
+        for (const c of [...cards].sort((a, b) => compareCards(record(a), record(b), mode)))
+          grid.appendChild(c);
+      }
+
+      // Filtering never changes order — only init, ?sort= changes (select,
+      // popstate) re-run applySort.
+      function applyFilters() {
         const filters = readFilters();
+        const ownedSet = new Set(owned);
         let visible = 0;
         for (const c of cards) {
-          const show = cardMatches(c, filters);
+          const show = cardMatches(c, filters, ownedSet);
           c.hidden = !show;
           if (show) visible++;
         }
@@ -214,6 +274,11 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           summary.parentElement.open = true;
       }
 
+      function apply() {
+        applySort();
+        applyFilters();
+      }
+
       for (const btn of buttons) {
         btn.addEventListener('click', () => {
           const f = readFilters();
@@ -222,7 +287,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           if (f[key] === val) delete f[key];
           else f[key] = val;
           writeFilters(f);
-          apply();
+          applyFilters();
         });
       }
       for (const btn of myBarButtons) {
@@ -231,13 +296,40 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           writeOwned(
             owned.includes(slug) ? owned.filter((s) => s !== slug) : [...owned, slug]
           );
-          apply();
+          applyFilters();
         });
       }
       clearBtn?.addEventListener('click', () => {
         writeFilters({});
-        apply();
+        applyFilters();
       });
+      sortSelect?.addEventListener('change', () => {
+        if (sortSelect instanceof HTMLSelectElement) {
+          writeSort(sortSelect.value);
+          applySort();
+        }
+      });
+
+      // View density is a personal preference, not shareable state —
+      // localStorage, not URL. Degrades to session-only when storage throws.
+      function applyView(view: string) {
+        const compact = view === 'compact';
+        grid.classList.toggle('grid-compact', compact);
+        for (const b of viewButtons) {
+          const on = (b.dataset.view === 'compact') === compact;
+          b.classList.toggle('chip-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+      }
+      applyView(storage.get(INDEX_VIEW_STORAGE_KEY) === 'compact' ? 'compact' : 'cards');
+      for (const btn of viewButtons) {
+        btn.addEventListener('click', () => {
+          const view = btn.dataset.view === 'compact' ? 'compact' : 'cards';
+          applyView(view);
+          storage.set(INDEX_VIEW_STORAGE_KEY, view);
+        });
+      }
+
       window.addEventListener('popstate', apply);
       apply();
     })();
@@ -350,5 +442,55 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
   }
   .chip-makeable {
     margin-top: 0.75rem;
+  }
+
+  /* Toolbar: sort + view density controls above the grid */
+  .grid-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .sort-label {
+    margin: 0;
+  }
+  .sort-select {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-fg);
+  }
+  .view-toggle {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 0.35rem;
+  }
+
+  /* Compact density: single-column rows, blurb hidden. Card internals live in
+     RecipeCard.astro, so descendant selectors need :global(). */
+  .recipe-grid.grid-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .recipe-grid.grid-compact :global(.card) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.75rem;
+    padding: 0.55rem 1rem;
+  }
+  .recipe-grid.grid-compact :global(.card h2) {
+    font-size: 1.05rem;
+  }
+  .recipe-grid.grid-compact :global(.card-blurb) {
+    display: none;
+  }
+  .recipe-grid.grid-compact :global(.recipe-card-meta) {
+    margin-top: 0;
+    margin-left: auto;
   }
 </style>
