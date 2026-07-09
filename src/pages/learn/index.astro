@@ -11,7 +11,7 @@ import SuperJuiceCalculator from '../../components/SuperJuiceCalculator.astro';
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const chapters = [
-  { id: 'kit', num: '01', title: 'The Kit', hook: 'Six tools cover every recipe.' },
+  { id: 'kit', num: '01', title: 'Tools', hook: 'Six tools cover every recipe.' },
   { id: 'call', num: '02', title: 'Stir or Shake', hook: 'The first decision every drink asks.' },
   { id: 'moves', num: '03', title: 'The Moves', hook: 'Seven techniques beyond the shaker.' },
   { id: 'juice', num: '04', title: 'Super Juice', hook: 'Citrus math, with a calculator.' },
@@ -90,7 +90,7 @@ const interludes = [
     <section class="chapter" id="kit" data-chapter="kit" aria-labelledby="kit-title">
       <header class="chapter__head rv">
         <span class="chapter__num" aria-hidden="true">01</span>
-        <h2 class="chapter__title" id="kit-title">The Kit</h2>
+        <h2 class="chapter__title" id="kit-title">Tools</h2>
         <p class="chapter__kicker">Every recipe on this site, six tools.</p>
       </header>
       <ul class="kitgrid" role="list">
@@ -260,7 +260,7 @@ const interludes = [
     </section>
 
     <footer class="outro rv">
-      <p class="outro__line">That&rsquo;s the syllabus. <a href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Back to the top ↑</a></p>
+      <p class="outro__line"><a href="#top" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Back to the top ↑</a></p>
     </footer>
   </div>
 </BaseLayout>
@@ -779,13 +779,18 @@ const interludes = [
       gap: 0.9rem;
     }
     .rail a {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 0.5rem;
       text-decoration: none;
     }
+    /* Out of flow: labels vary in width, so leaving them in the flex row would
+       shift each numeral by its own label's length. */
     .rail__label {
+      position: absolute;
+      right: calc(100% + 0.5rem);
+      white-space: nowrap;
       font-family: var(--font-sans);
       font-size: 0.75rem;
       font-weight: 600;
