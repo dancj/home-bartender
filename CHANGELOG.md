@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.7.6.1] - 2026-07-06
+
+- #125 — feat(my-bar): move My Bar into its own bar, separate from Filters (@dancj)
+- #121 — feat(index): sort control and compact list view (@dancj)
+- #120 — feat(my-bar): "What can I make" inventory filter on the index (@dancj)
+- #119 — feat(ingest): /ingest bulk recipe skill + gitignored intake/ staging folder (@dancj)
+- #112 — docs: update CHANGELOG for release 2026.7.4.1 (@app/github-actions)
+- #103 — fix(deps): update dependency astro to v7 (@app/renovate)
 ## [2026.7.4.1] - 2026-07-04
 
 - #111 — fix(roots): route arrows around sibling pills and fan sub sockets (@dancj)
