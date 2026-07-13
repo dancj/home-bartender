@@ -38,6 +38,16 @@ describe('compareCards spirit mode', () => {
       sort([card('Mystery', ''), card('Gimlet', 'gin')], 'spirit')
     ).toEqual(['Gimlet', 'Mystery']);
   });
+
+  it('breaks a two-spirit-less tie by title', () => {
+    // Both spirits empty: the `(as ? -1 : bs ? 1 : 0)` term is 0, so ordering
+    // rests entirely on the byTitle fallback. Input is deliberately out of
+    // title order so a dropped fallback would leave it unsorted.
+    expect(sort([card('Bee', ''), card('Ant', '')], 'spirit')).toEqual([
+      'Ant',
+      'Bee',
+    ]);
+  });
 });
 
 describe('compareCards difficulty mode', () => {
