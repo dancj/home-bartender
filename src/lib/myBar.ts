@@ -12,6 +12,26 @@ export function isMakeable(recipeSpirits: string[], owned: Iterable<string>): bo
 }
 
 /**
+ * True iff the user owns at least one spirit that actually has a chip on the
+ * page.
+ *
+ * Ownership is stored against the full taxonomy, but chips render only for
+ * spirits that appear in a published recipe — so `owned` can be non-empty while
+ * the My Bar reads as visually empty (own `rye`, unpublish every rye recipe).
+ * The "mark spirits in My Bar" prompts must key off what the user can *see* and
+ * act on, not off the durable set. Visibility is a render-time concern only: it
+ * must never reach parseOwnedSpirits, which still validates against the whole
+ * taxonomy so unpublishing a recipe cannot erase ownership.
+ */
+export function hasVisibleOwned(
+  owned: readonly string[],
+  shownSlugs: Iterable<string>
+): boolean {
+  const shown = shownSlugs instanceof Set ? shownSlugs : new Set(shownSlugs);
+  return owned.some((s) => shown.has(s));
+}
+
+/**
  * Safe parse of the persisted My Bar payload. Tolerates null, malformed JSON,
  * and non-arrays by returning []. Entries not in validSlugs are dropped.
  *

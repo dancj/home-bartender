@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { isMakeable, parseOwnedSpirits, MY_BAR_STORAGE_KEY } from './myBar';
+import {
+  isMakeable,
+  parseOwnedSpirits,
+  hasVisibleOwned,
+  MY_BAR_STORAGE_KEY,
+} from './myBar';
 
 describe('isMakeable', () => {
   it('is makeable when every recipe spirit is owned', () => {
@@ -55,6 +60,35 @@ describe('parseOwnedSpirits', () => {
     const roundTripped = parseOwnedSpirits('["gin","mezcal"]', valid);
     expect(roundTripped).toContain('mezcal');
     expect(parseOwnedSpirits(JSON.stringify(roundTripped), valid)).toContain('mezcal');
+  });
+});
+
+describe('hasVisibleOwned', () => {
+  it('is true when an owned spirit has a chip on the page', () => {
+    expect(hasVisibleOwned(['gin'], ['gin', 'rum'])).toBe(true);
+  });
+
+  it('is false when the only owned spirit has no chip', () => {
+    // The #118 state: `rye` is taxonomy-valid and durably owned, but every rye
+    // recipe is unpublished, so no rye chip renders. The user sees an empty
+    // My Bar and must get the "mark spirits" empty state, not "no recipes match".
+    expect(hasVisibleOwned(['rye'], ['gin', 'rum'])).toBe(false);
+  });
+
+  it('is false when nothing is owned', () => {
+    expect(hasVisibleOwned([], ['gin', 'rum'])).toBe(false);
+  });
+
+  it('is true on partial overlap — one owned spirit shown, one not', () => {
+    expect(hasVisibleOwned(['gin', 'rye'], ['gin', 'rum'])).toBe(true);
+  });
+
+  it('is false when no chips render at all', () => {
+    expect(hasVisibleOwned(['gin'], [])).toBe(false);
+  });
+
+  it('accepts a Set for the shown collection', () => {
+    expect(hasVisibleOwned(['gin'], new Set(['gin']))).toBe(true);
   });
 });
 

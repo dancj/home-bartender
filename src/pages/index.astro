@@ -132,7 +132,12 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     // Processed module (not is:inline) so the tested lib code IS the shipped
     // code. It's a deferred module, but so was the previous end-of-body
     // inline script; both run after the DOM is parsed.
-    import { isMakeable, parseOwnedSpirits, MY_BAR_STORAGE_KEY } from '../lib/myBar';
+    import {
+      isMakeable,
+      parseOwnedSpirits,
+      hasVisibleOwned,
+      MY_BAR_STORAGE_KEY,
+    } from '../lib/myBar';
     import { compareCards, parseSortMode } from '../lib/indexSort';
     import { SPIRITS } from '../taxonomy.generated';
 
@@ -190,6 +195,15 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         owned = next;
         storage.set(MY_BAR_STORAGE_KEY, JSON.stringify(next));
       }
+
+      // Chips only render for spirits with a published recipe, while ownership
+      // is stored against the whole taxonomy — so "owns nothing" and "owns
+      // nothing you can see" are different questions. Every prompt that tells
+      // the user to go mark a spirit must ask the visible one. Fixed for the
+      // page's lifetime: the chip set is server-rendered.
+      const shownSpirits = new Set(
+        myBarButtons.map((b) => b.dataset.mybar ?? '').filter(Boolean)
+      );
 
       function readFilters(): Record<string, string> {
         const params = new URLSearchParams(location.search);
@@ -266,7 +280,8 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           c.hidden = !show;
           if (show) visible++;
         }
-        const myBarEmpty = Boolean(filters.makeable) && owned.length === 0;
+        const myBarEmpty =
+          Boolean(filters.makeable) && !hasVisibleOwned(owned, shownSpirits);
         if (emptyEl) emptyEl.hidden = visible > 0 || myBarEmpty;
         if (emptyMyBarEl) emptyMyBarEl.hidden = visible > 0 || !myBarEmpty;
         const active = PANEL_FIELDS.filter((k) => filters[k]).length;
@@ -292,7 +307,11 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       // UI is actually visible whenever that state is reachable: on load, on a
       // makeable click with nothing owned, and when the last spirit is unowned.
       function maybeRevealMyBar(filters: Record<string, string> = readFilters()) {
-        if (filters.makeable && owned.length === 0 && myBarEl instanceof HTMLDetailsElement)
+        if (
+          filters.makeable &&
+          !hasVisibleOwned(owned, shownSpirits) &&
+          myBarEl instanceof HTMLDetailsElement
+        )
           myBarEl.open = true;
       }
 
@@ -326,6 +345,17 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           maybeRevealMyBar(f);
         });
       }
+
+      // `owned` is read once at init and every toggle rewrites the whole array,
+      // so without this a second open tab silently clobbers the first one's
+      // toggles. The event fires only in *other* tabs, so there is no loop.
+      // applyFilters already re-derives chip aria-pressed and the owned count
+      // from `owned`, so re-parsing and re-filtering is the whole fix.
+      window.addEventListener('storage', (e) => {
+        if (e.key !== MY_BAR_STORAGE_KEY) return; // the page also writes the view-mode key
+        owned = parseOwnedSpirits(e.newValue, SPIRITS); // newValue is null on clear → []
+        applyFilters();
+      });
       clearBtn?.addEventListener('click', () => {
         // Clear only the panel's axes; makeable belongs to the My Bar bar and
         // is preserved explicitly (writeFilters deletes all FIELDS keys, so
