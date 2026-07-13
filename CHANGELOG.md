@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.7.10.1] - 2026-07-10
+
+- #131 — feat(learn): redesign Learn index as a scroll journey (@dancj)
+- #126 — docs: update CHANGELOG for release 2026.7.6.1 (@app/github-actions)
+- #123 — chore(deps): update dependency vitest to v4.1.10 (@app/renovate)
+- #122 — chore(deps): update dependency png-to-ico to v3.0.2 (@app/renovate)
+- #108 — fix(deps): update dependency scroll-arrows to ^0.7.0 (@app/renovate)
 ## [2026.7.6.1] - 2026-07-06
 
 - #125 — feat(my-bar): move My Bar into its own bar, separate from Filters (@dancj)
