@@ -50,7 +50,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   {/* Connectors are drawn by scroll-arrows on hydration (progressive enhancement);
       the relationships live in the labelled links below for the no-JS path. */}
   <div class="family-map-nodes">
-    <div id={rootNodeId(family)} class="family-map-node is-root" style={`left:${pct(layout.root.x, vbW)};top:${pct(layout.root.y, vbH)}`}>
+    <div id={rootNodeId(family)} class="family-map-node is-root" style={`--nx:${pct(layout.root.x, vbW)};--ny:${pct(layout.root.y, vbH)}`}>
       {rootHref
         ? <a href={rootHref} class="family-map-node-inner"><Icon field="root" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</a>
         : <span class="family-map-node-inner"><Icon field="root" slug={family} class="family-map-glyph" /><span class="family-map-label">{model.root.label}</span>{rootNote && <span class="family-map-tagline">{rootNote}</span>}</span>}
@@ -62,7 +62,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
          absolutely positioned against .family-map-nodes), and on mobile it gives
          the group's connector rail something to anchor to. */
       <div class="family-map-group">
-        <a id={branchNodeId(family, branch.slug)} class="family-map-node" href={branch.url} style={`left:${pct(branch.x, vbW)};top:${pct(branch.y, vbH)}`}>
+        <a id={branchNodeId(family, branch.slug)} class="family-map-node" href={branch.url} style={`--nx:${pct(branch.x, vbW)};--ny:${pct(branch.y, vbH)}`}>
           <span class="family-map-label">
             {branch.title}
             {branch.deltaFlavors.length > 0 && (
@@ -77,7 +77,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
             id={subNodeId(family, branch.slug, sub.slug)}
             class="family-map-node is-sub"
             href={sub.url}
-            style={`left:${pct(sub.x, vbW)};top:${pct(sub.y, vbH)}`}
+            style={`--nx:${pct(sub.x, vbW)};--ny:${pct(sub.y, vbH)}`}
             aria-label={`${sub.title}, related to ${branch.title}`}
           >
             <span class="family-map-label">
@@ -116,8 +116,13 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   }
   .family-map-node {
     position: absolute;
-    /* Left-anchored: the inline `left` is the node's left edge (the geometry in
-       familyMap.ts assumes this), vertically centered on its `top`. */
+    /* Left-anchored: --nx is the node's left edge (the geometry in familyMap.ts
+       assumes this), vertically centered on --ny. Carried as custom properties
+       rather than inline left/top so the mobile reflow can simply not consume
+       them — an inline `left` would outrank any stylesheet reset and leak the
+       desktop fan into the stacked layout. */
+    left: var(--nx);
+    top: var(--ny);
     transform: translate(0, -50%);
     display: block;
     text-decoration: none;
@@ -249,6 +254,9 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
     .family-map-node,
     .family-map-node.is-root {
       position: static;
+      /* Drop the desktop fan coordinates — the stack lays itself out. */
+      left: auto;
+      top: auto;
       transform: none;
       max-width: 100%;
     }
