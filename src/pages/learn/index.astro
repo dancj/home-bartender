@@ -30,14 +30,15 @@ const kit = [
 const niceToHave = ['Smoking kit', 'Microplane', 'Big ice tray', 'Muddler', 'Fine mesh strainer'];
 
 // Chapter 03 — each move borrows the closest glyph from the recipe icon set.
+// `uses` points at a recipe on this site that leans on the move.
 const moves = [
-  { icon: ['ice', 'cubed'], title: 'Dilution', body: 'Not a mistake — an ingredient. The water from melting ice opens up the flavors, especially in spirit-forward drinks. Don’t rush it.' },
-  { icon: ['sections', 'float'], title: 'The Float', body: 'Pour slowly over the back of a bar spoon so it rests as a separate layer — smoke on the nose before the balanced sip beneath.' },
-  { icon: ['sections', 'house-made'], title: 'Fat Washing', body: 'Steep butter, bacon grease, or coconut cream in a spirit, freeze, strain. The flavor stays; the texture doesn’t.' },
-  { icon: ['flavors', 'herbal'], title: 'Muddling', body: 'Press and twist — never pound. Over-muddled mint turns bitter; properly muddled mint stays bright.' },
-  { icon: ['method', 'shaken'], title: 'Dry Shaking', body: 'Egg-white drinks: shake once without ice to build the foam, then again with ice to chill.' },
-  { icon: ['flavors', 'smoky'], title: 'Flaming a Peel', body: 'Warm the peel, then squeeze its oils through a lighter’s flame — a small burst of smoky, caramelized aroma.' },
-  { icon: ['sections', 'batch'], title: 'Batching', body: 'Pre-dilute 20–25% if the batch won’t meet ice, add bubbles at the last moment, garnish each glass on its own.' },
+  { icon: ['ice', 'cubed'], title: 'Dilution', body: 'Not a mistake — an ingredient. The water from melting ice opens up the flavors, especially in spirit-forward drinks. Don’t rush it.', uses: { slug: 'manhattan', title: 'Manhattan' } },
+  { icon: ['sections', 'float'], title: 'The Float', body: 'Pour slowly over the back of a bar spoon so it rests as a separate layer — smoke on the nose before the balanced sip beneath.', uses: { slug: 'penicillin', title: 'Penicillin' } },
+  { icon: ['sections', 'house-made'], title: 'Fat Washing', body: 'Steep butter, bacon grease, or coconut cream in a spirit, freeze, strain. The flavor stays; the texture doesn’t.', uses: { slug: 'maple-bacon-old-fashioned', title: 'Maple Bacon Old Fashioned' } },
+  { icon: ['flavors', 'herbal'], title: 'Muddling', body: 'Press and twist — never pound. Over-muddled mint turns bitter; properly muddled mint stays bright.', uses: { slug: 'prosecco-mojito', title: 'Prosecco Mojito' } },
+  { icon: ['method', 'shaken'], title: 'Dry Shaking', body: 'Egg-white drinks: shake once without ice to build the foam, then again with ice to chill.', uses: { slug: 'lavender-fields', title: 'Lavender Fields' } },
+  { icon: ['flavors', 'smoky'], title: 'Flaming a Peel', body: 'Torch the peel itself until the oils catch and char, then drop it straight into the drink — smoky, caramelized citrus on the nose.', uses: { slug: 'oaxaca-old-fashioned', title: 'Oaxaca Old Fashioned' } },
+  { icon: ['sections', 'batch'], title: 'Batching', body: 'Pre-dilute 20–25% if the batch won’t meet ice, add bubbles at the last moment, garnish each glass on its own.', uses: { slug: 'paper-plane', title: 'Paper Plane' } },
 ];
 
 const interludes = [
@@ -65,12 +66,7 @@ const interludes = [
 
   <div class="journey" data-journey>
     <header class="hero">
-      <span class="eyebrow">Learn</span>
-      <h1 class="hero__title">Behind the Bar</h1>
-      <p class="hero__lede">
-        Everything we know about making drinks at home — the kit, the calls, the
-        moves, and the citrus math. Scroll through, or jump straight in.
-      </p>
+      <h1 class="hero__title">Learn</h1>
       <ol class="hero__toc" role="list">
         {chapters.map((c) => (
           <li>
@@ -214,6 +210,9 @@ const interludes = [
             <div>
               <h3 class="moves__title">{m.title}</h3>
               <p class="moves__body">{m.body}</p>
+              <p class="moves__uses">
+                <a href={`${base}/recipes/${m.uses.slug}/`}>Try it: {m.uses.title} →</a>
+              </p>
             </div>
           </li>
         ))}
@@ -661,6 +660,20 @@ const interludes = [
     font-size: 0.9875rem;
     line-height: 1.6;
     color: var(--color-fg-muted);
+  }
+  .moves__uses {
+    margin-top: 0.45rem;
+  }
+  .moves__uses a {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .moves__uses a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
   /* ── ch 04 · ratios ─────────────────────────────────────────────── */
