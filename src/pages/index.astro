@@ -349,12 +349,19 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       // `owned` is read once at init and every toggle rewrites the whole array,
       // so without this a second open tab silently clobbers the first one's
       // toggles. The event fires only in *other* tabs, so there is no loop.
-      // applyFilters already re-derives chip aria-pressed and the owned count
-      // from `owned`, so re-parsing and re-filtering is the whole fix.
+      // applyFilters re-derives chip aria-pressed and the owned count from
+      // `owned`; maybeRevealMyBar has to run alongside it for the same reason
+      // the local toggle path runs both — dropping the last visible spirit in
+      // another tab surfaces "mark spirits in My Bar" here, and that message
+      // must not point at a collapsed drawer.
       window.addEventListener('storage', (e) => {
-        if (e.key !== MY_BAR_STORAGE_KEY) return; // the page also writes the view-mode key
-        owned = parseOwnedSpirits(e.newValue, SPIRITS); // newValue is null on clear → []
-        applyFilters();
+        // key is null when another tab calls localStorage.clear(); that wipes
+        // ownership too, so it must not be filtered out with the view-mode key.
+        if (e.key !== null && e.key !== MY_BAR_STORAGE_KEY) return;
+        owned = parseOwnedSpirits(e.newValue, SPIRITS); // null newValue → []
+        const f = readFilters();
+        applyFilters(f);
+        maybeRevealMyBar(f);
       });
       clearBtn?.addEventListener('click', () => {
         // Clear only the panel's axes; makeable belongs to the My Bar bar and
