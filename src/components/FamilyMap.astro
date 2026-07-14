@@ -251,8 +251,79 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
     .family-map-node.is-root {
       margin-bottom: 0.85rem;
     }
+
+    /* Connector rails. The stack is a flat sibling list (anchors can't nest), so
+       there is no per-branch wrapper to hang a single rail off — each node draws
+       its own segment and they line up into a continuous rule:
+         ::before  the vertical, spanning the gap above down to the elbow (or
+                   through to the next node when one follows on the same rail)
+         ::after   the elbow, entering the pill from the LEFT at its vertical
+                   centre — never crossing a pill's top edge, matching the
+                   desktop arrow convention
+       A sub row sits between two branches, so it also has to carry the *branch*
+       rail past itself: that pass-through is the background gradient, since both
+       pseudo-elements are already spent on the sub's own rail. Static rules, so
+       this holds with JS off and under prefers-reduced-motion. */
+    .family-map-node:not(.is-root) {
+      position: relative;
+      padding-left: 1.1rem;
+    }
+    .family-map-node:not(.is-root)::before {
+      content: '';
+      position: absolute;
+      left: 0.35rem;
+      top: -0.5rem; /* the flex gap — meets the segment above */
+      bottom: -0.5rem;
+      border-left: 1px solid var(--color-rule-strong);
+    }
+    .family-map-node:not(.is-root)::after {
+      content: '';
+      position: absolute;
+      left: 0.35rem;
+      top: 50%;
+      width: 0.75rem;
+      border-top: 1px solid var(--color-rule-strong);
+    }
+    /* Close the taller gap under the root so the rail starts at the root card. */
+    .family-map-nodes > .family-map-node:nth-child(2)::before {
+      top: -1.35rem;
+    }
+    /* Terminate the branch rail at the last branch's elbow rather than running
+       it into whatever follows. */
+    .family-map-node:not(.is-root):not(.is-sub):not(
+        :has(~ .family-map-node:not(.is-root):not(.is-sub))
+      )::before {
+      bottom: 50%;
+    }
+
+    /* Indent with padding, not margin: the box has to keep starting at the
+       container's left edge so the branch-rail gradient below stays inside it
+       (a margin would shift the box right and the rail would clip away). */
     .family-map-node.is-sub {
-      margin-left: 1.5rem;
+      padding-left: 2.6rem; /* 1.1rem gutter + 1.5rem indent */
+      /* The branch rail passing through this row (see above), drawn at the
+         branch rail's x. */
+      background-image: linear-gradient(
+        var(--color-rule-strong),
+        var(--color-rule-strong)
+      );
+      background-size: 1px 100%;
+      background-position: 0.35rem 0;
+      background-repeat: no-repeat;
+    }
+    /* ...but only while a branch is still below to receive it. */
+    .family-map-node.is-sub:not(:has(~ .family-map-node:not(.is-root):not(.is-sub))) {
+      background-image: none;
+    }
+    /* The sub's own rail: lighter, and indented clear of the branch rail. */
+    .family-map-node.is-sub::before,
+    .family-map-node.is-sub::after {
+      left: 1.85rem; /* 0.35rem + the 1.5rem indent */
+      border-color: var(--color-rule);
+    }
+    /* Last sub of a run: stop at the elbow instead of dangling. */
+    .family-map-node.is-sub:not(:has(+ .family-map-node.is-sub))::before {
+      bottom: 50%;
     }
     .family-map-label,
     .family-map-node-inner {
