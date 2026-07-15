@@ -41,7 +41,7 @@ steps:
   - Stir slowly for 45–60 seconds — don't rush it. Dilution is everything in an old fashioned
   - Let it rest in the glass for 1 minute before straining
   - Strain into a rocks glass over a large ice cube
-  - "To flame the orange peel: hold it skin-side down over the drink, warm the back briefly with a lighter until the oils mist and ignite in a small burst. Run the peel around the rim and drop it in"
+  - "To flame the orange peel: torch the peel itself until the oils catch and the edge chars, then run it around the rim and drop it in"
 batch:
   yield: "Makes 8 servings:"
   ingredients:
