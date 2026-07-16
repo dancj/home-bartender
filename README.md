@@ -8,7 +8,7 @@ Recipes are markdown with YAML frontmatter (see [`TEMPLATE.md`](TEMPLATE.md)). T
 
 ## Submitting a recipe via GitHub
 
-Open a new issue with the **Submit a recipe** template (or email it to the repo). The `.github/workflows/recipe-from-issue.yml` workflow parses the form, writes a `publish: false` draft to `recipes/inbox/`, and opens a PR against `staging` — the PR *is* the review. A reviewer fills in the enum frontmatter (`blurb`, `glass`, `method`, `ice`, `difficulty`, `steps` — slugs per [`TEMPLATE.md`](TEMPLATE.md)) and merges to accept or closes to decline. The `recipe` label the form applies is the spam gate: non-collaborators can't apply labels, so the workflow only fires on the form's own submissions.
+Open a new issue with the **Submit a recipe** template (or email it to the repo). The `.github/workflows/recipe-from-issue.yml` workflow parses the form, writes a `publish: false` draft to `recipes/inbox/`, and opens a PR against `staging` — the PR *is* the review. The form's dropdowns (`method`, `ice`, `glass`, `difficulty`) plus a description line let a complete submission arrive release-valid; a reviewer fills any gaps (`blurb`, `glass`, `method`, `ice`, `difficulty`, `steps` — slugs per [`TEMPLATE.md`](TEMPLATE.md)) and merges to accept or closes to decline. The `recipe` label the form applies is the spam gate: non-collaborators can't apply labels, so the workflow only fires on the form's own submissions.
 
 ## Structure
 

@@ -7,7 +7,8 @@ body:
     attributes:
       value: |
         Thanks for sending a recipe! This form opens a pull request automatically.
-        A human reviews it before anything goes live.
+        A human reviews it before anything goes live. Fill in as much as you can —
+        the dropdowns are optional, and a reviewer completes anything you leave blank.
 
   - type: input
     id: name
@@ -17,6 +18,13 @@ body:
       placeholder: Paper Plane
     validations:
       required: true
+
+  - type: input
+    id: blurb
+    attributes:
+      label: Description
+      description: One line that captures the drink — this shows under the title on the site.
+      placeholder: Equal-parts modern classic — bittersweet, citrusy, dangerously easy.
 
   - type: dropdown
     id: category
@@ -44,19 +52,66 @@ body:
       required: true
 
   - type: textarea
-    id: method
+    id: steps
     attributes:
-      label: Method
-      description: How it's made. Prose or numbered steps, either is fine.
-      placeholder: Shake all ingredients with ice, double strain into a chilled coupe.
+      label: Preparation steps
+      description: How it's made. One step per line, or numbered — either is fine.
+      placeholder: |
+        Combine all ingredients in a shaker with ice.
+        Shake until chilled.
+        Double-strain into a chilled coupe.
     validations:
       required: true
 
-  - type: input
-    id: glassware
+  - type: dropdown
+    id: method
     attributes:
-      label: Glassware
-      placeholder: Coupe
+      label: Method
+      description: The core technique.
+      options:
+        - shaken
+        - stirred
+        - built
+        - blended
+
+  - type: dropdown
+    id: ice
+    attributes:
+      label: Ice
+      description: How it's served.
+      options:
+        - cubed
+        - large-cube
+        - crushed
+        - none
+
+  - type: dropdown
+    id: glass
+    attributes:
+      label: Glass
+      options:
+        - coupe
+        - nick-and-nora
+        - rocks
+        - double-rocks
+        - highball
+        - collins
+        - flute
+        - wine
+        - margarita
+        - martini
+        - mug
+        - snifter
+        - julep-tin
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty
+      options:
+        - easy
+        - medium
+        - advanced
 
   - type: input
     id: garnish

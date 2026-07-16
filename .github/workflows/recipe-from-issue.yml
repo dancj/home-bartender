@@ -98,26 +98,60 @@ jobs:
 
             const yamlStr = (s) => JSON.stringify(String(s)); // safe quoting
 
-            const ingredients = (f['Ingredients'] || '')
+            // Strip a leading list marker: "1. ", "2) ", "- ", "* ". The \s+ after
+            // the number is load-bearing — without it, "0.75 oz" reads as marker
+            // "0." + "75 oz". Real markers always have a space; decimals don't.
+            const lines = (label) => (f[label] || '')
               .split('\n')
-              .map((l) => l.replace(/^[-*]\s*/, '').trim())
+              .map((l) => l.replace(/^\s*(?:\d+[.)]\s+|[-*]\s+)/, '').trim())
               .filter(Boolean);
+            const ingredients = lines('Ingredients');
+            const steps = lines('Preparation steps');
+
+            // Enum dropdowns from the form. Blank when the submitter skipped them;
+            // the reviewer fills the gaps. Values are already the taxonomy slugs
+            // because the form's dropdown options ARE the slugs — but they can
+            // drift from data/taxonomy.yaml (no codegen link), so astro check at
+            // release-build time is the real enforcement, not this workflow.
+            const METHODS = ['shaken', 'stirred', 'built', 'blended'];
+            const ICES = ['cubed', 'large-cube', 'crushed', 'none'];
+            const DIFFICULTIES = ['easy', 'medium', 'advanced'];
+            const GLASSES = ['coupe', 'nick-and-nora', 'rocks', 'double-rocks', 'highball', 'collins', 'flute', 'wine', 'margarita', 'martini', 'mug', 'snifter', 'julep-tin'];
+            const pick = (label, allowed) => {
+              const v = (f[label] || '').trim();
+              return allowed.includes(v) ? v : '';
+            };
+            const method = pick('Method', METHODS);
+            const ice = pick('Ice', ICES);
+            const difficulty = pick('Difficulty', DIFFICULTIES);
+            const glass = pick('Glass', GLASSES);
+            const blurb = (f['Description'] || '').trim();
 
             // ---------------------------------------------------------------
-            // FRONTMATTER — intentionally partial. This is a publish:false
-            // inbox draft, so validate.mjs skips the Zod/enum checks. The
-            // reviewer fills blurb/glass/method/ice/difficulty/steps (enum
-            // slugs — see TEMPLATE.md) before the draft is promoted; astro
-            // check enforces them at release-build time, not here.
+            // FRONTMATTER — as complete as the form allows. When the submitter
+            // fills blurb + method + ice + glass + difficulty, this draft is
+            // release-build-valid on arrival (title/category/blurb + those four
+            // enums are the only Zod-required fields; ingredients/steps default
+            // to []). Anything left blank is a reviewer gap — validate.mjs skips
+            // Zod for publish:false, so a partial draft still opens its PR.
             // ---------------------------------------------------------------
             const fm = [];
             fm.push('---');
             fm.push(`title: ${yamlStr(name)}`);
+            if (blurb) fm.push(`blurb: ${yamlStr(blurb)}`);
             fm.push(`category: ${category}`);
             fm.push('publish: false');
-            if (f['Garnish']) fm.push(`garnish: ${yamlStr(f['Garnish'])}`);
+            if (glass) fm.push(`glass: ${glass}`);
+            if (method) fm.push(`method: ${method}`);
+            if (ice) fm.push(`ice: ${ice}`);
+            if (difficulty) fm.push(`difficulty: ${difficulty}`);
             fm.push('ingredients:');
             for (const i of ingredients) fm.push(`  - ${yamlStr(i)}`);
+            if (steps.length) {
+              fm.push('steps:');
+              for (const s of steps) fm.push(`  - ${yamlStr(s)}`);
+            }
+            if (f['Garnish']) fm.push(`garnish: ${yamlStr(f['Garnish'])}`);
             if (f['Original creator'] || f['Source URL']) {
               fm.push('attribution:');
               if (f['Original creator']) fm.push(`  creator: ${yamlStr(f['Original creator'])}`);
@@ -129,21 +163,25 @@ jobs:
             fm.push('');
             // ---------------------------------------------------------------
 
+            // Reviewer checklist names only what's actually missing.
+            const missing = [];
+            if (!blurb) missing.push('blurb');
+            if (!glass) missing.push('glass');
+            if (!method) missing.push('method');
+            if (!ice) missing.push('ice');
+            if (!difficulty) missing.push('difficulty');
+            if (!steps.length) missing.push('steps');
+
             const md = [];
             md.push(`# ${name}`);
             md.push('');
-            md.push('<!-- Reviewer: complete the frontmatter (blurb, glass, method, ice,');
-            md.push('     difficulty, steps) using TEMPLATE.md before promoting. -->');
-            if (suggestedCategory || f['Glassware']) {
-              md.push('');
-              md.push('> **Submitter hints**');
-              if (suggestedCategory) md.push(`> Suggested category: ${suggestedCategory}`);
-              if (f['Glassware']) md.push(`> Glassware: ${f['Glassware']}`);
+            if (missing.length) {
+              md.push(`<!-- Reviewer: fill these before promoting (see TEMPLATE.md): ${missing.join(', ')}. -->`);
             }
-            md.push('');
-            md.push('## Method');
-            md.push('');
-            md.push(f['Method'] || '');
+            if (suggestedCategory) {
+              md.push('');
+              md.push(`> Submitter suggested category: **${suggestedCategory}**`);
+            }
             if (f['Notes']) {
               md.push('');
               md.push('## Notes');
