@@ -1,0 +1,92 @@
+name: Submit a recipe
+description: Propose a cocktail recipe for the collection. It'll open a PR for review.
+title: "[Recipe]: "
+labels: ["recipe"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sending a recipe! This form opens a pull request automatically.
+        A human reviews it before anything goes live.
+
+  - type: input
+    id: name
+    attributes:
+      label: Recipe name
+      description: The name of the drink, as it should appear on the site.
+      placeholder: Paper Plane
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Suggested category
+      description: Where this belongs once published. It's a hint — the draft lands in the review inbox first.
+      options:
+        - classics
+        - originals
+        - seasonal
+    validations:
+      required: true
+
+  - type: textarea
+    id: ingredients
+    attributes:
+      label: Ingredients
+      description: One per line, amount first.
+      placeholder: |
+        0.75 oz bourbon
+        0.75 oz Aperol
+        0.75 oz Amaro Nonino
+        0.75 oz lemon juice
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: Method
+      description: How it's made. Prose or numbered steps, either is fine.
+      placeholder: Shake all ingredients with ice, double strain into a chilled coupe.
+    validations:
+      required: true
+
+  - type: input
+    id: glassware
+    attributes:
+      label: Glassware
+      placeholder: Coupe
+
+  - type: input
+    id: garnish
+    attributes:
+      label: Garnish
+      placeholder: None
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Origin, variations, why you like it, what to watch out for.
+
+  - type: input
+    id: attribution_name
+    attributes:
+      label: Original creator
+      description: If this is someone else's recipe, credit them here. Leave blank for your own creation.
+      placeholder: Sam Ross
+
+  - type: input
+    id: attribution_url
+    attributes:
+      label: Source URL
+      placeholder: https://example.com/the-original-post
+
+  - type: checkboxes
+    id: license
+    attributes:
+      label: Licensing
+      options:
+        - label: I agree that any prose I've written here is contributed under CC BY 4.0, and that recipe specs themselves aren't copyrightable.
+          required: true

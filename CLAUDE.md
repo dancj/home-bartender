@@ -172,6 +172,25 @@ If `gh pr create` fails with a token-permission error, still complete steps 1–
 
 Inbox recipes do not appear on the public site until they're promoted (stages 2–4 of the Recipe Pipeline section above), which happens after the PR is merged.
 
+## GitHub Issue Recipe Intake
+
+Third intake path alongside email and `/ingest`: the **Submit a recipe** issue form (`.github/ISSUE_TEMPLATE/recipe.yml`) plus the `.github/workflows/recipe-from-issue.yml` workflow. The form auto-applies the `recipe` label; the workflow fires on that label, parses the form body, writes a `publish: false` draft to `recipes/inbox/`, runs `npm run validate`, and opens a PR against `staging`. The label is the spam gate — non-collaborators can't apply labels, so only the form's own submissions trigger it. The PR is the review; a human completes it and merges (accept) or closes (decline).
+
+**The draft it writes is intentionally partial.** The workflow only knows name / category-suggestion / ingredients / method / glassware / garnish / notes / attribution from the form — it cannot infer the enum-shaped fields. So a fresh issue draft carries only `title`, `category: inbox`, `publish: false`, `ingredients[]`, optional `garnish` / `attribution`, and provenance keys (`submitted_by`, `source_issue`). The reviewer fills the rest before promotion.
+
+Why it passes CI in that state, and where it would break:
+
+- `scripts/validate.mjs` skips Zod/enum checks for `publish !== true`, so the partial inbox draft passes the workflow's validate step and the PR opens.
+- PR CI (`test.yml`) runs `npm test` only — no `astro check` — so the PR lands green.
+- The full Zod schema (`blurb`, `glass`, `method`, `ice`, `difficulty`, `steps` required) is enforced by `astro check` inside `npm run build`, which runs **only at the staging→main release build** (`deploy.yml`, on push to `main`). A draft still missing those fields breaks the release build. **So the reviewer must complete the enum frontmatter — using the slugs in `data/taxonomy.yaml` / `TEMPLATE.md` — before the draft rides a release**, then promote via `npm run promote`.
+
+Gotchas baked into the workflow (don't regress them if you edit it):
+
+- `category` is **hardcoded to `inbox`**, never the submitter's dropdown value. A file in `recipes/inbox/` with any other category fails `validate.mjs` (dir↔category coherence) and no PR opens. The submitter's suggestion is preserved as a `> Submitter hints` block in the body.
+- Attribution uses `source_url`, not `url` — that's the schema key; a stray `url` is silently dropped by Zod.
+- Glassware from the form goes into the body hint block, not frontmatter — `glass` is an enum slug the reviewer sets, not free text.
+- `ISSUE_BODY` is passed through `env:`, never inlined into a `run:` block, so a malicious issue body can't inject shell.
+
 ## Recipe Template Quick Reference
 
 See `TEMPLATE.md` for the authoritative schema. Minimal shape:
