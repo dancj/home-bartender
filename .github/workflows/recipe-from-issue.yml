@@ -27,7 +27,7 @@ jobs:
 
       - name: Parse issue into a recipe file
         id: parse
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           # NEVER inline ${{ github.event.issue.body }} into a run: block.
           # Passing through env keeps it as data, not shell source.
