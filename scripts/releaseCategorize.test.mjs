@@ -20,32 +20,28 @@ describe('categorizePr', () => {
     expect(categorizePr({ title: 'feat(recipe): add daiquiri', labels: [] })).toBe('Recipes');
   });
 
-  it('returns "Features" for label area:product alone', () => {
-    expect(categorizePr({ title: 'random text', labels: ['area:product'] })).toBe('Features');
+  it('returns "Recipes" for issue-intake title prefix "Add recipe:"', () => {
+    expect(categorizePr({ title: 'Add recipe: Elderflower Ginger Sour (Hers)', labels: [] })).toBe('Recipes');
   });
 
-  it('returns "Features" for title prefix feat:', () => {
-    expect(categorizePr({ title: 'feat: new search filter', labels: [] })).toBe('Features');
+  it('returns "Changes" for title prefix feat:', () => {
+    expect(categorizePr({ title: 'feat: new search filter', labels: [] })).toBe('Changes');
   });
 
-  it('returns "Fixes" for title prefix fix:', () => {
-    expect(categorizePr({ title: 'fix: prevent double-submit', labels: [] })).toBe('Fixes');
+  it('returns "Changes" for title prefix fix:', () => {
+    expect(categorizePr({ title: 'fix: prevent double-submit', labels: [] })).toBe('Changes');
   });
 
-  it('returns "Platform" for title prefix chore:', () => {
-    expect(categorizePr({ title: 'chore: bump deps', labels: [] })).toBe('Platform');
+  it('returns "Changes" for title prefix chore:', () => {
+    expect(categorizePr({ title: 'chore: bump deps', labels: [] })).toBe('Changes');
   });
 
-  it('returns "Platform" for title prefix docs:', () => {
-    expect(categorizePr({ title: 'docs: update README', labels: [] })).toBe('Platform');
+  it('returns "Changes" for label area:product', () => {
+    expect(categorizePr({ title: 'random text', labels: ['area:product'] })).toBe('Changes');
   });
 
-  it('returns "Platform" for title prefix script:', () => {
-    expect(categorizePr({ title: 'script: backfill aliases', labels: [] })).toBe('Platform');
-  });
-
-  it('returns "Platform" for unknown prefix', () => {
-    expect(categorizePr({ title: 'random text', labels: [] })).toBe('Platform');
+  it('returns "Changes" for unknown prefix', () => {
+    expect(categorizePr({ title: 'random text', labels: [] })).toBe('Changes');
   });
 
   it('lets label win over title prefix when both apply', () => {
@@ -53,7 +49,7 @@ describe('categorizePr', () => {
   });
 
   it('treats missing labels argument as empty', () => {
-    expect(categorizePr({ title: 'feat: new thing' })).toBe('Features');
+    expect(categorizePr({ title: 'feat: new thing' })).toBe('Changes');
   });
 });
 

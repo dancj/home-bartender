@@ -5,20 +5,18 @@
 
 import { DELIMITER_START, DELIMITER_END } from './buildReleasePrBody.mjs';
 
-const RECIPE_PREFIXES = ['feat(inbox):', 'feat(recipe):'];
-const PLATFORM_PREFIXES = ['chore:', 'docs:', 'script:'];
+// 'Add recipe:' is the title the issue-intake workflow
+// (.github/workflows/recipe-from-issue.yml) gives its PRs.
+const RECIPE_PREFIXES = ['feat(inbox):', 'feat(recipe):', 'Add recipe:'];
 const CLOSING_KEYWORD_LINE = /^\s*(?:Closes|Fixes|Resolves)\s+#(\d+)/gim;
 const CLOSING_KEYWORD_INLINE = /\b(Closes|Fixes|Resolves)\s+#\d+/gi;
 
 export function categorizePr({ title, labels = [] }) {
   if (labels.includes('area:recipe')) return 'Recipes';
-  if (labels.includes('area:product')) return 'Features';
 
   const t = title ?? '';
   if (RECIPE_PREFIXES.some(p => t.startsWith(p))) return 'Recipes';
-  if (t.startsWith('feat:')) return 'Features';
-  if (t.startsWith('fix:')) return 'Fixes';
-  return 'Platform';
+  return 'Changes';
 }
 
 export function extractClosesFromBody(body) {
