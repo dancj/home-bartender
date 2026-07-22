@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.7.22.1] - 2026-07-22
+
+- #158 — fix(release-pr): collapse sections to Recipes + Changes, catch issue-intake titles (@dancj)
+- #157 — feat: add llms.txt, recipes.json, and shareable bar URLs (@dancj)
+- #155 — Add recipe: Elderflower Ginger Sour (Hers) (@app/github-actions)
+- #154 — Add recipe: Smoky Ginger Sour (His) (@app/github-actions)
+- #146 — chore(ui): rename Home Bartender to Home Bartending (@dancj)
+- #139 — feat(intake): GitHub issue-to-PR recipe pipeline (@dancj)
+- #138 — feat(inbox): add Last Word (@dancj)
+- #137 — fix(learn): trim hero copy, link moves to recipes, relabel view toggle (@dancj)
+- #136 — fix(family-map): give the mobile stack a connector rail (@dancj)
+- #135 — fix(my-bar): visible-ownership gating, cross-tab sync, spirit-sort tie-break coverage (@dancj)
+- #134 — chore(deps): update actions/setup-node action to v7 (@app/renovate)
+- #132 — docs: update CHANGELOG for release 2026.7.10.1 (@app/github-actions)
 ## [2026.7.10.1] - 2026-07-10
 
 - #131 — feat(learn): redesign Learn index as a scroll journey (@dancj)
