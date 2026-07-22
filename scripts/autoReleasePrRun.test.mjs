@@ -124,7 +124,7 @@ describe('autoReleasePrRun', () => {
     const createCall = deps.calls.gh.find(c => c[0] === 'pr' && c[1] === 'create');
     const body = createCall[createCall.indexOf('--body') + 1];
     expect(body).toContain('## Recipes');
-    expect(body).not.toContain('## Fixes');
+    expect(body).not.toContain('## Changes');
   });
 
   it('selects newest tag numerically (not lexically) for SINCE', async () => {

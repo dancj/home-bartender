@@ -10,10 +10,10 @@ export const DELIMITER_START = '<!-- release-pr:start -->';
 export const DELIMITER_END = '<!-- release-pr:end -->';
 
 const MANAGEMENT_NOTICE = '<!-- managed by .github/workflows/auto-release-pr.yml — do not edit between markers -->';
-const SECTION_ORDER = ['Recipes', 'Features', 'Fixes', 'Platform'];
+const SECTION_ORDER = ['Recipes', 'Changes'];
 
 export function renderReleaseBody({ prs = [], closesIssues = [] } = {}) {
-  const grouped = { Recipes: [], Features: [], Fixes: [], Platform: [] };
+  const grouped = { Recipes: [], Changes: [] };
   for (const pr of prs) {
     const section = categorizePr({ title: pr.title ?? '', labels: (pr.labels ?? []).map(asLabelName) });
     grouped[section].push(pr);
