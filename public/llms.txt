@@ -1,0 +1,11 @@
+# Home Bartender
+A personal cocktail recipe collection with filtering by spirit, method, difficulty, and flavor.
+
+## Recipes
+Full recipe list: https://dancj.github.io/home-bartender/
+
+## Data
+Machine-readable recipe collection (JSON): https://dancj.github.io/home-bartender/recipes.json
+
+## License
+Recipes shared under CC BY 4.0
