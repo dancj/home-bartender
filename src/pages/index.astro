@@ -97,6 +97,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
             </li>
           ))}
         </ul>
+        <button type="button" class="chip share-bar-btn" id="share-bar">Share bar</button>
       </div>
     </details>
     <button type="button" class="chip chip-makeable" data-filter="makeable" data-value="1">
@@ -136,6 +137,8 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       isMakeable,
       parseOwnedSpirits,
       hasVisibleOwned,
+      parseBarParam,
+      buildBarShareUrl,
       MY_BAR_STORAGE_KEY,
     } from '../lib/myBar';
     import { compareCards, parseSortMode } from '../lib/indexSort';
@@ -196,6 +199,25 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         storage.set(MY_BAR_STORAGE_KEY, JSON.stringify(next));
       }
 
+      function replaceUrl(params: URLSearchParams) {
+        const qs = params.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+      }
+
+      // Shareable bar URL (issue #151): a valid ?bar= list replaces the stored
+      // bar, then the param is stripped so a stale URL can't silently revert
+      // later toggles on reload/back-forward. Runs before the first apply() so
+      // the shared bar drives the initial makeable filtering.
+      {
+        const params = new URLSearchParams(location.search);
+        const sharedBar = parseBarParam(params.get('bar'), SPIRITS);
+        if (sharedBar) {
+          writeOwned(sharedBar);
+          params.delete('bar');
+          replaceUrl(params);
+        }
+      }
+
       // Chips only render for spirits with a published recipe, while ownership
       // is stored against the whole taxonomy — so "owns nothing" and "owns
       // nothing you can see" are different questions. Every prompt that tells
@@ -221,8 +243,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         const params = new URLSearchParams(location.search);
         for (const key of FIELDS) params.delete(key);
         for (const [k, v] of Object.entries(filters)) if (v) params.set(k, v);
-        const qs = params.toString();
-        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+        replaceUrl(params);
       }
 
       function readSort() {
@@ -233,8 +254,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         const params = new URLSearchParams(location.search);
         if (mode === 'title') params.delete('sort');
         else params.set('sort', mode);
-        const qs = params.toString();
-        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+        replaceUrl(params);
       }
 
       // Comma-list data attribute → array. "" must read as empty, not [""] —
@@ -362,6 +382,18 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         const f = readFilters();
         applyFilters(f);
         maybeRevealMyBar(f);
+      });
+      const shareBtn = document.getElementById('share-bar');
+      shareBtn?.addEventListener('click', () => {
+        const flash = (text: string) => {
+          shareBtn.textContent = text;
+          setTimeout(() => (shareBtn.textContent = 'Share bar'), 1500);
+        };
+        // writeText rejects when the document is unfocused or permission is
+        // denied — don't show false success.
+        navigator.clipboard
+          .writeText(buildBarShareUrl(location.href, owned))
+          .then(() => flash('Copied'), () => flash('Copy failed'));
       });
       clearBtn?.addEventListener('click', () => {
         // Clear only the panel's axes; makeable belongs to the My Bar bar and
@@ -496,6 +528,10 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
 
   /* My Bar: persistent ownership, not a transient filter — owned chips get an
      outlined check treatment distinct from the filled accent filter chips. */
+  .share-bar-btn {
+    margin-top: 0.75rem;
+  }
+
   .mybar-hint {
     margin: -0.35rem 0 0.65rem;
     font-family: var(--font-sans);
