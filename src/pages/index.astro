@@ -97,6 +97,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
             </li>
           ))}
         </ul>
+        <button type="button" class="chip share-bar-btn" id="share-bar">Share bar</button>
       </div>
     </details>
     <button type="button" class="chip chip-makeable" data-filter="makeable" data-value="1">
@@ -136,6 +137,8 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       isMakeable,
       parseOwnedSpirits,
       hasVisibleOwned,
+      parseBarParam,
+      buildBarShareUrl,
       MY_BAR_STORAGE_KEY,
     } from '../lib/myBar';
     import { compareCards, parseSortMode } from '../lib/indexSort';
@@ -194,6 +197,19 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       function writeOwned(next: string[]) {
         owned = next;
         storage.set(MY_BAR_STORAGE_KEY, JSON.stringify(next));
+      }
+
+      // Shareable bar URL (issue #151): a valid ?bar= list replaces the stored
+      // bar, then the param is stripped so a stale URL can't silently revert
+      // later toggles on reload/back-forward. Runs before the first apply() so
+      // the shared bar drives the initial makeable filtering.
+      const sharedBar = parseBarParam(new URLSearchParams(location.search).get('bar'), SPIRITS);
+      if (sharedBar) {
+        writeOwned(sharedBar);
+        const params = new URLSearchParams(location.search);
+        params.delete('bar');
+        const qs = params.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
       }
 
       // Chips only render for spirits with a published recipe, while ownership
@@ -363,6 +379,21 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         applyFilters(f);
         maybeRevealMyBar(f);
       });
+      const shareBtn = document.getElementById('share-bar');
+      shareBtn?.addEventListener('click', () => {
+        navigator.clipboard.writeText(buildBarShareUrl(location.href, owned)).then(
+          () => {
+            shareBtn.textContent = 'Copied';
+            setTimeout(() => (shareBtn.textContent = 'Share bar'), 1500);
+          },
+          () => {
+            // Rejects when the document is unfocused or permission is denied —
+            // don't show false success.
+            shareBtn.textContent = 'Copy failed';
+            setTimeout(() => (shareBtn.textContent = 'Share bar'), 1500);
+          }
+        );
+      });
       clearBtn?.addEventListener('click', () => {
         // Clear only the panel's axes; makeable belongs to the My Bar bar and
         // is preserved explicitly (writeFilters deletes all FIELDS keys, so
@@ -496,6 +527,10 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
 
   /* My Bar: persistent ownership, not a transient filter — owned chips get an
      outlined check treatment distinct from the filled accent filter chips. */
+  .share-bar-btn {
+    margin-top: 0.75rem;
+  }
+
   .mybar-hint {
     margin: -0.35rem 0 0.65rem;
     font-family: var(--font-sans);
