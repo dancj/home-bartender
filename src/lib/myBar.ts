@@ -32,15 +32,6 @@ export function hasVisibleOwned(
 }
 
 /**
- * Safe parse of the persisted My Bar payload. Tolerates null, malformed JSON,
- * and non-arrays by returning []. Entries not in validSlugs are dropped.
- *
- * Ownership is durable user data: callers must pass the full taxonomy SPIRITS
- * list (not the published-recipe subset) so a spirit whose recipes unpublish
- * survives the read-validate-write round-trip. Only taxonomy-invalid junk is
- * ever pruned.
- */
-/**
  * Parse the shareable `?bar=` query param (issue #151): a comma-separated
  * slug list. Unknown slugs are dropped, duplicates deduped, whitespace
  * tolerated. Returns `null` — not `[]` — when the param is absent, empty, or
@@ -69,6 +60,15 @@ export function buildBarShareUrl(currentHref: string, owned: readonly string[]):
   return url.toString();
 }
 
+/**
+ * Safe parse of the persisted My Bar payload. Tolerates null, malformed JSON,
+ * and non-arrays by returning []. Entries not in validSlugs are dropped.
+ *
+ * Ownership is durable user data: callers must pass the full taxonomy SPIRITS
+ * list (not the published-recipe subset) so a spirit whose recipes unpublish
+ * survives the read-validate-write round-trip. Only taxonomy-invalid junk is
+ * ever pruned.
+ */
 export function parseOwnedSpirits(
   raw: string | null,
   validSlugs: readonly string[]

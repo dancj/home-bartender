@@ -199,17 +199,23 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         storage.set(MY_BAR_STORAGE_KEY, JSON.stringify(next));
       }
 
+      function replaceUrl(params: URLSearchParams) {
+        const qs = params.toString();
+        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+      }
+
       // Shareable bar URL (issue #151): a valid ?bar= list replaces the stored
       // bar, then the param is stripped so a stale URL can't silently revert
       // later toggles on reload/back-forward. Runs before the first apply() so
       // the shared bar drives the initial makeable filtering.
-      const sharedBar = parseBarParam(new URLSearchParams(location.search).get('bar'), SPIRITS);
-      if (sharedBar) {
-        writeOwned(sharedBar);
+      {
         const params = new URLSearchParams(location.search);
-        params.delete('bar');
-        const qs = params.toString();
-        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+        const sharedBar = parseBarParam(params.get('bar'), SPIRITS);
+        if (sharedBar) {
+          writeOwned(sharedBar);
+          params.delete('bar');
+          replaceUrl(params);
+        }
       }
 
       // Chips only render for spirits with a published recipe, while ownership
@@ -237,8 +243,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         const params = new URLSearchParams(location.search);
         for (const key of FIELDS) params.delete(key);
         for (const [k, v] of Object.entries(filters)) if (v) params.set(k, v);
-        const qs = params.toString();
-        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+        replaceUrl(params);
       }
 
       function readSort() {
@@ -249,8 +254,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         const params = new URLSearchParams(location.search);
         if (mode === 'title') params.delete('sort');
         else params.set('sort', mode);
-        const qs = params.toString();
-        history.replaceState(null, '', qs ? `?${qs}` : location.pathname);
+        replaceUrl(params);
       }
 
       // Comma-list data attribute → array. "" must read as empty, not [""] —
@@ -381,18 +385,15 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       });
       const shareBtn = document.getElementById('share-bar');
       shareBtn?.addEventListener('click', () => {
-        navigator.clipboard.writeText(buildBarShareUrl(location.href, owned)).then(
-          () => {
-            shareBtn.textContent = 'Copied';
-            setTimeout(() => (shareBtn.textContent = 'Share bar'), 1500);
-          },
-          () => {
-            // Rejects when the document is unfocused or permission is denied —
-            // don't show false success.
-            shareBtn.textContent = 'Copy failed';
-            setTimeout(() => (shareBtn.textContent = 'Share bar'), 1500);
-          }
-        );
+        const flash = (text: string) => {
+          shareBtn.textContent = text;
+          setTimeout(() => (shareBtn.textContent = 'Share bar'), 1500);
+        };
+        // writeText rejects when the document is unfocused or permission is
+        // denied — don't show false success.
+        navigator.clipboard
+          .writeText(buildBarShareUrl(location.href, owned))
+          .then(() => flash('Copied'), () => flash('Copy failed'));
       });
       clearBtn?.addEventListener('click', () => {
         // Clear only the panel's axes; makeable belongs to the My Bar bar and

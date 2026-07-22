@@ -29,8 +29,9 @@ export interface RecipeJsonOutput {
  * Maps one recipe to the recipes.json shape (issue #150). `sitePrefix` is the
  * absolute site+base URL; empty string degrades to base-relative URLs so a
  * local build without SITE_URL/GITHUB_REPOSITORY still works. The URL path
- * matches the recipe route: bare slug, trailing slash (RecipeCard.astro —
- * `recipeUrl()` takes the full id and is wrong here, see familyMap.ts).
+ * matches the recipe route: bare slug, trailing slash (RecipeCard.astro).
+ * Not reusing recipes.ts's `recipeUrl()` because that module imports
+ * astro:content, which this file must avoid for node-env testability.
  */
 export function recipeToJson(recipe: RecipeJsonInput, sitePrefix: string): RecipeJsonOutput {
   return {
