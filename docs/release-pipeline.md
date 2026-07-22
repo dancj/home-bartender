@@ -21,13 +21,7 @@ Closes #N, Closes #M, …
 ## Recipes
 - ...
 
-## Features
-- ...
-
-## Fixes
-- ...
-
-## Platform
+## Changes
 - ...
 
 <!-- managed by .github/workflows/auto-release-pr.yml — do not edit between markers -->
@@ -42,12 +36,10 @@ Labels first, title prefix second. Label wins when both are set.
 
 | Signal | Section |
 |---|---|
-| Label `area:recipe` OR title prefix `feat(inbox):` / `feat(recipe):` | Recipes |
-| Label `area:product` OR title prefix `feat:` | Features |
-| Title prefix `fix:` | Fixes |
-| Anything else (`chore:`, `docs:`, `script:`, unknown) | Platform |
+| Label `area:recipe` OR title prefix `feat(inbox):` / `feat(recipe):` / `Add recipe:` (issue-intake PRs) | Recipes |
+| Anything else | Changes |
 
-The `area:*` labels do not currently exist in the repo — categorisation falls through to the title prefix path, which is exhaustive on its own. Creating the labels (and optionally a `pull_request` labeler workflow) is forward-compatible.
+The `area:recipe` label does not currently exist in the repo — categorisation falls through to the title prefix path, which is exhaustive on its own. Creating the label (and optionally a `pull_request` labeler workflow) is forward-compatible.
 
 ### Malformed delimiters
 

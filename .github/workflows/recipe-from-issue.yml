@@ -1,0 +1,236 @@
+name: Recipe issue → PR
+
+on:
+  issues:
+    types: [opened, labeled]
+
+# The `recipe` label is applied automatically by the issue form.
+# Non-collaborators can't add labels by hand, so this doubles as the spam gate.
+jobs:
+  recipe-to-pr:
+    if: contains(github.event.issue.labels.*.name, 'recipe')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: staging
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Parse issue into a recipe file
+        id: parse
+        uses: actions/github-script@v7
+        env:
+          # NEVER inline ${{ github.event.issue.body }} into a run: block.
+          # Passing through env keeps it as data, not shell source.
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const body = process.env.ISSUE_BODY || '';
+
+            // GitHub issue forms render as:  ### Label \n\n value \n\n ### Label ...
+            // Unfilled optional fields render as the literal "_No response_".
+            function parseForm(text) {
+              const out = {};
+              const parts = text.split(/^###\s+/m).slice(1);
+              for (const part of parts) {
+                const nl = part.indexOf('\n');
+                if (nl === -1) continue;
+                const label = part.slice(0, nl).trim();
+                let value = part.slice(nl + 1).trim();
+                if (value === '_No response_') value = '';
+                out[label] = value;
+              }
+              return out;
+            }
+
+            const f = parseForm(body);
+
+            const name = (f['Recipe name'] || '').trim();
+            if (!name) {
+              core.setFailed('No recipe name found in the issue body.');
+              return;
+            }
+
+            // Every submission lands in the review inbox regardless of the
+            // submitter's suggestion. `category: inbox` is what scripts/validate.mjs
+            // requires for a file in recipes/inbox/ — writing anything else here
+            // fails the validate step below and no PR opens. The submitter's
+            // suggested category is preserved as a reviewer hint in the body.
+            const category = 'inbox';
+            const CATEGORIES = ['classics', 'originals', 'seasonal'];
+            const suggestedCategory = CATEGORIES.includes((f['Suggested category'] || '').trim())
+              ? f['Suggested category'].trim()
+              : '';
+
+            // Filename comes from user input, so sanitize hard.
+            const slug = name
+              .toLowerCase()
+              .normalize('NFKD')
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-+|-+$/g, '')
+              .slice(0, 60);
+            if (!slug) {
+              core.setFailed('Recipe name did not produce a usable filename.');
+              return;
+            }
+
+            // Force the write inside recipes/inbox/ no matter what.
+            const dir = path.resolve('recipes/inbox');
+            const file = path.resolve(dir, `${slug}.md`);
+            if (!file.startsWith(dir + path.sep)) {
+              core.setFailed('Refusing to write outside recipes/inbox/.');
+              return;
+            }
+
+            const yamlStr = (s) => JSON.stringify(String(s)); // safe quoting
+
+            // Strip a leading list marker: "1. ", "2) ", "- ", "* ". The \s+ after
+            // the number is load-bearing — without it, "0.75 oz" reads as marker
+            // "0." + "75 oz". Real markers always have a space; decimals don't.
+            const lines = (label) => (f[label] || '')
+              .split('\n')
+              .map((l) => l.replace(/^\s*(?:\d+[.)]\s+|[-*]\s+)/, '').trim())
+              .filter(Boolean);
+            const ingredients = lines('Ingredients');
+            const steps = lines('Preparation steps');
+
+            // Enum dropdowns from the form. Blank when the submitter skipped them;
+            // the reviewer fills the gaps. Values are already the taxonomy slugs
+            // because the form's dropdown options ARE the slugs — but they can
+            // drift from data/taxonomy.yaml (no codegen link), so astro check at
+            // release-build time is the real enforcement, not this workflow.
+            const METHODS = ['shaken', 'stirred', 'built', 'blended'];
+            const ICES = ['cubed', 'large-cube', 'crushed', 'none'];
+            const DIFFICULTIES = ['easy', 'medium', 'advanced'];
+            const GLASSES = ['coupe', 'nick-and-nora', 'rocks', 'double-rocks', 'highball', 'collins', 'flute', 'wine', 'margarita', 'martini', 'mug', 'snifter', 'julep-tin'];
+            const pick = (label, allowed) => {
+              const v = (f[label] || '').trim();
+              return allowed.includes(v) ? v : '';
+            };
+            const method = pick('Method', METHODS);
+            const ice = pick('Ice', ICES);
+            const difficulty = pick('Difficulty', DIFFICULTIES);
+            const glass = pick('Glass', GLASSES);
+            const blurb = (f['Description'] || '').trim();
+
+            // ---------------------------------------------------------------
+            // FRONTMATTER — as complete as the form allows. When the submitter
+            // fills blurb + method + ice + glass + difficulty, this draft is
+            // release-build-valid on arrival (title/category/blurb + those four
+            // enums are the only Zod-required fields; ingredients/steps default
+            // to []). Anything left blank is a reviewer gap — validate.mjs skips
+            // Zod for publish:false, so a partial draft still opens its PR.
+            // ---------------------------------------------------------------
+            const fm = [];
+            fm.push('---');
+            fm.push(`title: ${yamlStr(name)}`);
+            if (blurb) fm.push(`blurb: ${yamlStr(blurb)}`);
+            fm.push(`category: ${category}`);
+            fm.push('publish: false');
+            if (glass) fm.push(`glass: ${glass}`);
+            if (method) fm.push(`method: ${method}`);
+            if (ice) fm.push(`ice: ${ice}`);
+            if (difficulty) fm.push(`difficulty: ${difficulty}`);
+            fm.push('ingredients:');
+            for (const i of ingredients) fm.push(`  - ${yamlStr(i)}`);
+            if (steps.length) {
+              fm.push('steps:');
+              for (const s of steps) fm.push(`  - ${yamlStr(s)}`);
+            }
+            if (f['Garnish']) fm.push(`garnish: ${yamlStr(f['Garnish'])}`);
+            if (f['Original creator'] || f['Source URL']) {
+              fm.push('attribution:');
+              if (f['Original creator']) fm.push(`  creator: ${yamlStr(f['Original creator'])}`);
+              if (f['Source URL']) fm.push(`  source_url: ${yamlStr(f['Source URL'])}`);
+            }
+            fm.push(`submitted_by: ${yamlStr(process.env.ISSUE_AUTHOR)}`);
+            fm.push(`source_issue: ${Number(process.env.ISSUE_NUMBER)}`);
+            fm.push('---');
+            fm.push('');
+            // ---------------------------------------------------------------
+
+            // Reviewer checklist names only what's actually missing.
+            const missing = [];
+            if (!blurb) missing.push('blurb');
+            if (!glass) missing.push('glass');
+            if (!method) missing.push('method');
+            if (!ice) missing.push('ice');
+            if (!difficulty) missing.push('difficulty');
+            if (!steps.length) missing.push('steps');
+
+            const md = [];
+            md.push(`# ${name}`);
+            md.push('');
+            if (missing.length) {
+              md.push(`<!-- Reviewer: fill these before promoting (see TEMPLATE.md): ${missing.join(', ')}. -->`);
+            }
+            if (suggestedCategory) {
+              md.push('');
+              md.push(`> Submitter suggested category: **${suggestedCategory}**`);
+            }
+            if (f['Notes']) {
+              md.push('');
+              md.push('## Notes');
+              md.push('');
+              md.push(f['Notes']);
+            }
+            md.push('');
+
+            fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(file, fm.join('\n') + md.join('\n'), 'utf8');
+
+            core.setOutput('slug', slug);
+            core.setOutput('name', name);
+            core.setOutput('path', `recipes/inbox/${slug}.md`);
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Validate frontmatter
+        id: validate
+        run: npm run validate
+
+      - name: Tell the submitter it didn't validate
+        if: failure() && steps.validate.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body \
+            "Thanks! The recipe didn't pass frontmatter validation, so no PR was opened. A maintainer will take a look — see the run log for details."
+
+      - name: Open the PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: recipe/${{ steps.parse.outputs.slug }}-${{ github.event.issue.number }}
+          RECIPE_NAME: ${{ steps.parse.outputs.name }}
+          RECIPE_PATH: ${{ steps.parse.outputs.path }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$RECIPE_PATH"
+          git commit -m "Add recipe: ${RECIPE_NAME} (#${ISSUE_NUMBER})"
+          git push origin "$BRANCH"
+          gh pr create \
+            --base staging \
+            --head "$BRANCH" \
+            --title "Add recipe: ${RECIPE_NAME}" \
+            --body "$(printf 'Submitted by @%s in #%s.\n\nLands in `%s` with `publish: false`. Reviewer completes the frontmatter (blurb, glass, method, ice, difficulty, steps) per TEMPLATE.md, then merges to accept or closes to decline.\n\nCloses #%s' "$ISSUE_AUTHOR" "$ISSUE_NUMBER" "$RECIPE_PATH" "$ISSUE_NUMBER")"

@@ -3,6 +3,8 @@ import {
   isMakeable,
   parseOwnedSpirits,
   hasVisibleOwned,
+  parseBarParam,
+  buildBarShareUrl,
   MY_BAR_STORAGE_KEY,
 } from './myBar';
 
@@ -89,6 +91,72 @@ describe('hasVisibleOwned', () => {
 
   it('accepts a Set for the shown collection', () => {
     expect(hasVisibleOwned(['gin'], new Set(['gin']))).toBe(true);
+  });
+});
+
+describe('parseBarParam', () => {
+  const valid = ['gin', 'rum', 'mezcal', 'bourbon'];
+
+  it('parses a CSV of known slugs', () => {
+    expect(parseBarParam('mezcal,bourbon,gin', valid)).toEqual(['mezcal', 'bourbon', 'gin']);
+  });
+
+  it('drops unknown slugs', () => {
+    expect(parseBarParam('mezcal,vodka-of-doom', valid)).toEqual(['mezcal']);
+  });
+
+  it('dedupes repeated slugs', () => {
+    expect(parseBarParam('gin,gin,rum', valid)).toEqual(['gin', 'rum']);
+  });
+
+  it('tolerates whitespace around commas', () => {
+    expect(parseBarParam(' gin , rum ', valid)).toEqual(['gin', 'rum']);
+  });
+
+  it('returns null for an absent param (caller must not touch the stored bar)', () => {
+    expect(parseBarParam(null, valid)).toBeNull();
+  });
+
+  it('returns null for an empty string', () => {
+    expect(parseBarParam('', valid)).toBeNull();
+  });
+
+  it('returns null when every entry is invalid', () => {
+    expect(parseBarParam('vodka-of-doom, ,', valid)).toBeNull();
+  });
+});
+
+describe('buildBarShareUrl', () => {
+  it('sets the bar param as a comma-joined list', () => {
+    expect(buildBarShareUrl('https://x.test/base/', ['mezcal', 'gin'])).toBe(
+      'https://x.test/base/?bar=mezcal%2Cgin'
+    );
+  });
+
+  it('preserves existing params like sort and filters', () => {
+    const url = buildBarShareUrl('https://x.test/?sort=spirit&spirit=gin', ['rum']);
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get('sort')).toBe('spirit');
+    expect(parsed.searchParams.get('spirit')).toBe('gin');
+    expect(parsed.searchParams.get('bar')).toBe('rum');
+  });
+
+  it('replaces a stale bar param rather than appending', () => {
+    const url = buildBarShareUrl('https://x.test/?bar=gin', ['rum']);
+    expect(new URL(url).searchParams.getAll('bar')).toEqual(['rum']);
+  });
+
+  it('removes the bar param when nothing is owned', () => {
+    expect(buildBarShareUrl('https://x.test/?bar=gin&sort=spirit', [])).toBe(
+      'https://x.test/?sort=spirit'
+    );
+  });
+
+  it('round-trips through parseBarParam', () => {
+    const valid = ['gin', 'rum', 'mezcal'];
+    const owned = ['mezcal', 'gin'];
+    const url = new URL(buildBarShareUrl('https://x.test/', owned));
+    expect(parseBarParam(url.searchParams.get('bar'), valid)).toEqual(owned);
   });
 });
 

@@ -13,7 +13,7 @@ if (!section) throw new Error('Missing sections/super-juice.md');
 const { Content } = await render(section);
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
-<BaseLayout title={`${section.data.title} — Home Bartender`} description={section.data.summary}>
+<BaseLayout title={`${section.data.title} — Home Bartending`} description={section.data.summary}>
   <p class="back">
     <a href={`${base}/learn/`}>← Learn</a>
   </p>

@@ -28,9 +28,7 @@ describe('renderReleaseBody', () => {
     expect(body).toContain(MANAGEMENT_NOTICE);
     expect(body).not.toContain('## Closes');
     expect(body).not.toContain('## Recipes');
-    expect(body).not.toContain('## Features');
-    expect(body).not.toContain('## Fixes');
-    expect(body).not.toContain('## Platform');
+    expect(body).not.toContain('## Changes');
   });
 
   it('renders a single Recipes PR under a Recipes section only', () => {
@@ -40,29 +38,34 @@ describe('renderReleaseBody', () => {
     });
     expect(body).toContain('## Recipes');
     expect(body).toContain('- #5 — feat(inbox): add margarita (@dancj)');
-    expect(body).not.toContain('## Features');
-    expect(body).not.toContain('## Fixes');
-    expect(body).not.toContain('## Platform');
+    expect(body).not.toContain('## Changes');
   });
 
-  it('renders categorised PRs in fixed order: Recipes, Features, Fixes, Platform', () => {
+  it('renders categorised PRs in fixed order: Recipes, Changes', () => {
     const body = renderReleaseBody({
       prs: [
         makePr({ number: 1, title: 'fix: bug A', author: { login: 'a' } }),
         makePr({ number: 2, title: 'docs: tweak', author: { login: 'b' } }),
         makePr({ number: 3, title: 'feat: search', author: { login: 'c' } }),
         makePr({ number: 4, title: 'feat(inbox): add gin fizz', author: { login: 'd' } }),
+        makePr({ number: 6, title: 'Add recipe: Smoky Ginger Sour (His)', author: { login: 'app/github-actions' } }),
       ],
       closesIssues: [],
     });
     const recipesIdx = body.indexOf('## Recipes');
-    const featuresIdx = body.indexOf('## Features');
-    const fixesIdx = body.indexOf('## Fixes');
-    const platformIdx = body.indexOf('## Platform');
+    const changesIdx = body.indexOf('## Changes');
     expect(recipesIdx).toBeGreaterThan(-1);
-    expect(featuresIdx).toBeGreaterThan(recipesIdx);
-    expect(fixesIdx).toBeGreaterThan(featuresIdx);
-    expect(platformIdx).toBeGreaterThan(fixesIdx);
+    expect(changesIdx).toBeGreaterThan(recipesIdx);
+    expect(body).not.toContain('## Features');
+    expect(body).not.toContain('## Fixes');
+    expect(body).not.toContain('## Platform');
+    // Both recipe titles land under Recipes (before the Changes header).
+    expect(body.indexOf('#4 —')).toBeLessThan(changesIdx);
+    expect(body.indexOf('#6 —')).toBeLessThan(changesIdx);
+    // Non-recipe PRs land under Changes.
+    expect(body.indexOf('#1 —')).toBeGreaterThan(changesIdx);
+    expect(body.indexOf('#2 —')).toBeGreaterThan(changesIdx);
+    expect(body.indexOf('#3 —')).toBeGreaterThan(changesIdx);
   });
 
   it('emits the ## Closes line when closesIssues is non-empty', () => {
@@ -137,8 +140,8 @@ describe('injectIntoBody', () => {
     const result = injectIntoBody(existing, block2);
     expect(result.startsWith('Pre-prose')).toBe(true);
     expect(result.endsWith('Post-prose')).toBe(true);
-    expect(result).toContain('## Fixes');
-    expect(result).not.toContain('## Features');
+    expect(result).toContain('## Changes');
+    expect(result).not.toContain('feat: x');
     expect(occurrences(result, DELIMITER_START)).toBe(1);
     expect(occurrences(result, DELIMITER_END)).toBe(1);
   });

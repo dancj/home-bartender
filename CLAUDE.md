@@ -172,6 +172,26 @@ If `gh pr create` fails with a token-permission error, still complete steps 1–
 
 Inbox recipes do not appear on the public site until they're promoted (stages 2–4 of the Recipe Pipeline section above), which happens after the PR is merged.
 
+## GitHub Issue Recipe Intake
+
+Third intake path alongside email and `/ingest`: the **Submit a recipe** issue form (`.github/ISSUE_TEMPLATE/recipe.yml`) plus the `.github/workflows/recipe-from-issue.yml` workflow. The form auto-applies the `recipe` label; the workflow fires on that label, parses the form body, writes a `publish: false` draft to `recipes/inbox/`, runs `npm run validate`, and opens a PR against `staging`. The label is the spam gate — non-collaborators can't apply labels, so only the form's own submissions trigger it. The PR is the review; a human completes it and merges (accept) or closes (decline).
+
+**How complete the draft is depends on how much the submitter filled in.** The form collects `blurb`, `method` / `ice` / `glass` / `difficulty` (as dropdowns whose options ARE the taxonomy slugs), `ingredients`, `steps`, `garnish`, `notes`, and `attribution`. When those are all provided, the workflow writes a draft that is **release-build-valid on arrival** — `title`, `blurb`, `category`, and the four enums are the only Zod-required fields (`ingredients` / `steps` default to `[]`). When the submitter skips the optional dropdowns, the draft is partial and the workflow writes a `<!-- Reviewer: fill these before promoting: … -->` comment listing exactly what's missing.
+
+Why a partial draft still opens its PR, and where it would break:
+
+- `scripts/validate.mjs` skips Zod/enum checks for `publish !== true`, so a partial inbox draft passes the workflow's validate step and the PR opens.
+- PR CI (`test.yml`) runs `npm test` only — no `astro check` — so the PR lands green either way.
+- The full Zod schema is enforced by `astro check` inside `npm run build`, which runs **only at the staging→main release build** (`deploy.yml`, on push to `main`). A draft still missing `blurb` / `glass` / `method` / `ice` / `difficulty` breaks the release build. **So the reviewer must complete those (slugs per `data/taxonomy.yaml` / `TEMPLATE.md`) before the draft rides a release**, then promote via `npm run promote`.
+
+Gotchas baked into the workflow (don't regress them if you edit it):
+
+- `category` is **hardcoded to `inbox`**, never the submitter's dropdown value. A file in `recipes/inbox/` with any other category fails `validate.mjs` (dir↔category coherence) and no PR opens. The submitter's suggestion is preserved as a `> Submitter suggested category` line in the body.
+- The enum dropdown options are **hardcoded in both `recipe.yml` and the workflow's `METHODS` / `ICES` / `DIFFICULTIES` / `GLASSES` arrays** — there's no codegen link to `data/taxonomy.yaml`. If you add a taxonomy value, update those lists too. `astro check` at release time is the real backstop, and the workflow filters any dropdown value not in its allow-list rather than writing a bad slug.
+- The list-marker stripper (`ingredients` / `steps`) requires a space after `1.` / `2)` — without it, `0.75 oz` parses as marker `0.` + `75 oz`.
+- Attribution uses `source_url`, not `url` — that's the schema key; a stray `url` is silently dropped by Zod.
+- `ISSUE_BODY` is passed through `env:`, never inlined into a `run:` block, so a malicious issue body can't inject shell.
+
 ## Recipe Template Quick Reference
 
 See `TEMPLATE.md` for the authoritative schema. Minimal shape:

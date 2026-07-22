@@ -32,6 +32,35 @@ export function hasVisibleOwned(
 }
 
 /**
+ * Parse the shareable `?bar=` query param (issue #151): a comma-separated
+ * slug list. Unknown slugs are dropped, duplicates deduped, whitespace
+ * tolerated. Returns `null` — not `[]` — when the param is absent, empty, or
+ * all-invalid, so callers can distinguish "no shared bar" (leave the stored
+ * bar alone) from a genuine empty selection.
+ */
+export function parseBarParam(
+  raw: string | null,
+  validSlugs: readonly string[]
+): string[] | null {
+  if (!raw) return null;
+  const valid = new Set(validSlugs);
+  const slugs = [...new Set(raw.split(',').map((s) => s.trim()))].filter((s) => valid.has(s));
+  return slugs.length ? slugs : null;
+}
+
+/**
+ * Href with the `bar` param reflecting `owned` (comma-joined; removed when
+ * empty). All other params — filters, ?sort= — are preserved, mirroring the
+ * index page's merge-safe URL handling.
+ */
+export function buildBarShareUrl(currentHref: string, owned: readonly string[]): string {
+  const url = new URL(currentHref);
+  if (owned.length) url.searchParams.set('bar', owned.join(','));
+  else url.searchParams.delete('bar');
+  return url.toString();
+}
+
+/**
  * Safe parse of the persisted My Bar payload. Tolerates null, malformed JSON,
  * and non-arrays by returning []. Entries not in validSlugs are dropped.
  *
