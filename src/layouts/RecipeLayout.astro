@@ -11,6 +11,7 @@ import HouseMade from '../components/recipe/HouseMade.astro';
 import BatchInstructions from '../components/recipe/BatchInstructions.astro';
 import Icon from '../components/Icon.astro';
 import { iconUrl } from '../lib/icon-urls';
+import { buildTabList } from '../scripts/recipeTabs';
 
 interface Props {
   recipe: Recipe;
@@ -28,7 +29,7 @@ const relatedRecipes =
 
 // Markdown-rendered headings (## Notes, ## Variations) can't host the Icon
 // component — their icons ride in via ::before masks fed by these custom
-// properties on .recipe-body.
+// properties, set on the Notes panel (.recipe-body) below.
 const mdHeadingIcons = [
   ['--icon-notes', iconUrl('sections', 'notes')],
   ['--icon-variations', iconUrl('sections', 'variations')],
@@ -36,6 +37,28 @@ const mdHeadingIcons = [
   .filter(([, url]) => url)
   .map(([prop, url]) => `${prop}: url("${url}")`)
   .join('; ');
+
+// The markdown body (## Notes / ## Variations / tasting notes) is the Notes
+// tab. Capture it now — Astro.slots.render consumes the default slot, so the
+// Notes panel re-emits it via set:html rather than a second <slot />. An empty
+// body means no Notes tab.
+const notesHtml = (await Astro.slots.render('default')).trim();
+const hasNotes = notesHtml.length > 0;
+const hasBatch = !!data.batch;
+// Source tab renders for any attribution, including a lone source_url link
+// (hasAttribution only covers creator/bar/year).
+const hasSource = Boolean(hasAttribution) || Boolean(data.attribution.source_url);
+
+// Which tabs exist, in fixed order. Panels are namespaced `panel-<id>` so the
+// Notes panel id can't collide with the markdown `## Notes` heading slug.
+const tabIds = buildTabList({ hasBatch, hasNotes, hasSource });
+const tabLabels: Record<string, string> = {
+  recipe: 'Recipe',
+  batching: 'Batching',
+  notes: 'Notes',
+  source: 'Source',
+};
+const isTabbed = tabIds.length > 1;
 ---
 <BaseLayout title={`${data.title} — Home Bartending`} description={data.blurb}>
   <article data-pagefind-body>
@@ -132,27 +155,63 @@ const mdHeadingIcons = [
       )}
     </header>
 
-    <div class="recipe-body" style={mdHeadingIcons || undefined}>
-      {data.ingredients.length > 0 && (
-        <Ingredients items={data.ingredients} garnish={data.garnish} float={data.float} />
-      )}
-      {data.house_made && <HouseMade {...data.house_made} />}
-      {data.steps.length > 0 && <Steps items={data.steps} />}
-      {data.batch && <BatchInstructions {...data.batch} />}
-      <slot />
-    </div>
+    {/* Pre-paint guard: hide non-default panels before the island runs so JS
+        users don't see all panels flash then collapse. Removed by the island
+        on init; absent with JS off so the no-JS stack stays intact. */}
+    {isTabbed && <script is:inline>document.documentElement.classList.add('js-tabs');</script>}
 
-    {hasAttribution && (
-      <aside class="attribution" data-pagefind-ignore>
-        <h2 class="aside-title">Attribution</h2>
-        <p>
-          {data.attribution.creator && <>Created by <strong>{data.attribution.creator}</strong></>}
-          {data.attribution.bar && <> at <strong>{data.attribution.bar}</strong></>}
-          {data.attribution.year && <> in {data.attribution.year}</>}.
-          {data.attribution.source_url && <> <a href={data.attribution.source_url} rel="noopener">Source</a></>}
-        </p>
-      </aside>
-    )}
+    <div class="recipe-tabs" data-recipe-tabs>
+      {isTabbed && (
+        <nav class="recipe-tablist" aria-label="Recipe sections">
+          {tabIds.map((id) => (
+            <a class="recipe-tab" href={`#panel-${id}`} id={`tab-${id}`} data-tab-link={id}>
+              {tabLabels[id]}
+            </a>
+          ))}
+        </nav>
+      )}
+
+      <section class="recipe-tabpanel recipe-body" id="panel-recipe" data-tab="recipe" data-default>
+        {data.ingredients.length > 0 && (
+          <Ingredients items={data.ingredients} garnish={data.garnish} float={data.float} />
+        )}
+        {data.house_made && <HouseMade {...data.house_made} />}
+        {data.steps.length > 0 && <Steps items={data.steps} />}
+      </section>
+
+      {hasBatch && (
+        <section class="recipe-tabpanel recipe-body" id="panel-batching" data-tab="batching">
+          <BatchInstructions {...data.batch} />
+        </section>
+      )}
+
+      {hasNotes && (
+        <section
+          class="recipe-tabpanel recipe-body"
+          id="panel-notes"
+          data-tab="notes"
+          style={mdHeadingIcons || undefined}
+        >
+          <Fragment set:html={notesHtml} />
+        </section>
+      )}
+
+      {hasSource && (
+        <section class="recipe-tabpanel source-panel" id="panel-source" data-tab="source" data-pagefind-ignore>
+          <h2 class="aside-title">Attribution</h2>
+          <p>
+            {hasAttribution && (
+              <>
+                {data.attribution.creator && <>Created by <strong>{data.attribution.creator}</strong></>}
+                {data.attribution.bar && <> at <strong>{data.attribution.bar}</strong></>}
+                {data.attribution.year && <> in {data.attribution.year}</>}.
+              </>
+            )}
+            {data.attribution.source_url && <> <a href={data.attribution.source_url} rel="noopener">Source</a></>}
+          </p>
+        </section>
+      )}
+    </div>
 
     {relatedRecipes.length > 0 && (
       <aside class="related">
@@ -164,6 +223,101 @@ const mdHeadingIcons = [
     )}
   </article>
 </BaseLayout>
+
+<script>
+  import { resolveActiveTab } from '../scripts/recipeTabs';
+
+  const root = document.querySelector<HTMLElement>('[data-recipe-tabs]');
+  const tablist = root?.querySelector<HTMLElement>('.recipe-tablist');
+  const tabs = tablist
+    ? Array.from(tablist.querySelectorAll<HTMLAnchorElement>('[data-tab-link]'))
+    : [];
+  const panels = root
+    ? Array.from(root.querySelectorAll<HTMLElement>('.recipe-tabpanel'))
+    : [];
+  const ids = panels.map((p) => p.dataset.tab ?? '');
+
+  // Only wire the tab widget when there's a real choice. Single-panel recipes
+  // stay plain <section> stacks — no tab roles, no orphan tabpanel.
+  if (tablist && tabs.length > 0 && panels.length > 1) {
+    // Add the ARIA that was deliberately kept out of the static HTML, so JS-off
+    // / pre-hydration users never see a tab widget whose contract isn't met.
+    tablist.setAttribute('role', 'tablist');
+    tabs.forEach((t) => {
+      t.setAttribute('role', 'tab');
+      t.setAttribute('aria-controls', `panel-${t.dataset.tabLink}`);
+    });
+    panels.forEach((p) => {
+      p.setAttribute('role', 'tabpanel');
+      p.setAttribute('aria-labelledby', `tab-${p.dataset.tab}`);
+      p.tabIndex = 0;
+    });
+
+    // A hash may target a heading *inside* a panel (a Pagefind sub-result like
+    // #storage) rather than a panel. Map it to its owning panel via closest().
+    const panelForHeadingHash = (hash: string): string | null => {
+      const clean = hash.replace(/^#/, '');
+      if (!clean) return null;
+      const owner = document.getElementById(clean)?.closest<HTMLElement>('.recipe-tabpanel');
+      return owner?.dataset.tab ?? null;
+    };
+
+    const resolve = (hash: string): string => {
+      const heading = panelForHeadingHash(hash);
+      return heading && ids.includes(heading) ? heading : resolveActiveTab(hash, ids);
+    };
+
+    const activate = (id: string, focusPanel = false) => {
+      panels.forEach((p) => {
+        p.hidden = p.dataset.tab !== id;
+      });
+      tabs.forEach((t) => {
+        const selected = t.dataset.tabLink === id;
+        t.setAttribute('aria-selected', String(selected));
+        t.tabIndex = selected ? 0 : -1;
+      });
+      if (focusPanel) {
+        panels.find((p) => p.dataset.tab === id)?.focus();
+      }
+    };
+
+    // Hand authority from the pre-paint CSS guard to the hidden attribute in one
+    // synchronous pass, so a deep-linked non-default panel never flickers hidden.
+    document.documentElement.classList.remove('js-tabs');
+    activate(resolve(location.hash));
+
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = t.dataset.tabLink!;
+        activate(id);
+        history.replaceState(null, '', `#panel-${id}`);
+        t.focus();
+      });
+      t.addEventListener('keydown', (e) => {
+        let next = -1;
+        if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = tabs.length - 1;
+        if (next < 0) return;
+        e.preventDefault();
+        const nt = tabs[next];
+        const id = nt.dataset.tabLink!;
+        activate(id);
+        history.replaceState(null, '', `#panel-${id}`);
+        nt.focus();
+      });
+    });
+
+    // Pagefind result clicks and cross-recipe #panel-batching / #heading links
+    // change the hash without a tab click — re-resolve and move focus so the
+    // swap is announced.
+    window.addEventListener('hashchange', () => {
+      activate(resolve(location.hash), true);
+    });
+  }
+</script>
 
 <style>
   .recipe-header {
@@ -277,6 +431,56 @@ const mdHeadingIcons = [
     gap: 0.4rem;
   }
 
+  /* Tabs — the tablist wraps to a second row on narrow viewports rather than
+     scrolling, so no tab is ever hidden and the page body never h-scrolls. */
+  .recipe-tabs {
+    margin-top: 1.5rem;
+  }
+  .recipe-tablist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-rule);
+    font-family: var(--font-sans);
+  }
+  .recipe-tab {
+    padding: 0.5rem 0.85rem;
+    margin-bottom: -1px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+  }
+  .recipe-tab:hover {
+    color: var(--color-fg);
+  }
+  .recipe-tab[aria-selected='true'] {
+    color: var(--color-fg);
+    border-bottom-color: var(--color-accent);
+  }
+  .recipe-tab:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  .recipe-tabpanel:focus {
+    outline: none;
+  }
+  .recipe-tabpanel:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+  /* Pre-paint guard (see the is:inline above). The island removes .js-tabs on
+     init and takes over via [hidden], so this only governs the pre-hydration
+     frame. Absent with JS off — the full stack shows. */
+  :global(html.js-tabs) .recipe-tabpanel:not([data-default]) {
+    display: none;
+  }
+
   .recipe-body :global(h2) {
     font-family: var(--font-sans);
     font-size: 0.75rem;
@@ -358,7 +562,20 @@ const mdHeadingIcons = [
     display: none;
   }
 
-  .attribution,
+  /* Source tab — attribution prose. */
+  .source-panel {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    color: var(--color-fg-muted);
+  }
+  .source-panel p {
+    margin: 0.5rem 0 0;
+  }
+  .source-panel strong {
+    color: var(--color-fg);
+    font-weight: 600;
+  }
+
   .related {
     margin-top: 2.5rem;
     padding-top: 1.5rem;
@@ -381,13 +598,20 @@ const mdHeadingIcons = [
     margin-right: 0.5em;
     vertical-align: -1.4em;
   }
-  .attribution strong {
-    color: var(--color-fg);
-    font-weight: 600;
-  }
   /* Related uses the shared .recipe-grid (RecipeCard) — give the cards a little
      more room to breathe below the muted aside-title. */
   .related .recipe-grid {
     margin-top: 0.25rem;
+  }
+
+  /* Print: no tabs, every panel expanded to a single stacked document. */
+  @media print {
+    .recipe-tablist {
+      display: none;
+    }
+    .recipe-tabpanel,
+    .recipe-tabpanel[hidden] {
+      display: block !important;
+    }
   }
 </style>
