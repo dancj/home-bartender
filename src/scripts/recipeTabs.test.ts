@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildTabList, resolveActiveTab } from './recipeTabs';
+import { buildTabList, resolveActiveTab, nextTabIndex } from './recipeTabs';
 
 describe('buildTabList', () => {
   it('always leads with recipe and includes every present tab in fixed order', () => {
@@ -55,5 +55,29 @@ describe('resolveActiveTab', () => {
 
   it('falls back to the first tab when the target tab is absent for this recipe', () => {
     expect(resolveActiveTab('#batching', ['recipe'])).toBe('recipe');
+    // namespaced form of the same absent-target case
+    expect(resolveActiveTab('#panel-batching', ['recipe'])).toBe('recipe');
+  });
+});
+
+describe('nextTabIndex', () => {
+  it('moves right and wraps past the last tab', () => {
+    expect(nextTabIndex('ArrowRight', 0, 3)).toBe(1);
+    expect(nextTabIndex('ArrowRight', 2, 3)).toBe(0);
+  });
+
+  it('moves left and wraps past the first tab', () => {
+    expect(nextTabIndex('ArrowLeft', 2, 3)).toBe(1);
+    expect(nextTabIndex('ArrowLeft', 0, 3)).toBe(2);
+  });
+
+  it('jumps to the ends with Home/End', () => {
+    expect(nextTabIndex('Home', 2, 3)).toBe(0);
+    expect(nextTabIndex('End', 0, 3)).toBe(2);
+  });
+
+  it('returns -1 for an unhandled key', () => {
+    expect(nextTabIndex('Enter', 1, 3)).toBe(-1);
+    expect(nextTabIndex('Tab', 1, 3)).toBe(-1);
   });
 });

@@ -11,7 +11,7 @@ import HouseMade from '../components/recipe/HouseMade.astro';
 import BatchInstructions from '../components/recipe/BatchInstructions.astro';
 import Icon from '../components/Icon.astro';
 import { iconUrl } from '../lib/icon-urls';
-import { buildTabList } from '../scripts/recipeTabs';
+import { buildTabList, type TabId } from '../scripts/recipeTabs';
 
 interface Props {
   recipe: Recipe;
@@ -19,8 +19,12 @@ interface Props {
 const { recipe } = Astro.props;
 const { data } = recipe;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const hasAttribution =
-  data.attribution.creator || data.attribution.bar || data.attribution.year;
+// Trim so whitespace-only fields don't render a phantom Source tab / dead link.
+const creator = data.attribution.creator.trim();
+const bar = data.attribution.bar.trim();
+const year = data.attribution.year.trim();
+const sourceUrl = data.attribution.source_url.trim();
+const hasAttribution = creator || bar || year;
 
 // Resolve related[] slugs to full recipes so cards render real titles instead
 // of de-slugged text. Order follows the related[] list (see resolveRelated).
@@ -43,16 +47,23 @@ const mdHeadingIcons = [
 // Notes panel re-emits it via set:html rather than a second <slot />. An empty
 // body means no Notes tab.
 const notesHtml = (await Astro.slots.render('default')).trim();
-const hasNotes = notesHtml.length > 0;
+// Measure visible text, not raw length: a body that renders to only a comment,
+// an <hr>, or &nbsp; is empty in practice and must not spawn an empty Notes tab.
+const hasNotes =
+  notesHtml
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, '')
+    .trim().length > 0;
 const hasBatch = !!data.batch;
 // Source tab renders for any attribution, including a lone source_url link
 // (hasAttribution only covers creator/bar/year).
-const hasSource = Boolean(hasAttribution) || Boolean(data.attribution.source_url);
+const hasSource = Boolean(hasAttribution) || Boolean(sourceUrl);
 
 // Which tabs exist, in fixed order. Panels are namespaced `panel-<id>` so the
 // Notes panel id can't collide with the markdown `## Notes` heading slug.
 const tabIds = buildTabList({ hasBatch, hasNotes, hasSource });
-const tabLabels: Record<string, string> = {
+const tabLabels: Record<TabId, string> = {
   recipe: 'Recipe',
   batching: 'Batching',
   notes: 'Notes',
@@ -202,12 +213,12 @@ const isTabbed = tabIds.length > 1;
           <p>
             {hasAttribution && (
               <>
-                {data.attribution.creator && <>Created by <strong>{data.attribution.creator}</strong></>}
-                {data.attribution.bar && <> at <strong>{data.attribution.bar}</strong></>}
-                {data.attribution.year && <> in {data.attribution.year}</>}.
+                {creator && <>Created by <strong>{creator}</strong></>}
+                {bar && <> at <strong>{bar}</strong></>}
+                {year && <> in {year}</>}.
               </>
             )}
-            {data.attribution.source_url && <> <a href={data.attribution.source_url} rel="noopener">Source</a></>}
+            {sourceUrl && <> <a href={sourceUrl} rel="noopener">Source</a></>}
           </p>
         </section>
       )}
@@ -225,7 +236,7 @@ const isTabbed = tabIds.length > 1;
 </BaseLayout>
 
 <script>
-  import { resolveActiveTab } from '../scripts/recipeTabs';
+  import { resolveActiveTab, nextTabIndex } from '../scripts/recipeTabs';
 
   const root = document.querySelector<HTMLElement>('[data-recipe-tabs]');
   const tablist = root?.querySelector<HTMLElement>('.recipe-tablist');
@@ -254,17 +265,17 @@ const isTabbed = tabIds.length > 1;
     });
 
     // A hash may target a heading *inside* a panel (a Pagefind sub-result like
-    // #storage) rather than a panel. Map it to its owning panel via closest().
-    const panelForHeadingHash = (hash: string): string | null => {
+    // #storage) rather than a panel. Map it to its owning panel via closest(),
+    // and keep the heading element so we can scroll to it once the panel shows.
+    const resolveTarget = (hash: string): { id: string; heading: HTMLElement | null } => {
       const clean = hash.replace(/^#/, '');
-      if (!clean) return null;
-      const owner = document.getElementById(clean)?.closest<HTMLElement>('.recipe-tabpanel');
-      return owner?.dataset.tab ?? null;
-    };
-
-    const resolve = (hash: string): string => {
-      const heading = panelForHeadingHash(hash);
-      return heading && ids.includes(heading) ? heading : resolveActiveTab(hash, ids);
+      const el = clean ? document.getElementById(clean) : null;
+      const owner = el?.closest<HTMLElement>('.recipe-tabpanel');
+      if (owner && owner.dataset.tab && ids.includes(owner.dataset.tab)) {
+        // el is the panel itself for a #panel-<id> hash; only a sub-heading scrolls.
+        return { id: owner.dataset.tab, heading: el === owner ? null : el };
+      }
+      return { id: resolveActiveTab(hash, ids), heading: null };
     };
 
     const activate = (id: string, focusPanel = false) => {
@@ -281,32 +292,38 @@ const isTabbed = tabIds.length > 1;
       }
     };
 
+    // Show the panel a hash targets, then bring its sub-heading into view — the
+    // panel was display:none at parse, so the browser's native fragment scroll
+    // no-oped and must be replayed once the panel is visible.
+    const activateFromHash = (hash: string, focusPanel: boolean) => {
+      const { id, heading } = resolveTarget(hash);
+      activate(id, focusPanel && !heading);
+      heading?.scrollIntoView();
+    };
+
     // Hand authority from the pre-paint CSS guard to the hidden attribute in one
     // synchronous pass, so a deep-linked non-default panel never flickers hidden.
     document.documentElement.classList.remove('js-tabs');
-    activate(resolve(location.hash));
+    activateFromHash(location.hash, false);
+
+    // Select a tab: show its panel, sync the URL, and move focus to it.
+    const selectTab = (t: HTMLAnchorElement) => {
+      const id = t.dataset.tabLink!;
+      activate(id);
+      history.replaceState(null, '', `#panel-${id}`);
+      t.focus();
+    };
 
     tabs.forEach((t, i) => {
       t.addEventListener('click', (e) => {
         e.preventDefault();
-        const id = t.dataset.tabLink!;
-        activate(id);
-        history.replaceState(null, '', `#panel-${id}`);
-        t.focus();
+        selectTab(t);
       });
       t.addEventListener('keydown', (e) => {
-        let next = -1;
-        if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
-        else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
-        else if (e.key === 'Home') next = 0;
-        else if (e.key === 'End') next = tabs.length - 1;
+        const next = nextTabIndex(e.key, i, tabs.length);
         if (next < 0) return;
         e.preventDefault();
-        const nt = tabs[next];
-        const id = nt.dataset.tabLink!;
-        activate(id);
-        history.replaceState(null, '', `#panel-${id}`);
-        nt.focus();
+        selectTab(tabs[next]);
       });
     });
 
@@ -314,7 +331,7 @@ const isTabbed = tabIds.length > 1;
     // change the hash without a tab click — re-resolve and move focus so the
     // swap is announced.
     window.addEventListener('hashchange', () => {
-      activate(resolve(location.hash), true);
+      activateFromHash(location.hash, true);
     });
   }
 </script>

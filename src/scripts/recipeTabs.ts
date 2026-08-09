@@ -8,6 +8,8 @@
  * by `headerProgress.ts`.
  */
 
+export type TabId = 'recipe' | 'batching' | 'notes' | 'source';
+
 export interface TabFlags {
   hasBatch: boolean;
   hasNotes: boolean;
@@ -19,13 +21,12 @@ export interface TabFlags {
  * (ingredients/steps are the floor of a recipe); optional tabs follow in a
  * fixed order and are simply omitted when absent — no gaps, no reordering.
  */
-export function buildTabList(flags: TabFlags): string[] {
-  return [
-    'recipe',
-    ...(flags.hasBatch ? ['batching'] : []),
-    ...(flags.hasNotes ? ['notes'] : []),
-    ...(flags.hasSource ? ['source'] : []),
-  ];
+export function buildTabList(flags: TabFlags): TabId[] {
+  const tabs: TabId[] = ['recipe'];
+  if (flags.hasBatch) tabs.push('batching');
+  if (flags.hasNotes) tabs.push('notes');
+  if (flags.hasSource) tabs.push('source');
+  return tabs;
 }
 
 /**
@@ -45,4 +46,24 @@ export function resolveActiveTab(hash: string, available: string[]): string {
   const fallback = available[0];
   const normalized = hash.replace(/^#/, '').replace(/^panel-/, '');
   return available.includes(normalized) ? normalized : fallback;
+}
+
+/**
+ * Roving-tabindex keyboard navigation: given a key, the current tab index, and
+ * the tab count, return the index to move to — or -1 for a key this widget
+ * doesn't handle. Arrow keys wrap; Home/End jump to the ends.
+ */
+export function nextTabIndex(key: string, current: number, count: number): number {
+  switch (key) {
+    case 'ArrowRight':
+      return (current + 1) % count;
+    case 'ArrowLeft':
+      return (current - 1 + count) % count;
+    case 'Home':
+      return 0;
+    case 'End':
+      return count - 1;
+    default:
+      return -1;
+  }
 }
