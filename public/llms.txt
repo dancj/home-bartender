@@ -7,5 +7,8 @@ Full recipe list: https://dancj.github.io/home-bartender/
 ## Data
 Machine-readable recipe collection (JSON): https://dancj.github.io/home-bartender/recipes.json
 
+## Bar sharing
+Pre-populate "My Bar" via ?bar=<slug>,<slug> (comma-separated spirit slugs from recipes.json's "spirits" field) appended to the recipe list URL. Example: https://dancj.github.io/home-bartender/?bar=mezcal,bourbon
+
 ## License
 Recipes shared under CC BY 4.0
