@@ -1,8 +1,8 @@
 ---
 title: "Elderflower Ginger Sour (Hers)"
 blurb: "A floral, gingery tequila sour with St Germain and lemon — bright, elegant and a little spicy"
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: shaken
 ice: none
@@ -20,11 +20,6 @@ garnish: "Lemon twist or edible flower"
 submitted_by: "dancj"
 source_issue: 153
 ---
-# Elderflower Ginger Sour (Hers)
-
-
-> Submitter suggested category: **classics**
-
 ## Notes
 
 **Why this works:** St Germain's floral elderflower softens the ginger heat beautifully — it's approachable but still interesting and complex.
