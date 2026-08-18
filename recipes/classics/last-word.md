@@ -1,8 +1,8 @@
 ---
 title: Last Word
 blurb: A Prohibition-era equal-parts gin sour — herbal, tart, and vivid green.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: shaken
 ice: none

@@ -1,8 +1,8 @@
 ---
 title: "Smoky Ginger Sour (His)"
 blurb: "Smoky mezcal and sweet vermouth with ginger, lemon and Aperol — bold, complex and citrusy"
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: rocks
 method: shaken
 ice: large-cube
@@ -21,11 +21,6 @@ garnish: "Orange or lemon twist"
 submitted_by: "dancj"
 source_issue: 152
 ---
-# Smoky Ginger Sour (His)
-
-
-> Submitter suggested category: **classics**
-
 ## Notes
 
 **Why this works:** Mezcal's smoke, vermouth's herbal sweetness, Aperol's bitter orange and ginger's heat all layer beautifully with lemon tying it together.

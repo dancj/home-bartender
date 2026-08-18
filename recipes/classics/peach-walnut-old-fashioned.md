@@ -1,8 +1,8 @@
 ---
 title: Peach Walnut Old Fashioned
 blurb: "A stone-fruit spin on the Old Fashioned — high-proof whiskey, peach syrup, black walnut bitters."
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: rocks
 method: stirred
 ice: cubed
