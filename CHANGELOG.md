@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.8.18.1] - 2026-08-18
+
+- #179 — fix(recipes): unbreak deploy — narrow data.batch for astro check (@dancj)
+- #177 — docs(llms): document ?bar= shareable-bar capability (@dancj)
+- #176 — feat(inbox): add Jungle Bird (@dancj)
+- #175 — feat(inbox): add peach drinks (Sparkling Peach Margarita, Peach Walnut Old Fashioned) (@dancj)
+- #172 — feat(recipes): tab the drink detail page (recipe/batching/notes/source) (@dancj)
+- #167 — chore(deps): update all non-major dependencies (@app/renovate)
+- #166 — chore(deps): update dependency lint-staged to v17.2.0 (@app/renovate)
+- #164 — docs: update CHANGELOG for release 2026.7.22.2 (@app/github-actions)
 ## [2026.7.22.2] - 2026-07-22
 
 - #163 — chore(deps): update github actions (major) (@app/renovate)
