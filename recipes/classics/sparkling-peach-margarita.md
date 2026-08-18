@@ -1,8 +1,8 @@
 ---
 title: Sparkling Peach Margarita
 blurb: "A bright, tart-sweet margarita lengthened with peach and a sparkling top."
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: margarita
 method: shaken
 method_note: topped

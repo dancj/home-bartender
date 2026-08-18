@@ -1,8 +1,8 @@
 ---
 title: Jungle Bird
 blurb: "A tiki classic where bitter Campari meets dark rum, pineapple, and lime."
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: rocks
 glass_note: or tiki mug
 method: shaken
