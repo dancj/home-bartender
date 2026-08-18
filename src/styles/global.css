@@ -75,7 +75,13 @@
 
   body {
     margin: 0;
-    min-height: 100vh;
+    /* +9rem reserves scroll runway for the collapsing sticky header. The header's
+       in-flow height shrinks by up to (--hb-large − --hb-compact) = 8.4rem as it
+       collapses; without spare runway, a page that only just overflows the viewport
+       clamps scrollY when it shrinks, which re-expands the header and jitters in a
+       loop. Guaranteeing the page always scrolls past the collapse distance breaks
+       the loop. Keep ≥ the largest (--hb-large − --hb-compact). */
+    min-height: calc(100vh + 9rem);
     display: flex;
     flex-direction: column;
   }
