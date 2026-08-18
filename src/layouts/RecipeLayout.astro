@@ -190,7 +190,7 @@ const isTabbed = tabIds.length > 1;
         {data.steps.length > 0 && <Steps items={data.steps} />}
       </section>
 
-      {hasBatch && (
+      {data.batch && (
         <section class="recipe-tabpanel recipe-body" id="panel-batching" data-tab="batching">
           <BatchInstructions {...data.batch} />
         </section>
