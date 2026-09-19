@@ -1,8 +1,8 @@
 ---
 title: Mango Mezcal Margarita
 blurb: "A smoky margarita with concentrated mango and a bittersweet triple sec backbone."
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: margarita
 method: shaken
 ice: cubed

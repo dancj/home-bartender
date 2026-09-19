@@ -1,8 +1,8 @@
 ---
 title: Tepache Old Fashioned
 blurb: "A fermented-pineapple riff on the old fashioned — whiskey, tepache, and cocoa bitters."
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: rocks
 method: stirred
 ice: large-cube

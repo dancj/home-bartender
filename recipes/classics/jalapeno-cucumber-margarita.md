@@ -1,8 +1,8 @@
 ---
 title: Jalapeño-Cucumber Margarita
 blurb: "A spicy-cool margarita built on cucumber-and-jalapeño-infused blanco tequila."
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: margarita
 method: shaken
 ice: cubed
