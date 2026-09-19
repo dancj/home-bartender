@@ -4,7 +4,7 @@ import RecipeCard from '../components/RecipeCard.astro';
 import EmptyState from '../components/EmptyState.astro';
 import { publishedRecipes } from '../lib/recipes';
 import { label, groupByTax } from '../lib/taxonomy';
-import Icon from '../components/Icon.astro';
+import { spiritAccentVar } from '../lib/accents';
 
 const recipes = (await publishedRecipes()).sort((a, b) =>
   a.data.title.localeCompare(b.data.title)
@@ -22,63 +22,86 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
   description="Personal cocktail recipe collection."
   width="wide"
 >
-  <details class="filter-bar" id="filter-panel">
-    <summary>
-      <span class="filter-label">Filters</span>
-      <span class="filter-count" id="filter-count"></span>
-    </summary>
-    <div class="filter-groups">
-      <div class="filter-group">
-        <h3 class="eyebrow">Spirit</h3>
-        <ul>
-          {spirits.map((s) => (
-            <li>
-              <button type="button" class="chip" data-filter="spirit" data-value={s}>
-                <Icon field="spirits" slug={s} /> {label('spirits', s)}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="filter-group">
-        <h3 class="eyebrow">Difficulty</h3>
-        <ul>
-          {difficulties.map((d) => (
-            <li>
-              <button type="button" class="chip" data-filter="difficulty" data-value={d}>
-                <Icon field="difficulty" slug={d} /> {label('difficulty', d)}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="filter-group">
-        <h3 class="eyebrow">Method</h3>
-        <ul>
-          {methods.map((m) => (
-            <li>
-              <button type="button" class="chip" data-filter="method" data-value={m}>
-                <Icon field="method" slug={m} /> {label('method', m)}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="filter-group">
-        <h3 class="eyebrow">Flavor</h3>
-        <ul>
-          {flavors.map((f) => (
-            <li>
-              <button type="button" class="chip" data-filter="flavor" data-value={f}>
-                <Icon field="flavor" slug={f} /> {label('flavor', f)}
-              </button>
-            </li>
-          ))}
-        </ul>
+  {/* Filters are always-visible chip rows (not a disclosure). Behavior is
+      unchanged — the same button[data-filter][data-value] chips the script
+      below binds to; only spirit chips gained an accent dot. */}
+  <div class="filter-block">
+    <div class="filter-row">
+      <span class="eyebrow filter-eyebrow">Spirit</span>
+      <ul class="chip-row">
+        {spirits.map((s) => (
+          <li>
+            <button
+              type="button"
+              class="chip filter-chip filter-chip--dot"
+              data-filter="spirit"
+              data-value={s}
+              aria-pressed="false"
+              style={`--accent: ${spiritAccentVar(s)}`}
+            >
+              <span class="chip-dot" aria-hidden="true"></span> {label('spirits', s)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="filter-row">
+      <span class="eyebrow filter-eyebrow">Mood</span>
+      <ul class="chip-row">
+        {flavors.map((f) => (
+          <li>
+            <button type="button" class="chip filter-chip" data-filter="flavor" data-value={f} aria-pressed="false">
+              {label('flavor', f)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="filter-row">
+      <span class="eyebrow filter-eyebrow">Method</span>
+      <ul class="chip-row">
+        {methods.map((m) => (
+          <li>
+            <button type="button" class="chip filter-chip" data-filter="method" data-value={m} aria-pressed="false">
+              {label('method', m)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="filter-row">
+      <span class="eyebrow filter-eyebrow">Difficulty</span>
+      <ul class="chip-row">
+        {difficulties.map((d) => (
+          <li>
+            <button type="button" class="chip filter-chip" data-filter="difficulty" data-value={d} aria-pressed="false">
+              {label('difficulty', d)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="filter-foot">
+      <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
+      <div class="filter-foot-right">
+        <label class="eyebrow sort-label" for="sort-select">Sort</label>
+        <select id="sort-select" class="sort-select">
+          <option value="title">Title A–Z</option>
+          <option value="spirit">Spirit</option>
+          <option value="difficulty">Difficulty</option>
+        </select>
+        <span class="result-count" id="result-count">{recipes.length} recipes</span>
+        <div class="segmented" role="group" aria-label="View density">
+          <button type="button" class="segmented-btn" data-view="cards" aria-pressed="true">Cards</button>
+          <button type="button" class="segmented-btn" data-view="compact" aria-pressed="false">List</button>
+        </div>
       </div>
     </div>
-    <button type="button" id="clear-filters" class="clear-btn">Clear filters</button>
-  </details>
+  </div>
 
   <div class="my-bar-wrap">
     <details class="filter-bar my-bar" id="my-bar">
@@ -92,7 +115,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           {spirits.map((s) => (
             <li>
               <button type="button" class="chip chip-mybar" data-mybar={s} aria-pressed="false">
-                <Icon field="spirits" slug={s} /> {label('spirits', s)}
+                {label('spirits', s)}
               </button>
             </li>
           ))}
@@ -105,20 +128,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     </button>
   </div>
 
-  <div class="grid-toolbar">
-    <label class="eyebrow sort-label" for="sort-select">Sort by</label>
-    <select id="sort-select" class="sort-select">
-      <option value="title">Title A–Z</option>
-      <option value="spirit">Spirit</option>
-      <option value="difficulty">Difficulty</option>
-    </select>
-    <div class="view-toggle" role="group" aria-label="View density">
-      <button type="button" class="chip" data-view="cards" aria-pressed="true">Cards</button>
-      <button type="button" class="chip" data-view="compact" aria-pressed="false">List</button>
-    </div>
-  </div>
-
-  <ul class="recipe-grid" id="recipe-grid">
+  <ul class="recipe-grid recipe-grid--photo" id="recipe-grid">
     {recipes.map((r) => <RecipeCard recipe={r} />)}
   </ul>
 
@@ -153,7 +163,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       const cards = Array.from(grid.querySelectorAll<HTMLElement>('.recipe-card'));
       const emptyEl = document.getElementById('empty-state');
       const emptyMyBarEl = document.getElementById('empty-state-mybar');
-      const countEl = document.getElementById('filter-count');
+      const resultCountEl = document.getElementById('result-count');
       const summary = document.querySelector('#filter-panel > summary');
       const myBarEl = document.getElementById('my-bar');
       const myBarCountEl = document.getElementById('mybar-count');
@@ -169,8 +179,8 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         document.querySelectorAll<HTMLButtonElement>('button[data-view]')
       );
 
-      // The Filters panel's own axes — its count, auto-open, and Clear button
-      // ignore `makeable`, which lives in the separate My Bar bar.
+      // The filter rows' own axes — the active count and Clear button ignore
+      // `makeable`, which lives in the separate My Bar bar.
       const PANEL_FIELDS = ['spirit', 'difficulty', 'method', 'flavor'];
       const FIELDS = [...PANEL_FIELDS, 'makeable'];
 
@@ -305,8 +315,8 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         if (emptyEl) emptyEl.hidden = visible > 0 || myBarEmpty;
         if (emptyMyBarEl) emptyMyBarEl.hidden = visible > 0 || !myBarEmpty;
         const active = PANEL_FIELDS.filter((k) => filters[k]).length;
-        if (countEl)
-          countEl.textContent = active ? `${active} active · ${visible}/${cards.length}` : '';
+        if (resultCountEl)
+          resultCountEl.textContent = `${visible} ${visible === 1 ? 'recipe' : 'recipes'}`;
         for (const b of buttons) {
           const key = b.dataset.filter ?? '';
           const on = filters[key] === b.dataset.value;
@@ -437,12 +447,119 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
 </BaseLayout>
 
 <style>
-  .kicker {
-    margin: 0 0 0.5rem;
+  /* ── Always-visible filter rows (replaces the Filters disclosure) ──────── */
+  .filter-block {
+    margin-bottom: 26px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--color-rule);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .filter-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+  .filter-eyebrow {
+    flex: 0 0 auto;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--color-fg-subtle);
+    margin-right: 4px;
+  }
+  .chip-row {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  /* Filter chip = the shared .chip primitive, sized to the handoff (13px text,
+     7px/15px padding). Active state is inherited from .chip[aria-pressed]. */
+  .filter-chip {
+    padding: 7px 15px;
+    font-size: 13px;
+    gap: 7px;
   }
 
+  .filter-foot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-top: 2px;
+  }
+  .filter-foot-right {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .result-count {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-subtle);
+  }
+  .sort-label {
+    margin: 0;
+  }
+  .sort-select {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-fg);
+  }
+  .clear-btn {
+    background: none;
+    border: none;
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    text-decoration: underline;
+    text-decoration-color: var(--color-rule);
+    text-underline-offset: 2px;
+    cursor: pointer;
+    padding: 0;
+  }
+  .clear-btn:hover {
+    color: var(--color-fg);
+  }
+
+  /* Cards/List segmented pill (handoff): a rounded rail; the active segment
+     takes the terracotta fill. Drives the same data-view toggle as before. */
+  .segmented {
+    display: inline-flex;
+    border: 1px solid var(--color-rule);
+    background: var(--color-surface);
+    border-radius: 999px;
+    padding: 2px;
+  }
+  .segmented-btn {
+    border: none;
+    background: transparent;
+    color: var(--color-fg-muted);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  .segmented-btn[aria-pressed='true'] {
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+  }
+
+  /* ── My Bar (kept as-is; behavior unchanged from before the refresh) ───── */
   .filter-bar {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     border: 1px solid var(--color-rule);
     border-radius: var(--radius-md);
     background: var(--color-surface);
@@ -481,21 +598,10 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     font-weight: 400;
     font-size: 0.75rem;
   }
-
-  .filter-groups,
   .mybar-body {
     padding: 0.5rem 1rem 1.25rem;
     border-top: 1px solid var(--color-rule);
   }
-  .filter-groups {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-    gap: 1.5rem;
-  }
-  .filter-group h3 {
-    margin: 0 0 0.65rem;
-  }
-  .filter-group ul,
   .mybar-body ul {
     list-style: none;
     padding: 0;
@@ -504,34 +610,9 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     flex-wrap: wrap;
     gap: 0.35rem;
   }
-  .filter-group button {
-    text-transform: capitalize;
-  }
-
-  .clear-btn {
-    display: block;
-    margin: 0 1rem 1rem auto;
-    background: none;
-    border: none;
-    color: var(--color-fg-muted);
-    font-family: var(--font-sans);
-    font-size: 0.75rem;
-    text-decoration: underline;
-    text-decoration-color: var(--color-rule);
-    text-underline-offset: 2px;
-    cursor: pointer;
-    padding: 0;
-  }
-  .clear-btn:hover {
-    color: var(--color-fg);
-  }
-
-  /* My Bar: persistent ownership, not a transient filter — owned chips get an
-     outlined check treatment distinct from the filled accent filter chips. */
   .share-bar-btn {
     margin-top: 0.75rem;
   }
-
   .mybar-hint {
     margin: -0.35rem 0 0.65rem;
     font-family: var(--font-sans);
@@ -548,10 +629,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     content: '✓';
     font-weight: 700;
   }
-  /* Standalone My Bar bar. The makeable chip renders in the header row but is
-     a sibling of the <details> (positioned via the wrapper), so it stays
-     visible/clickable while collapsed and out of the disclosure's accessible
-     name — no interactive-inside-interactive nesting. */
   .my-bar-wrap {
     position: relative;
   }
@@ -564,46 +641,38 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     right: 1rem;
   }
 
-  /* Toolbar: sort + view density controls above the grid */
-  .grid-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .sort-label {
-    margin: 0;
-  }
-  .sort-select {
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-    color: var(--color-fg);
-  }
-  .view-toggle {
-    margin-left: auto;
-    display: inline-flex;
-    gap: 0.35rem;
+  /* ── Photo-card grid: wider min + gap than the shared .recipe-grid ─────── */
+  .recipe-grid--photo {
+    grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
+    gap: 22px;
   }
 
-  /* Compact density: single-column rows, blurb hidden. Card internals live in
-     RecipeCard.astro, so descendant selectors need :global(). */
+  /* Compact (List) density: hide the card image, lay title + meta as a row.
+     Card internals live in RecipeCard.astro, so use :global(). */
   .recipe-grid.grid-compact {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
   }
-  .recipe-grid.grid-compact :global(.card) {
+  .recipe-grid.grid-compact :global(.recipe-photo-card) {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: baseline;
     column-gap: 0.75rem;
     padding: 0.55rem 1rem;
   }
-  .recipe-grid.grid-compact :global(.card h2) {
+  .recipe-grid.grid-compact :global(.card-media) {
+    display: none;
+  }
+  .recipe-grid.grid-compact :global(.card-body) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.75rem;
+    padding: 0;
+    flex: 1;
+  }
+  .recipe-grid.grid-compact :global(.card-title) {
     font-size: 1.05rem;
   }
   .recipe-grid.grid-compact :global(.card-blurb) {
@@ -612,5 +681,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
   .recipe-grid.grid-compact :global(.recipe-card-meta) {
     margin-top: 0;
     margin-left: auto;
+    padding-top: 0;
   }
 </style>

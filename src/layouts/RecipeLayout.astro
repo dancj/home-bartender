@@ -5,12 +5,12 @@ import { publishedRecipes } from '../lib/recipes';
 import { resolveRelated } from '../lib/related';
 import RecipeCard from '../components/RecipeCard.astro';
 import { label } from '../lib/taxonomy';
+import { spiritAccentVar, flavorAccentVar } from '../lib/accents';
+import { iconUrl } from '../lib/icon-urls';
 import Ingredients from '../components/recipe/Ingredients.astro';
 import Steps from '../components/recipe/Steps.astro';
 import HouseMade from '../components/recipe/HouseMade.astro';
 import BatchInstructions from '../components/recipe/BatchInstructions.astro';
-import Icon from '../components/Icon.astro';
-import { iconUrl } from '../lib/icon-urls';
 import { buildTabList, type TabId } from '../scripts/recipeTabs';
 
 interface Props {
@@ -26,21 +26,20 @@ const year = data.attribution.year.trim();
 const sourceUrl = data.attribution.source_url.trim();
 const hasAttribution = creator || bar || year;
 
+// Refresh: identity (spirit accent, category), photo rail, and root callout.
+const primarySpirit = data.spirits[0];
+const accent = spiritAccentVar(primarySpirit);
+const primaryRoot = data.roots[0];
+const hasHero = Boolean(data.hero_image);
+const glassIcon = iconUrl('glass', data.glass);
+// Photography doesn't exist yet — render 0/1/2 gallery photos, drop the row
+// when empty (plan KD3). Real responsive images land via astro:assets later.
+const galleryItems = (data.gallery ?? []).slice(0, 2) as string[];
+
 // Resolve related[] slugs to full recipes so cards render real titles instead
 // of de-slugged text. Order follows the related[] list (see resolveRelated).
 const relatedRecipes =
   data.related.length > 0 ? resolveRelated(await publishedRecipes(), data.related) : [];
-
-// Markdown-rendered headings (## Notes, ## Variations) can't host the Icon
-// component — their icons ride in via ::before masks fed by these custom
-// properties, set on the Notes panel (.recipe-body) below.
-const mdHeadingIcons = [
-  ['--icon-notes', iconUrl('sections', 'notes')],
-  ['--icon-variations', iconUrl('sections', 'variations')],
-]
-  .filter(([, url]) => url)
-  .map(([prop, url]) => `${prop}: url("${url}")`)
-  .join('; ');
 
 // The markdown body (## Notes / ## Variations / tasting notes) is the Notes
 // tab. Capture it now — Astro.slots.render consumes the default slot, so the
@@ -73,160 +72,153 @@ const isTabbed = tabIds.length > 1;
 ---
 <BaseLayout title={`${data.title} — Home Bartending`} description={data.blurb}>
   <article data-pagefind-body>
-    <header class="recipe-header">
-      <p class="back">
-        <a href={`${base}/`}>← All recipes</a>
-      </p>
-      <h1>{data.title}</h1>
-      <p class="blurb">{data.blurb}</p>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol>
+        <li><a href={`${base}/`}>Recipes</a></li>
+        <li aria-current="page">{data.title}</li>
+      </ol>
+    </nav>
 
-      <dl class="facts">
-        {data.roots.length > 0 && (
-          <div>
-            <dt class="eyebrow">Root</dt>
-            <dd class="fact-stack">
-              {data.roots.map((f: string) => (
-                <span class="fact-line">
-                  <Icon field="root" slug={f} />
-                  <span class="fact-text">
-                    <a href={`${base}/by-root/${f}/`}>{label('root', f)}</a>
-                  </span>
-                </span>
-              ))}
-            </dd>
+    <div class="detail-grid" style={`--accent: ${accent}`}>
+      {/* Left: sticky photo rail. Fallback tile until hero_image exists. */}
+      <div class="detail-rail">
+        <div class:list={['detail-hero', !hasHero && 'detail-hero--empty']}>
+          {hasHero ? (
+            <img src={data.hero_image} alt={data.title} loading="eager" decoding="async" />
+          ) : (
+            <>
+              {glassIcon && (
+                <span class="tax-icon tile-icon" style={`--icon-url: url("${glassIcon}")`} aria-hidden="true"></span>
+              )}
+              {primarySpirit && <span class="tile-name">{label('spirits', primarySpirit)}</span>}
+            </>
+          )}
+        </div>
+        {galleryItems.length > 0 && (
+          <div class="detail-gallery">
+            {galleryItems.map((src) => (
+              <img src={src} alt="" loading="lazy" decoding="async" />
+            ))}
           </div>
         )}
-        <div>
-          <dt class="eyebrow">Glass</dt>
-          <dd>
-            <Icon field="glass" slug={data.glass} />
-            <span class="fact-text">
-              {label('glass', data.glass)}
-              {data.glass_note && <span class="note">· {data.glass_note}</span>}
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt class="eyebrow">Method</dt>
-          <dd>
-            <Icon field="method" slug={data.method} />
-            <span class="fact-text">
-              {label('method', data.method)}
-              {data.method_note && <span class="note">· {data.method_note}</span>}
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt class="eyebrow">Ice</dt>
-          <dd>
-            <Icon field="ice" slug={data.ice} />
-            <span class="fact-text">
-              {label('ice', data.ice)}
-              {data.ice_note && <span class="note">· {data.ice_note}</span>}
-            </span>
-          </dd>
-        </div>
-        <div>
-          <dt class="eyebrow">Difficulty</dt>
-          <dd><Icon field="difficulty" slug={data.difficulty} /> <span class="fact-text">{label('difficulty', data.difficulty)}</span></dd>
-        </div>
-      </dl>
+      </div>
 
-      {(data.flavors.length > 0 || data.spirits.length > 0) && (
-        <div class="taxonomy">
-          {data.spirits.length > 0 && (
-            <div class="tag-group">
-              <span class="eyebrow tag-label">Spirits</span>
-              <ul class="tags" aria-label="Spirits">
-                {data.spirits.map((s: string) => (
-                  <li>
-                    <a href={`${base}/by-spirit/${s}/`} class="chip">
-                      <Icon field="spirits" slug={s} /> {label('spirits', s)}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {data.flavors.length > 0 && (
-            <div class="tag-group">
-              <span class="eyebrow tag-label">Flavors</span>
-              <ul class="tags" aria-label="Flavors">
-                {data.flavors.map((f: string) => (
-                  <li>
-                    <a href={`${base}/by-flavor/${f}/`} class="chip">
-                      <Icon field="flavor" slug={f} /> {label('flavor', f)}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+      {/* Right: identity, facts, tabs, root callout. */}
+      <div class="detail-main">
+        <p class="detail-eyebrow">
+          {primarySpirit && <>{label('spirits', primarySpirit)}</>}
+          {primarySpirit && <> · </>}{label('category', data.category)}
+        </p>
+        <h1 class="detail-title">{data.title}</h1>
+        <p class="detail-lede">{data.blurb}</p>
+
+        <div class="facts-grid">
+          <div class="fact-cell">
+            <span class="fact-label">Glass</span>
+            <span class="fact-value">{label('glass', data.glass)}{data.glass_note && <span class="fact-note"> {data.glass_note}</span>}</span>
+          </div>
+          <div class="fact-cell">
+            <span class="fact-label">Method</span>
+            <span class="fact-value">{label('method', data.method)}{data.method_note && <span class="fact-note"> {data.method_note}</span>}</span>
+          </div>
+          <div class="fact-cell">
+            <span class="fact-label">Ice</span>
+            <span class="fact-value">{label('ice', data.ice)}{data.ice_note && <span class="fact-note"> {data.ice_note}</span>}</span>
+          </div>
+          <div class="fact-cell">
+            <span class="fact-label">Difficulty</span>
+            <span class="fact-value">{label('difficulty', data.difficulty)}</span>
+          </div>
+          <div class="fact-cell">
+            <span class="fact-label">Serves</span>
+            <span class="fact-value">{data.serves}</span>
+          </div>
         </div>
-      )}
-    </header>
 
-    {/* Pre-paint guard: hide non-default panels before the island runs so JS
-        users don't see all panels flash then collapse. Removed by the island
-        on init; absent with JS off so the no-JS stack stays intact. */}
-    {isTabbed && <script is:inline>document.documentElement.classList.add('js-tabs');</script>}
-
-    <div class="recipe-tabs" data-recipe-tabs>
-      {isTabbed && (
-        <nav class="recipe-tablist" aria-label="Recipe sections">
-          {tabIds.map((id) => (
-            <a class="recipe-tab" href={`#panel-${id}`} id={`tab-${id}`} data-tab-link={id}>
-              {tabLabels[id]}
-            </a>
-          ))}
-        </nav>
-      )}
-
-      <section class="recipe-tabpanel recipe-body" id="panel-recipe" data-tab="recipe" data-default>
-        {data.ingredients.length > 0 && (
-          <Ingredients items={data.ingredients} garnish={data.garnish} float={data.float} />
+        {data.flavors.length > 0 && (
+          <ul class="flavor-chips" aria-label="Flavors">
+            {data.flavors.map((f: string) => (
+              <li>
+                <a href={`${base}/by-flavor/${f}/`} class="chip flavor-chip" style={`--accent: ${flavorAccentVar(f)}`}>
+                  <span class="chip-dot" aria-hidden="true"></span> {label('flavor', f)}
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
-        {data.house_made && <HouseMade {...data.house_made} />}
-        {data.steps.length > 0 && <Steps items={data.steps} />}
-      </section>
 
-      {data.batch && (
-        <section class="recipe-tabpanel recipe-body" id="panel-batching" data-tab="batching">
-          <BatchInstructions {...data.batch} />
-        </section>
-      )}
+        {/* Pre-paint guard: hide non-default panels before the island runs so JS
+            users don't see all panels flash then collapse. Removed by the island
+            on init; absent with JS off so the no-JS stack stays intact. */}
+        {isTabbed && <script is:inline>document.documentElement.classList.add('js-tabs');</script>}
 
-      {hasNotes && (
-        <section
-          class="recipe-tabpanel recipe-body"
-          id="panel-notes"
-          data-tab="notes"
-          style={mdHeadingIcons || undefined}
-        >
-          <Fragment set:html={notesHtml} />
-        </section>
-      )}
+        <div class="recipe-tabs" data-recipe-tabs>
+          {isTabbed && (
+            <nav class="recipe-tablist" aria-label="Recipe sections">
+              {tabIds.map((id) => (
+                <a class="recipe-tab" href={`#panel-${id}`} id={`tab-${id}`} data-tab-link={id}>
+                  {tabLabels[id]}
+                </a>
+              ))}
+            </nav>
+          )}
 
-      {hasSource && (
-        <section class="recipe-tabpanel source-panel" id="panel-source" data-tab="source" data-pagefind-ignore>
-          <h2 class="aside-title">Attribution</h2>
-          <p>
-            {hasAttribution && (
-              <>
-                {creator && <>Created by <strong>{creator}</strong></>}
-                {bar && <> at <strong>{bar}</strong></>}
-                {year && <> in {year}</>}.
-              </>
+          <section class="recipe-tabpanel recipe-body" id="panel-recipe" data-tab="recipe" data-default>
+            {data.ingredients.length > 0 && (
+              <Ingredients items={data.ingredients} garnish={data.garnish} float={data.float} />
             )}
-            {sourceUrl && <> <a href={sourceUrl} rel="noopener">Source</a></>}
-          </p>
-        </section>
-      )}
+            {data.house_made && <HouseMade {...data.house_made} />}
+            {data.steps.length > 0 && <Steps items={data.steps} />}
+          </section>
+
+          {data.batch && (
+            <section class="recipe-tabpanel recipe-body" id="panel-batching" data-tab="batching">
+              <BatchInstructions {...data.batch} />
+            </section>
+          )}
+
+          {hasNotes && (
+            <section
+              class="recipe-tabpanel recipe-body"
+              id="panel-notes"
+              data-tab="notes"
+            >
+              <Fragment set:html={notesHtml} />
+            </section>
+          )}
+
+          {hasSource && (
+            <section class="recipe-tabpanel source-panel" id="panel-source" data-tab="source" data-pagefind-ignore>
+              <h2 class="aside-title">Attribution</h2>
+              <p>
+                {hasAttribution && (
+                  <>
+                    {creator && <>Created by <strong>{creator}</strong></>}
+                    {bar && <> at <strong>{bar}</strong></>}
+                    {year && <> in {year}</>}.
+                  </>
+                )}
+                {sourceUrl && <> <a href={sourceUrl} rel="noopener">Source</a></>}
+              </p>
+            </section>
+          )}
+        </div>
+
+        {primaryRoot && (
+          <div class="root-callout">
+            <div class="root-callout-text">
+              <span class="root-callout-eyebrow">Root</span>
+              <span class="root-callout-name">{label('root', primaryRoot)}</span>
+            </div>
+            <a href={`${base}/by-root/${primaryRoot}/`} class="root-callout-link">See the family →</a>
+          </div>
+        )}
+      </div>
     </div>
 
     {relatedRecipes.length > 0 && (
       <aside class="related">
-        <h2 class="aside-title"><Icon field="sections" slug="related" /> Related</h2>
+        <h2 class="aside-title">Related</h2>
         <ul class="recipe-grid">
           {relatedRecipes.map((r) => <RecipeCard recipe={r} />)}
         </ul>
@@ -337,138 +329,185 @@ const isTabbed = tabIds.length > 1;
 </script>
 
 <style>
-  .recipe-header {
-    margin-bottom: 2rem;
+  /* ── Breadcrumb ───────────────────────────────────────────────────────── */
+  .breadcrumb {
+    margin-bottom: 22px;
   }
-
-  .back {
-    margin-bottom: 1rem;
-  }
-  .back a {
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    color: var(--color-fg-muted);
+  .breadcrumb a {
+    color: var(--color-accent);
     text-decoration: none;
   }
-  .back a:hover {
-    color: var(--color-fg);
+
+  /* ── Two-column layout: sticky photo rail + identity/facts/tabs ───────── */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    align-items: start;
+  }
+  .detail-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: sticky;
+    top: 5rem; /* clears the compact collapsing header (--hb-compact 4rem) */
+    align-self: start;
+  }
+  /* Below the two-column breakpoint the rail stacks above the content, so drop
+     the stickiness (a sticky first row would trap scroll on mobile). */
+  @media (max-width: 700px) {
+    .detail-rail {
+      position: static;
+    }
   }
 
-  .recipe-header h1 {
-    font-size: clamp(2rem, 5vw, 2.75rem);
-    margin-bottom: 0.5rem;
+  .detail-hero {
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-hero);
+    overflow: hidden;
+    box-shadow: var(--shadow-hero);
+    background: var(--color-surface-muted);
   }
-
-  .blurb {
+  .detail-hero img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .detail-hero--empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+  .detail-hero--empty .tile-icon {
+    --icon-size: 84px;
+    color: var(--accent);
+    opacity: 0.55;
+  }
+  .detail-hero--empty .tile-name {
     font-family: var(--font-serif);
     font-style: italic;
-    font-size: 1.1875rem;
-    color: var(--color-fg-muted);
-    line-height: 1.4;
-    margin-bottom: 1.5rem;
+    font-size: 18px;
+    color: var(--accent);
+    opacity: 0.75;
+  }
+  .detail-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .detail-gallery img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--radius-photo);
   }
 
-  .facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-    gap: 0.85rem 1.5rem;
-    margin: 0;
-    padding: 1rem 1.25rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-md);
-  }
-  .facts > div {
+  .detail-main {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 26px;
   }
-  .facts dd {
-    margin: 0;
+  .detail-eyebrow {
     font-family: var(--font-sans);
-    font-size: 0.9rem;
-    color: var(--color-fg);
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-accent);
   }
-  .facts dd.fact-stack {
+  .detail-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: clamp(2.25rem, 5vw, 3.375rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: -14px 0 -14px; /* absorb the flex gap around the eyebrow/lede */
+  }
+  .detail-lede {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--color-fg-muted);
+    max-width: 44ch;
+  }
+
+  /* Hairline facts grid — 1px gaps on a rule-coloured backdrop read as single
+     rules between cells (no per-cell borders). No icons (they were the cut). */
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1px;
+    background: var(--color-rule);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-facts);
+    overflow: hidden;
+  }
+  .fact-cell {
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.4rem;
+    gap: 4px;
+    padding: 16px 18px;
+    background: var(--color-surface);
   }
-  .facts .fact-line {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
+  .fact-label {
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-fg-subtle);
   }
-  .facts .fact-text {
-    min-width: 0;
+  .fact-value {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    color: var(--color-fg);
   }
-  .facts dd :global(.tax-icon) {
-    --icon-size: 2.5rem;
+  .fact-note {
     color: var(--color-fg-muted);
-  }
-  .facts .note {
-    color: var(--color-fg-muted);
-    margin-left: 0.25rem;
     font-style: italic;
   }
-  .facts dd a {
-    color: var(--color-fg);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-color: var(--color-rule-strong);
-  }
-  .facts dd a:hover {
-    text-decoration-color: var(--color-fg);
-  }
 
-  .taxonomy {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    margin-top: 1.25rem;
-  }
-  .tag-group {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .tag-label {
-    flex: none;
-    min-width: 4.5rem;
-  }
-  .tags {
+  /* Flavor chips — shared .chip shape, inactive, each with an accent dot. */
+  .flavor-chips {
     list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 8px;
+  }
+  .flavor-chip {
+    gap: 7px;
+    padding: 7px 15px;
+    font-size: 13px;
   }
 
-  /* Tabs — the tablist wraps to a second row on narrow viewports rather than
-     scrolling, so no tab is ever hidden and the page body never h-scrolls. */
+  /* ── Tabs (chrome only; logic/ARIA live in the island above) ──────────── */
   .recipe-tabs {
-    margin-top: 1.5rem;
+    margin-top: 0;
   }
   .recipe-tablist {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 0.5rem;
+    gap: 0.25rem 1.625rem;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--color-rule);
     font-family: var(--font-sans);
   }
   .recipe-tab {
-    padding: 0.5rem 0.85rem;
+    padding: 0 0 12px;
     margin-bottom: -1px;
-    font-size: 0.8125rem;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-fg-muted);
+    letter-spacing: 0.12em;
+    color: var(--color-fg-subtle);
     text-decoration: none;
     border-bottom: 2px solid transparent;
   }
@@ -492,58 +531,29 @@ const isTabbed = tabIds.length > 1;
     border-radius: var(--radius-sm);
   }
   /* Pre-paint guard (see the is:inline above). The island removes .js-tabs on
-     init and takes over via [hidden], so this only governs the pre-hydration
-     frame. Absent with JS off — the full stack shows. */
+     init and takes over via [hidden]. Absent with JS off — the full stack shows. */
   :global(html.js-tabs) .recipe-tabpanel:not([data-default]) {
     display: none;
   }
 
+  /* Section headings inside the body: uppercase eyebrows, no line icons (the
+     jigger/ordered-list header marks are dropped on this screen). */
   .recipe-body :global(h2) {
     font-family: var(--font-sans);
-    font-size: 0.75rem;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--color-fg-muted);
-    margin: 2.5rem 0 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--color-rule);
+    letter-spacing: 0.14em;
+    color: var(--color-fg-subtle);
+    margin: 2rem 0 1rem;
   }
   .recipe-body :global(h2:first-child) {
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
   }
-  /* Section-heading icons: one visual treatment whether the icon comes
-     from the Icon component (component-rendered sections) or the ::before
-     mask (markdown-rendered ## Notes / ## Variations). */
   .recipe-body :global(h2 .tax-icon) {
-    --icon-size: 3.4em;
-    margin-right: 0.5em;
-    vertical-align: -1.3em;
+    display: none;
   }
-  .recipe-body :global(h2#notes)::before,
-  .recipe-body :global(h2#variations)::before {
-    content: '';
-    display: inline-block;
-    width: 3.4em;
-    height: 3.4em;
-    margin-right: 0.5em;
-    vertical-align: -1.3em;
-    background-color: currentColor;
-    -webkit-mask: var(--md-icon) center / contain no-repeat;
-    mask: var(--md-icon) center / contain no-repeat;
-  }
-  .recipe-body :global(h2#notes)::before {
-    --md-icon: var(--icon-notes);
-  }
-  .recipe-body :global(h2#variations)::before {
-    --md-icon: var(--icon-variations);
-  }
-  .recipe-body :global(p .tax-icon.inline-icon) {
-    --icon-size: 2.4em;
-    margin-right: 0.25em;
-    vertical-align: -0.8em;
-    color: var(--color-fg-muted);
-  }
+
   .recipe-body :global(h3) {
     font-family: var(--font-serif);
     font-size: 1.0625rem;
@@ -553,20 +563,12 @@ const isTabbed = tabIds.length > 1;
   .recipe-body :global(p),
   .recipe-body :global(li) {
     font-family: var(--font-serif);
-    font-size: 1.0625rem;
-    line-height: 1.65;
+    font-size: 19px;
+    line-height: 1.6;
     color: var(--color-fg);
   }
   .recipe-body :global(p) {
     margin-block: 0.75rem;
-  }
-  .recipe-body :global(ul),
-  .recipe-body :global(ol) {
-    margin-block: 0.5rem;
-    padding-inline-start: 1.25rem;
-  }
-  .recipe-body :global(li) {
-    margin-block: 0.3rem;
   }
   .recipe-body :global(em) {
     color: var(--color-fg-muted);
@@ -577,6 +579,62 @@ const isTabbed = tabIds.length > 1;
   }
   .recipe-body :global(hr) {
     display: none;
+  }
+
+  /* Recipe tab: ingredient rows as hairline-separated lines; steps as numbered
+     accent-soft circles. Scoped to #panel-recipe so Notes/Variations lists in
+     the markdown body keep normal list styling. */
+  :global(#panel-recipe) ul {
+    list-style: none;
+    margin: 0.25rem 0 0;
+    padding: 0;
+  }
+  :global(#panel-recipe) ul > li {
+    padding: 11px 0;
+    border-bottom: 1px solid var(--color-rule-ingredient);
+    line-height: 1.45;
+  }
+  :global(#panel-recipe) ol {
+    list-style: none;
+    counter-reset: step;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  :global(#panel-recipe) ol > li {
+    counter-increment: step;
+    display: flex;
+    gap: 14px;
+    margin: 0;
+    line-height: 1.45;
+  }
+  :global(#panel-recipe) ol > li::before {
+    content: counter(step);
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Batching tab body: plainer sans instructions under the ingredient rows. */
+  :global(#panel-batching) ul {
+    list-style: none;
+    margin: 0.25rem 0 0;
+    padding: 0;
+  }
+  :global(#panel-batching) ul > li {
+    padding: 11px 0;
+    border-bottom: 1px solid var(--color-rule-ingredient);
   }
 
   /* Source tab — attribution prose. */
@@ -593,13 +651,54 @@ const isTabbed = tabIds.length > 1;
     font-weight: 600;
   }
 
+  /* ── Root callout ─────────────────────────────────────────────────────── */
+  .root-callout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: var(--color-header-bg);
+    color: var(--color-header-fg);
+    border-radius: var(--radius-callout);
+    padding: 24px 26px;
+  }
+  .root-callout-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .root-callout-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-header-fg-muted);
+  }
+  .root-callout-name {
+    font-family: var(--font-serif);
+    font-size: 24px;
+  }
+  .root-callout-link {
+    flex: none;
+    background: var(--color-accent);
+    color: var(--color-accent-fg);
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    text-decoration: none;
+  }
+  .root-callout-link:hover {
+    background: color-mix(in srgb, var(--color-accent), white 8%);
+  }
+
+  /* ── Related (full width, below the two-column grid) ──────────────────── */
   .related {
     margin-top: 2.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid var(--color-rule);
-    font-family: var(--font-sans);
-    font-size: 0.9rem;
-    color: var(--color-fg-muted);
   }
   .aside-title {
     font-family: var(--font-sans);
@@ -610,19 +709,15 @@ const isTabbed = tabIds.length > 1;
     color: var(--color-fg-muted);
     margin: 0 0 0.5rem;
   }
-  .aside-title :global(.tax-icon) {
-    --icon-size: 3.6em;
-    margin-right: 0.5em;
-    vertical-align: -1.4em;
-  }
-  /* Related uses the shared .recipe-grid (RecipeCard) — give the cards a little
-     more room to breathe below the muted aside-title. */
   .related .recipe-grid {
     margin-top: 0.25rem;
   }
 
   /* Print: no tabs, every panel expanded to a single stacked document. */
   @media print {
+    .detail-rail {
+      display: none;
+    }
     .recipe-tablist {
       display: none;
     }

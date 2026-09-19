@@ -1,8 +1,8 @@
 ---
 import type { Recipe } from '../lib/recipes';
 import { label } from '../lib/taxonomy';
-import Icon from './Icon.astro';
-import FlavorIcons from './FlavorIcons.astro';
+import { iconUrl } from '../lib/icon-urls';
+import { spiritAccentVar } from '../lib/accents';
 
 interface Props {
   recipe: Recipe;
@@ -12,6 +12,14 @@ const slug = recipe.id.split('/').pop();
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const data = recipe.data;
 const primarySpirit = data.spirits[0];
+const accent = spiritAccentVar(primarySpirit);
+// Photography doesn't exist yet — gate on hero_image and render a fallback tile
+// otherwise (see plan KD3). Real responsive images land via astro:assets later.
+const hasPhoto = Boolean(data.hero_image);
+const glassIcon = iconUrl('glass', data.glass);
+// Meta row is text only (no icons): method, then up to two flavors. Keeps the
+// row from wrapping past a line on flavor-heavy recipes.
+const metaFlavors = data.flavors.slice(0, 2).map((f) => label('flavor', f));
 ---
 <li
   class="recipe-card"
@@ -21,66 +29,148 @@ const primarySpirit = data.spirits[0];
   data-method={data.method}
   data-difficulty={data.difficulty}
 >
-  <a href={`${base}/recipes/${slug}/`} class="card h-full">
-    <h2 class="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.01em] text-fg">{data.title}</h2>
-    {primarySpirit && <p class="eyebrow card-spirit">{label('spirits', primarySpirit)}</p>}
-    <p class="card-blurb font-serif italic text-[0.95rem] leading-[1.45] text-fg-muted flex-1">{data.blurb}</p>
-    <p class="recipe-card-meta">
-      <span><Icon field="method" slug={data.method} /> {label('method', data.method)}</span>
-      {data.flavors.length > 0 && (
+  <a href={`${base}/recipes/${slug}/`} class="card h-full recipe-photo-card" style={`--accent: ${accent}`}>
+    <div class:list={['card-media', !hasPhoto && 'card-media--empty']}>
+      {hasPhoto ? (
+        <img class="card-img" src={data.hero_image} alt="" loading="lazy" decoding="async" />
+      ) : (
         <>
-          <span aria-hidden="true">·</span>
-          <span class="recipe-card-flavors">
-            <FlavorIcons slugs={data.flavors} iconClass="recipe-card-flavor" />
-          </span>
+          {glassIcon && (
+            <span class="tax-icon card-tile-icon" style={`--icon-url: url("${glassIcon}")`} aria-hidden="true"></span>
+          )}
+          {primarySpirit && <span class="card-tile-name">{label('spirits', primarySpirit)}</span>}
         </>
       )}
-      {data.format !== 'single' && (
-        <>
-          <span aria-hidden="true">·</span>
-          <span><Icon field="format" slug={data.format} /> {label('format', data.format)}</span>
-        </>
-      )}
-    </p>
+      {primarySpirit && <span class="card-badge">{label('spirits', primarySpirit)}</span>}
+    </div>
+    <div class="card-body">
+      <h2 class="card-title">{data.title}</h2>
+      <p class="card-blurb">{data.blurb}</p>
+      <p class="recipe-card-meta">
+        <span>{label('method', data.method)}</span>
+        {metaFlavors.map((f) => (
+          <>
+            <span class="meta-dot" aria-hidden="true"></span>
+            <span>{f}</span>
+          </>
+        ))}
+      </p>
+    </div>
   </a>
 </li>
 
 <style>
-  /* Meta row: small caps mini-badge. Kept as a scoped class so the
-     descendant span[aria-hidden] opacity selector stays clean — the
-     equivalent Tailwind arbitrary variant string is noisy enough to
-     hurt readability for one selector. */
-  .recipe-card-meta {
-    margin-top: 0.5rem;
-    font-family: var(--font-sans);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-fg-subtle);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    align-items: center;
+  /* Photo-first card. Builds on the shared .card primitive (surface, lift
+     transition, reduced-motion zeroing) but goes edge-to-edge: no padding, its
+     own 20px radius, and overflow-hidden so the image clips to the top corners.
+     The whole <a> is the link (middle-click + keyboard focus work). --accent is
+     set inline per spirit and drives the badge, tile, and dots. */
+  .recipe-photo-card {
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+    border-radius: var(--radius-card-photo);
+    box-shadow: var(--shadow-photo-card);
   }
-  .recipe-card-meta span[aria-hidden] { opacity: 0.5; }
-  .card-spirit {
-    color: var(--color-accent);
-  }
-  .recipe-card-meta :global(.tax-icon) {
-    --icon-size: 3.6em;
-    vertical-align: -1.4em;
+  @media (hover: hover) {
+    .recipe-photo-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-photo-card-hover);
+    }
   }
 
-  /* Flavor icons sit inline in the meta row, just right of the method, in
-     place of the old difficulty badge. Each icon carries a label tooltip. */
-  .recipe-card-flavors {
-    display: inline-flex;
+  .card-media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: var(--color-surface-muted);
+  }
+  .card-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* No-photo fallback tile: accent hue at 8% alpha, hairline at ~13%, a masked
+     glass icon + spirit name, both in the accent hue. */
+  .card-media--empty {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.3rem;
+    justify-content: center;
+    gap: 14px;
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 13%, transparent);
+  }
+  .card-tile-icon {
+    --icon-size: 62px;
+    color: var(--accent);
+    opacity: 0.55;
+  }
+  .card-tile-name {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--accent);
+    opacity: 0.75;
+  }
+
+  .card-badge {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgb(251 248 242 / 0.94);
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    padding: 18px 18px 16px;
+  }
+  .card-title {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: 21px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--color-fg);
+  }
+  .card-blurb {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--color-fg-muted);
+  }
+  .recipe-card-meta {
+    margin-top: auto;
+    padding-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     color: var(--color-fg-subtle);
   }
-  .recipe-card-flavors :global(.recipe-card-flavor) {
-    --icon-size: 18px;
+  .meta-dot {
+    display: inline-block;
+    width: 3px;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--color-rule-strong);
   }
 </style>
