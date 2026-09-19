@@ -20,3 +20,6 @@ intake/
 
 # OS
 .DS_Store
+
+# Personal party planning — dev context, never publish
+docs/parties/
