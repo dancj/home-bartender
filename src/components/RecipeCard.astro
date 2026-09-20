@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import type { Recipe } from '../lib/recipes';
 import { label } from '../lib/taxonomy';
 import { iconUrl } from '../lib/icon-urls';
@@ -13,8 +14,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const data = recipe.data;
 const primarySpirit = data.spirits[0];
 const accent = spiritAccentVar(primarySpirit);
-// Photography doesn't exist yet — gate on hero_image and render a fallback tile
-// otherwise (see plan KD3). Real responsive images land via astro:assets later.
+// Photo when hero_image is set, else a fallback tile (see plan KD3).
 const hasPhoto = Boolean(data.hero_image);
 const glassIcon = iconUrl('glass', data.glass);
 // Meta row is text only (no icons): method, then up to two flavors. Keeps the
@@ -31,8 +31,16 @@ const metaFlavors = data.flavors.slice(0, 2).map((f) => label('flavor', f));
 >
   <a href={`${base}/recipes/${slug}/`} class="card h-full recipe-photo-card" style={`--accent: ${accent}`}>
     <div class:list={['card-media', !hasPhoto && 'card-media--empty']}>
-      {hasPhoto ? (
-        <img class="card-img" src={data.hero_image} alt="" loading="lazy" decoding="async" />
+      {data.hero_image ? (
+        <Image
+          class="card-img"
+          src={data.hero_image}
+          alt=""
+          widths={[256, 320, 512]}
+          sizes="(min-width: 70rem) 300px, (min-width: 40rem) 45vw, 90vw"
+          loading="lazy"
+          decoding="async"
+        />
       ) : (
         <>
           {glassIcon && (

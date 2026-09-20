@@ -15,7 +15,7 @@ import {
 
 const recipes = defineCollection({
   loader: glob({ pattern: '**/[^_]*.md', base: './recipes' }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
     blurb: z.string(),
 
@@ -66,8 +66,12 @@ const recipes = defineCollection({
     related: z.array(z.string()).default([]),
     aliases: z.array(z.string()).default([]),
 
-    hero_image: z.string().optional().default(''),
-    gallery: z.array(z.any()).optional().default([]),
+    // Resolved through Astro's image pipeline (astro:assets). Paths are relative
+    // to the recipe .md (e.g. `./army-and-navy.jpg`). Legacy recipes carry
+    // `hero_image: ""` — coerce that empty string to undefined so image() isn't
+    // asked to resolve an empty path (an absent/empty photo → fallback tile).
+    hero_image: z.preprocess((v) => (v === '' ? undefined : v), image().optional()),
+    gallery: z.array(image()).default([]),
     preparations: z.array(z.string()).optional().default([]),
 
     created: z.coerce.date().optional(),

@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from './BaseLayout.astro';
 import type { Recipe } from '../lib/recipes';
 import { publishedRecipes } from '../lib/recipes';
@@ -32,9 +33,8 @@ const accent = spiritAccentVar(primarySpirit);
 const primaryRoot = data.roots[0];
 const hasHero = Boolean(data.hero_image);
 const glassIcon = iconUrl('glass', data.glass);
-// Photography doesn't exist yet — render 0/1/2 gallery photos, drop the row
-// when empty (plan KD3). Real responsive images land via astro:assets later.
-const galleryItems = (data.gallery ?? []).slice(0, 2) as string[];
+// Render 0/1/2 gallery photos, drop the row when empty (plan KD3).
+const galleryItems = (data.gallery ?? []).slice(0, 2);
 
 // Resolve related[] slugs to full recipes so cards render real titles instead
 // of de-slugged text. Order follows the related[] list (see resolveRelated).
@@ -83,8 +83,15 @@ const isTabbed = tabIds.length > 1;
       {/* Left: sticky photo rail. Fallback tile until hero_image exists. */}
       <div class="detail-rail">
         <div class:list={['detail-hero', !hasHero && 'detail-hero--empty']}>
-          {hasHero ? (
-            <img src={data.hero_image} alt={data.title} loading="eager" decoding="async" />
+          {data.hero_image ? (
+            <Image
+              src={data.hero_image}
+              alt={data.title}
+              widths={[300, 600, 900]}
+              sizes="(min-width: 700px) 40vw, 90vw"
+              loading="eager"
+              decoding="async"
+            />
           ) : (
             <>
               {glassIcon && (
@@ -96,8 +103,8 @@ const isTabbed = tabIds.length > 1;
         </div>
         {galleryItems.length > 0 && (
           <div class="detail-gallery">
-            {galleryItems.map((src) => (
-              <img src={src} alt="" loading="lazy" decoding="async" />
+            {galleryItems.map((img) => (
+              <Image src={img} alt="" widths={[200, 400]} sizes="(min-width: 700px) 20vw, 45vw" loading="lazy" decoding="async" />
             ))}
           </div>
         )}
