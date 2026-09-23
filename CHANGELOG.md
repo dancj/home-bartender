@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.8.18.3] - 2026-08-18
+
+- #185 — feat(recipes): promote six inbox drafts to classics (@dancj)
+- #184 — docs: update CHANGELOG for release 2026.8.18.2 (@app/github-actions)
 ## [2026.8.18.2] - 2026-08-18
 
 - #182 — fix(header): stop collapsing-header jitter at borderline viewport widths (@dancj)

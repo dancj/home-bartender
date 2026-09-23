@@ -53,6 +53,66 @@
   /* Motion */
   --transition-base: 150ms ease-out;
   --transition-lift: 200ms ease;
+
+  /* ── Recipe-refresh additions (browse + detail screens) ──────────────── */
+
+  /* Spirit accents — the "splash of color": dots, card badges, fallback
+     tiles only, never body text. Handoff-certified 4.5:1 on --color-surface at
+     badge sizes; all sit in the L 40–48% / low-chroma band. Resolved per-slug
+     by src/lib/accents.ts. One token per data/taxonomy.yaml spirit slug. */
+  --color-spirit-gin: #4F6B57;
+  --color-spirit-tequila: #6E7A3C;
+  --color-spirit-mezcal: #5A5348;
+  --color-spirit-whiskey: #7E5233;
+  --color-spirit-bourbon: #8A4B2A;
+  --color-spirit-rye: #7A4630;
+  --color-spirit-scotch: #6E5A34;
+  --color-spirit-vodka: #4E6480;
+  --color-spirit-rum: #8A6A3A;
+  --color-spirit-brandy: #8F5A34;
+  --color-spirit-aperitif: #9A5236;
+  --color-spirit-liqueur: #6E5A7A;
+  --color-spirit-wine: #7E4A5A;
+  --color-spirit-champagne: #8A7434;
+
+  /* Flavor accents — chip dots only. One token per taxonomy flavor slug. */
+  --color-flavor-citrus: #A5701F;
+  --color-flavor-nutty: #8A6A3A;
+  --color-flavor-botanical: #4F6B57;
+  --color-flavor-bright: #6E7A3C;
+  --color-flavor-smoky: #5A5348;
+  --color-flavor-sour: #8A7434;
+  --color-flavor-spice: #8A4B2A;
+  --color-flavor-herbal: #556E48;
+  --color-flavor-floral: #7E4A5A;
+  --color-flavor-chocolate: #5A4632;
+  --color-flavor-rich: #6E4B34;
+  --color-flavor-sweet: #9A6A3A;
+  --color-flavor-spirit-forward: #7A4630;
+  --color-flavor-bitter: #6E5A34;
+  --color-flavor-fruity: #9A5236;
+  --color-flavor-tart: #94702A;
+  --color-flavor-bubbly: #5F7480;
+  --color-flavor-savory: #5A5A48;
+  --color-flavor-refreshing: #4E7A6E;
+
+  /* Loose values from the handoff Design Tokens table */
+  --color-notes-prose: #3A3128;      /* detail Notes tab prose */
+  --color-rule-ingredient: #EAE3D4;  /* ingredient-row hairline */
+  --color-chip-soft: #F1E9DC;        /* soft chip fill */
+
+  /* Radii — photo card 20, hero 22, secondary photo 16, facts grid 18,
+     root callout 20 (existing --radius-card 22px unchanged) */
+  --radius-card-photo: 20px;
+  --radius-hero: 22px;
+  --radius-photo: 16px;
+  --radius-facts: 18px;
+  --radius-callout: 20px;
+
+  /* Photo-card + hero shadows (handoff, specified exactly) */
+  --shadow-photo-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -10px rgb(0 0 0 / 0.1);
+  --shadow-photo-card-hover: 0 2px 4px rgb(0 0 0 / 0.05), 0 16px 34px -12px rgb(0 0 0 / 0.16);
+  --shadow-hero: 0 1px 2px rgb(0 0 0 / 0.04), 0 20px 44px -20px rgb(0 0 0 / 0.18);
 }
 
 @layer base {
@@ -226,6 +286,19 @@
   }
   .chip .tax-icon {
     --icon-size: 3.2em;
+  }
+  /* 7px accent dot on a chip (browse spirit filters, detail flavor chips). The
+     call site sets --accent inline; an active chip flips the dot to cream. */
+  .chip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--accent, var(--color-rule-strong));
+    flex: none;
+  }
+  .chip[aria-pressed="true"] .chip-dot,
+  .chip-active .chip-dot {
+    background: var(--color-accent-fg);
   }
 
   /* Input */
