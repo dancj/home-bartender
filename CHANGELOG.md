@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.9.23.1] - 2026-09-23
+
+- #195 — feat: photo-first recipe browse + detail refresh (@dancj)
+- #194 — feat(recipes): Tepache Old Fashioned + jalapeño-cuke & mango-mezcal margaritas (@dancj)
+- #192 — chore: gitignore docs/parties personal planning folder (@dancj)
+- #191 — chore(deps): update dependency vitest to v5 (@app/renovate)
+- #190 — chore(deps): update all non-major dependencies (@app/renovate)
+- #187 — docs: update CHANGELOG for release 2026.8.18.3 (@app/github-actions)
+- #173 — chore(deps): update all non-major dependencies - autoclosed (@app/renovate)
 ## [2026.8.18.3] - 2026-08-18
 
 - #185 — feat(recipes): promote six inbox drafts to classics (@dancj)
