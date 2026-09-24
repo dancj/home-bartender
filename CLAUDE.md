@@ -100,6 +100,7 @@ recipes/
   inbox/          ← new recipes pending review (publish: false)
 sections/         ← prose: introduction, techniques, tools, super juice
 TEMPLATE.md       ← standard recipe format with frontmatter schema
+docs/solutions/   ← documented solutions to past problems (bugs, patterns), by category, YAML frontmatter (module, tags, problem_type); relevant when debugging or building in documented areas
 ```
 
 ## Recipe Pipeline
