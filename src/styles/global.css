@@ -11,7 +11,10 @@
  * lands in BaseLayout.astro in U4.
  */
 
-@theme {
+/* static: always emit every token. Accents are referenced only via runtime
+   `var(--color-spirit-${slug})` strings (src/lib/accents.ts), which Tailwind
+   cannot see, so the default pruning dropped all but gin/bourbon. */
+@theme static {
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   --font-serif: "Newsreader", Georgia, "Times New Roman", serif;
