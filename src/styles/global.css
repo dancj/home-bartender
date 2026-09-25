@@ -142,6 +142,12 @@
        loop. Guaranteeing the page always scrolls past the collapse distance breaks
        the loop. Keep ≥ the largest (--hb-large − --hb-compact). */
     min-height: calc(100vh + 9rem);
+    /* Disable scroll anchoring (#198). Collapsing the header shrinks its in-flow
+       height; Chromium's anchoring then shifts scrollY back by the same delta,
+       which re-expands the header, which shifts scrollY forward — an endless
+       flicker when scrollY sits at the collapse distance. The scroll script
+       already owns the header↔scroll relationship; anchoring only fights it. */
+    overflow-anchor: none;
     display: flex;
     flex-direction: column;
   }
