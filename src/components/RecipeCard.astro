@@ -42,12 +42,9 @@ const metaFlavors = data.flavors.slice(0, 2).map((f) => label('flavor', f));
           decoding="async"
         />
       ) : (
-        <>
-          {glassIcon && (
-            <span class="tax-icon card-tile-icon" style={`--icon-url: url("${glassIcon}")`} aria-hidden="true"></span>
-          )}
-          {primarySpirit && <span class="card-tile-name">{label('spirits', primarySpirit)}</span>}
-        </>
+        glassIcon && (
+          <span class="tax-icon card-tile-icon" style={`--icon-url: url("${glassIcon}")`} aria-hidden="true"></span>
+        )
       )}
       {primarySpirit && <span class="card-badge">{label('spirits', primarySpirit)}</span>}
     </div>
@@ -98,28 +95,24 @@ const metaFlavors = data.flavors.slice(0, 2).map((f) => label('flavor', f));
     height: 100%;
     object-fit: cover;
   }
-  /* No-photo fallback tile: accent hue at 8% alpha, hairline at ~13%, a masked
-     glass icon + spirit name, both in the accent hue. */
+  /* No-photo fallback: a short accent band (not a 4:5 tile) so placeholder
+     cards stay compact while photos trickle in. Accent hue at 8% alpha,
+     hairline at ~13%, masked glass icon in the accent hue; the badge carries
+     the spirit name. */
   .card-media--empty {
+    aspect-ratio: auto;
+    height: 72px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 14px;
+    justify-content: flex-end;
+    padding-right: 18px;
     background: color-mix(in srgb, var(--accent) 8%, transparent);
     border-bottom: 1px solid color-mix(in srgb, var(--accent) 13%, transparent);
   }
   .card-tile-icon {
-    --icon-size: 62px;
+    --icon-size: 40px;
     color: var(--accent);
     opacity: 0.55;
-  }
-  .card-tile-name {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 15px;
-    color: var(--accent);
-    opacity: 0.75;
   }
 
   .card-badge {
@@ -135,6 +128,11 @@ const metaFlavors = data.flavors.slice(0, 2).map((f) => label('flavor', f));
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--accent);
+  }
+  .card-media--empty .card-badge {
+    top: 50%;
+    transform: translateY(-50%);
+    left: 18px;
   }
 
   .card-body {
