@@ -1,6 +1,6 @@
 ---
 title: Prosecco Mojito
-blurb: A bubbly, festive twist on the mojito — lighter on rum, topped with prosecco.
+blurb: White rum, lime, and mint topped with prosecco — a lighter, fizzier mojito.
 category: original
 publish: true
 glass: highball

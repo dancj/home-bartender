@@ -1,6 +1,6 @@
 ---
 title: Jungle Bird
-blurb: "A tiki classic where bitter Campari meets dark rum, pineapple, and lime."
+blurb: "Dark rum, Campari, pineapple, and lime — fruity and tart, with a bitter edge."
 category: classic
 publish: true
 glass: rocks

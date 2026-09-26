@@ -1,6 +1,6 @@
 ---
 title: Mango Mezcal Margarita
-blurb: "A smoky margarita with concentrated mango and a bittersweet triple sec backbone."
+blurb: "A mezcal margarita with reduced mango nectar — smoky, tart, and fruity."
 category: classic
 publish: true
 glass: margarita

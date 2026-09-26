@@ -1,6 +1,6 @@
 ---
 title: Naked & Famous
-blurb: An equal-parts mezcal sour — smoky, bitter, herbal, and bright all at once.
+blurb: An equal-parts mezcal sour with Yellow Chartreuse and Aperol — smoky, bitter, herbal, and tart.
 category: classic
 publish: true
 glass: coupe

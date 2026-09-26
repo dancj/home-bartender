@@ -1,6 +1,6 @@
 ---
 title: "Elderflower Ginger Sour (Hers)"
-blurb: "A floral, gingery tequila sour with St Germain and lemon — bright, elegant and a little spicy"
+blurb: "A tequila sour with St Germain, lemon, and ginger syrup — floral, tart, and a little spicy"
 category: classic
 publish: true
 glass: coupe

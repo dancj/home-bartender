@@ -1,6 +1,6 @@
 ---
 title: Army & Navy
-blurb: A vintage gin sour with orgeat — bright, nutty, and deceptively simple.
+blurb: A gin sour sweetened with orgeat — tart lemon up front, almond underneath, a dash of Angostura.
 category: classic
 publish: true
 glass: coupe
