@@ -94,13 +94,14 @@ const metaFlavors = data.flavors.slice(0, 2).map((f) => label('flavor', f));
     height: 100%;
     object-fit: cover;
   }
-  /* No-photo fallback: a short accent band (not a 4:5 tile) so placeholder
-     cards stay compact while photos trickle in. Accent hue at 8% alpha,
-     hairline at ~13%, masked glass icon in the accent hue; the badge carries
-     the spirit name. */
+  /* No-photo fallback: an accent band, 72px minimum. In a row with a photo
+     card it grows to absorb the extra height (flex: 1) so the text section
+     stays its natural size. Accent hue at 8% alpha, hairline at ~13%, masked
+     glass icon in the accent hue; the badge carries the spirit name. */
   .card-media--empty {
     aspect-ratio: auto;
-    height: 72px;
+    flex: 1;
+    min-height: 72px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -138,7 +139,6 @@ const metaFlavors = data.flavors.slice(0, 2).map((f) => label('flavor', f));
     display: flex;
     flex-direction: column;
     gap: 8px;
-    flex: 1;
     padding: 18px 18px 16px;
   }
   .card-title {

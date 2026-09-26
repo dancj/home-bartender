@@ -148,7 +148,7 @@ describe('ingestPhotos', () => {
     expect(result.ok).toBe(false);
   });
 
-  it('re-ingesting replaces the file without duplicating the gallery entry', async () => {
+  it('re-ingesting in another format swaps the gallery entry instead of adding one', async () => {
     const fs = fakeFs({
       [LW]: RECIPE.replace('hero_image: ""', 'hero_image: ./last-word.jpg').replace(
         'gallery: []',
@@ -160,7 +160,7 @@ describe('ingestPhotos', () => {
 
     const result = await ingestPhotos({ rootDir: ROOT, ...fs, resize });
 
-    expect(fs.store.get(LW)).toContain('gallery: [./last-word-ingredients.jpg]\n');
+    expect(fs.store.get(LW)).toContain('gallery: [./last-word-ingredients.png]\n');
     expect(result.ok).toBe(true);
   });
 
@@ -205,11 +205,35 @@ describe('ingestPhotos', () => {
     expect(fs.store.has(`${INTAKE}/draft.jpg`)).toBe(true);
   });
 
-  it('rejects an ingredients photo when the recipe has no hero and none is in the batch', async () => {
+  it('accepts an ingredients illustration for a recipe without a hero', async () => {
     const fs = fakeFs({ [LW]: RECIPE, [`${INTAKE}/last-word-ingredients.jpg`]: 'img' });
-    const result = await ingestPhotos({ rootDir: ROOT, ...fs, resize: vi.fn() });
-    expect(result.rejected[0].reason).toMatch(/hero/i);
-    expect(fs.store.get(LW)).toBe(RECIPE);
+    const result = await ingestPhotos({
+      rootDir: ROOT,
+      ...fs,
+      resize: vi.fn(async (src, dst) => void fs.store.set(dst, 'jpeg')),
+    });
+    expect(result.ok).toBe(true);
+    expect(fs.store.get(LW)).toContain('gallery: [./last-word-ingredients.jpg]');
+  });
+
+  it('keeps a PNG ingredients illustration as PNG so transparency survives', async () => {
+    const fs = fakeFs({ [LW]: RECIPE, [`${INTAKE}/last-word-ingredients.png`]: 'img' });
+    const resize = vi.fn(async (src, dst) => void fs.store.set(dst, 'png'));
+
+    await ingestPhotos({ rootDir: ROOT, ...fs, resize });
+
+    expect(resize).toHaveBeenCalledWith(
+      `${INTAKE}/last-word-ingredients.png`,
+      path.join(ROOT, 'recipes/classics/last-word-ingredients.png'),
+    );
+    expect(fs.store.get(LW)).toContain('gallery: [./last-word-ingredients.png]');
+  });
+
+  it('still converts a PNG hero to JPEG', async () => {
+    const fs = fakeFs({ [LW]: RECIPE, [`${INTAKE}/last-word.png`]: 'img' });
+    const resize = vi.fn(async (src, dst) => void fs.store.set(dst, 'jpeg'));
+    await ingestPhotos({ rootDir: ROOT, ...fs, resize });
+    expect(resize.mock.calls[0][1]).toBe(path.join(ROOT, 'recipes/classics/last-word.jpg'));
   });
 
   it('rejects an ingredients photo when the gallery already shows two other photos', async () => {
