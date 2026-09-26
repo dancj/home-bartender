@@ -115,7 +115,6 @@ jobs:
             // release-build time is the real enforcement, not this workflow.
             const METHODS = ['shaken', 'stirred', 'built', 'blended'];
             const ICES = ['cubed', 'large-cube', 'crushed', 'none'];
-            const DIFFICULTIES = ['easy', 'medium', 'advanced'];
             const GLASSES = ['coupe', 'nick-and-nora', 'rocks', 'double-rocks', 'highball', 'collins', 'flute', 'wine', 'margarita', 'martini', 'mug', 'snifter', 'julep-tin'];
             const pick = (label, allowed) => {
               const v = (f[label] || '').trim();
@@ -123,14 +122,13 @@ jobs:
             };
             const method = pick('Method', METHODS);
             const ice = pick('Ice', ICES);
-            const difficulty = pick('Difficulty', DIFFICULTIES);
             const glass = pick('Glass', GLASSES);
             const blurb = (f['Description'] || '').trim();
 
             // ---------------------------------------------------------------
             // FRONTMATTER — as complete as the form allows. When the submitter
-            // fills blurb + method + ice + glass + difficulty, this draft is
-            // release-build-valid on arrival (title/category/blurb + those four
+            // fills blurb + method + ice + glass, this draft is
+            // release-build-valid on arrival (title/category/blurb + those three
             // enums are the only Zod-required fields; ingredients/steps default
             // to []). Anything left blank is a reviewer gap — validate.mjs skips
             // Zod for publish:false, so a partial draft still opens its PR.
@@ -144,7 +142,6 @@ jobs:
             if (glass) fm.push(`glass: ${glass}`);
             if (method) fm.push(`method: ${method}`);
             if (ice) fm.push(`ice: ${ice}`);
-            if (difficulty) fm.push(`difficulty: ${difficulty}`);
             fm.push('ingredients:');
             for (const i of ingredients) fm.push(`  - ${yamlStr(i)}`);
             if (steps.length) {
@@ -169,7 +166,6 @@ jobs:
             if (!glass) missing.push('glass');
             if (!method) missing.push('method');
             if (!ice) missing.push('ice');
-            if (!difficulty) missing.push('difficulty');
             if (!steps.length) missing.push('steps');
 
             const md = [];
@@ -233,4 +229,4 @@ jobs:
             --base staging \
             --head "$BRANCH" \
             --title "Add recipe: ${RECIPE_NAME}" \
-            --body "$(printf 'Submitted by @%s in #%s.\n\nLands in `%s` with `publish: false`. Reviewer completes the frontmatter (blurb, glass, method, ice, difficulty, steps) per TEMPLATE.md, then merges to accept or closes to decline.\n\nCloses #%s' "$ISSUE_AUTHOR" "$ISSUE_NUMBER" "$RECIPE_PATH" "$ISSUE_NUMBER")"
+            --body "$(printf 'Submitted by @%s in #%s.\n\nLands in `%s` with `publish: false`. Reviewer completes the frontmatter (blurb, glass, method, ice, steps) per TEMPLATE.md, then merges to accept or closes to decline.\n\nCloses #%s' "$ISSUE_AUTHOR" "$ISSUE_NUMBER" "$RECIPE_PATH" "$ISSUE_NUMBER")"

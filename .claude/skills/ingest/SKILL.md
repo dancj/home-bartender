@@ -21,7 +21,7 @@ Batch-normalize raw recipe material from `intake/` into `recipes/inbox/` drafts,
    - Slug = lowercase-hyphenated recipe name; file lands at `recipes/inbox/<slug>.md`.
    - `category: inbox`, `publish: false`.
    - Frontmatter carries `ingredients[]`, `steps[]`, top-level `garnish`, `float`, and `house_made{}` / `batch{}` where the source describes them. Body is `## Notes` (plus narrative-only sections) — never `## Ingredients` / `## Steps` headings.
-   - Infer `glass`, `method`, `ice`, `difficulty`, `spirits[]`, `flavors[]` from taxonomy values only (`data/taxonomy.yaml` via `TEMPLATE.md` table).
+   - Infer `glass`, `method`, `ice`, `spirits[]`, `flavors[]` from taxonomy values only (`data/taxonomy.yaml` via `TEMPLATE.md` table).
    - Missing measurements stay blank — never guess.
    - Attribution only when the source names both creator AND venue; otherwise leave the block empty.
    - **Duplicate slugs:** if `recipes/**/<slug>.md` already exists, do not overwrite — flag the collision in the report and skip the file (or suffix `-2` only if the source is clearly a different recipe with the same name).

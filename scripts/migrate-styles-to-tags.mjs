@@ -2,7 +2,7 @@
 // One-shot migration: rename `styles:` frontmatter key to `tags:` across
 // every recipe under recipes/**/*.md, dedup'ing values that overlap with
 // any canonical hard enum (methods/glasses/families/spirits/flavors/
-// occasions/categories/ices/difficulties/formats — sourced from
+// occasions/categories/ices/formats — sourced from
 // data/taxonomy.yaml via scripts/taxonomy.generated.mjs).
 //
 // Rationale for dedup: after schema hardening, tag values that match a
