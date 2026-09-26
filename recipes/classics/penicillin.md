@@ -1,6 +1,6 @@
 ---
 title: Penicillin
-blurb: A modern classic — blended scotch with fresh lemon, honey-ginger syrup, and a smoky Laphroaig float.
+blurb: Blended scotch, lemon, and honey-ginger syrup under a peaty scotch float — sweet, spicy, and smoky.
 category: classic
 publish: true
 glass: rocks

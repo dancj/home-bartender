@@ -1,6 +1,6 @@
 ---
 title: Spice Trade
-blurb: A simple, crushable gin sour — cinnamon warmth meets bright basil and lemon.
+blurb: A gin sour with cinnamon syrup, lemon, and fresh basil — warm spice, tart citrus, a green herbal note.
 category: classic
 publish: true
 glass: coupe

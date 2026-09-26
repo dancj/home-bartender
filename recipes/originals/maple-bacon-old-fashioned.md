@@ -1,6 +1,6 @@
 ---
 title: Maple Bacon Old Fashioned
-blurb: A rich, smoky old fashioned with fat-washed bourbon and maple syrup — a showstopper.
+blurb: Bacon fat-washed bourbon with maple syrup and Angostura — smoky, savory, and sweet.
 category: original
 publish: true
 glass: rocks

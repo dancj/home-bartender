@@ -1,6 +1,6 @@
 ---
 title: Last Word
-blurb: A Prohibition-era equal-parts gin sour — herbal, tart, and vivid green.
+blurb: An equal-parts gin sour with green Chartreuse and maraschino — herbal, tart, and pale green.
 category: classic
 publish: true
 glass: coupe

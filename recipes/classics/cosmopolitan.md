@@ -1,6 +1,6 @@
 ---
 title: Cosmopolitan
-blurb: The iconic vodka sour — citrusy, rosy, and effortlessly elegant.
+blurb: Vodka, Cointreau, lime, and cranberry — tart, lightly sweet, and pink.
 category: classic
 publish: true
 glass: coupe

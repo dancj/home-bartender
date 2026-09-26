@@ -1,6 +1,6 @@
 ---
 title: Chocolate Old Fashioned
-blurb: A rich, dessert-leaning Old Fashioned — bourbon deepened with chocolate liqueur and a whisper of maple.
+blurb: Bourbon with chocolate liqueur and chocolate bitters, plus just enough maple to round it out.
 category: original
 publish: true
 glass: rocks

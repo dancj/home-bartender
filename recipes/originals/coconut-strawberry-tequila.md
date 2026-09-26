@@ -1,6 +1,6 @@
 ---
 title: Coconut Strawberry Tequila
-blurb: A fruity, tropical tequila cocktail with a hint of smoke and heat — born at a house party.
+blurb: Coconut tequila and mezcal with lime and triple sec — fruity and a little smoky, with heat from hot bitters.
 category: original
 publish: true
 glass: rocks

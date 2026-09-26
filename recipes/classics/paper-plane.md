@@ -1,6 +1,6 @@
 ---
 title: Paper Plane
-blurb: An equal-parts modern classic — bourbon, amaro, Aperol, and lemon in perfect balance.
+blurb: Bourbon, Amaro Nonino, Aperol, and lemon in near-equal parts — bittersweet, orangey, and tart.
 category: classic
 publish: true
 glass: coupe
