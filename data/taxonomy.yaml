@@ -35,11 +35,6 @@ ices:
   - { slug: crushed, label: Crushed }
   - { slug: none, label: None }
 
-difficulties:
-  - { slug: easy, label: Basic }
-  - { slug: medium, label: Medium }
-  - { slug: advanced, label: Advanced }
-
 formats:
   - { slug: single, label: Single }
   - { slug: batch, label: Batch }

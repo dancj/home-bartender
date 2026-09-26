@@ -31,15 +31,6 @@ export const ICE_LABELS: Record<Ice, string> = {
   'none': "None",
 };
 
-export const DIFFICULTIES = ['easy', 'medium', 'advanced'] as const;
-export type Difficulty = (typeof DIFFICULTIES)[number];
-
-export const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  'easy': "Basic",
-  'medium': "Medium",
-  'advanced': "Advanced",
-};
-
 export const FORMATS = ['single', 'batch', 'punch'] as const;
 export type Format = (typeof FORMATS)[number];
 
