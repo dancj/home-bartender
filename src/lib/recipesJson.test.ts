@@ -23,7 +23,7 @@ describe('recipeToJson', () => {
     });
   });
 
-  it('emits exactly the documented keys (no difficulty — #206)', () => {
+  it('emits exactly the documented keys', () => {
     expect(Object.keys(recipeToJson(naked, '')).sort()).toEqual(
       ['description', 'flavors', 'method', 'slug', 'spirits', 'title', 'url']
     );

@@ -44,7 +44,7 @@ describe('breadcrumbTrail', () => {
   it('throws on an unknown facet key', () => {
     // 'style' is a legacy redirect, not a live facet — must not silently render.
     expect(() => breadcrumbTrail('style', 'x')).toThrow();
-    expect(() => breadcrumbTrail('difficulty', 'x')).toThrow(); // removed facet (#206)
+    expect(() => breadcrumbTrail('difficulty', 'x')).toThrow();
     expect(() => breadcrumbTrail('spirits', 'x')).toThrow(); // plural label() field key, not a breadcrumb key
   });
 });

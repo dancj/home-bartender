@@ -54,7 +54,7 @@ describe('parseSortMode', () => {
 
   it('falls back to title for null or unknown values', () => {
     expect(parseSortMode(null)).toBe('title');
-    expect(parseSortMode('difficulty')).toBe('title'); // removed mode (#206)
+    expect(parseSortMode('difficulty')).toBe('title');
     expect(parseSortMode('bogus')).toBe('title');
   });
 });

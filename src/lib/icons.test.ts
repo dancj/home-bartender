@@ -32,7 +32,7 @@ describe('resolveIconKey', () => {
     expect(resolveIconKey('occasion', 'brunch')).toBeNull();
     expect(resolveIconKey('occasions', 'brunch')).toBeNull();
     expect(resolveIconKey('tag', 'tiki')).toBeNull();
-    expect(resolveIconKey('difficulty', 'easy')).toBeNull(); // removed field (#206)
+    expect(resolveIconKey('difficulty', 'easy')).toBeNull();
   });
 
   it('returns null for an empty slug', () => {
