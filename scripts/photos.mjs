@@ -138,7 +138,7 @@ export async function ingestPhotos({
   return { moved, rejected, ok: rejected.length === 0 };
 }
 
-export async function sharpResize(src, dst) {
+async function sharpResize(src, dst) {
   const sharp = (await import('sharp')).default;
   await sharp(src)
     .rotate()
