@@ -26,8 +26,8 @@ related:
   - maple-bacon-old-fashioned
   - manhattan
 aliases: []
-hero_image: ""
-gallery: []
+hero_image: ./chocolate-old-fashioned.jpg
+gallery: [./chocolate-old-fashioned-ingredients.jpg]
 preparations: []
 created: 2026-04-06
 ingredients:
