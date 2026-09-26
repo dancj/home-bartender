@@ -1,19 +1,17 @@
 ---
 title: Paloma
-blurb: Mexico's most popular cocktail — bright, citrusy, and infinitely refreshing.
+blurb: Reposado tequila, grapefruit, and lime topped with grapefruit seltzer — tart, slightly bitter, and fizzy.
 category: classic
 publish: true
 glass: highball
 method: shaken
 method_note: topped
 ice: cubed
-difficulty: easy
 roots: [whiskey-highball]
 spirits:
   - tequila
   - mezcal
 format: single
-serves: 1
 flavors:
   - citrus
   - refreshing

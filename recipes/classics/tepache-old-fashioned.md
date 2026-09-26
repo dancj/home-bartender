@@ -6,12 +6,10 @@ publish: true
 glass: rocks
 method: stirred
 ice: large-cube
-difficulty: easy
 roots: [old-fashioned]
 spirits:
   - whiskey
 format: single
-serves: 1
 flavors:
   - fruity
   - spirit-forward
@@ -20,7 +18,7 @@ tags: []
 occasions: []
 ingredients:
   - 2 oz whiskey (bourbon or rye)
-  - 1 oz tepache (flat or lightly carbonated)
+  - 1 oz tepache (fermented pineapple drink; flat or lightly carbonated)
   - ¼ oz simple syrup or agave nectar
   - 2–3 dashes cocoa bitters (or mole bitters)
 garnish: Pineapple wedge or an expressed orange peel
@@ -43,4 +41,4 @@ created: 2026-09-18
 
 ## Notes
 
-Adjust the simple syrup or agave depending on how sweet your tepache is. Mole bitters work in place of cocoa bitters. Source: GitHub issue #188.
+Tepache is a lightly fermented Mexican drink made from pineapple rinds and sugar (traditionally piloncillo). Adjust the simple syrup or agave depending on how sweet your tepache is. Mole bitters work in place of cocoa bitters. Source: GitHub issue #188.

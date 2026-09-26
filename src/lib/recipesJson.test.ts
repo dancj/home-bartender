@@ -7,7 +7,6 @@ const naked: RecipeJsonInput = {
   blurb: 'An equal-parts mezcal sour.',
   spirits: ['mezcal'],
   method: 'shaken',
-  difficulty: 'easy',
   flavors: ['smoky', 'bitter', 'citrus'],
 };
 
@@ -18,11 +17,16 @@ describe('recipeToJson', () => {
       slug: 'naked-and-famous',
       spirits: ['mezcal'],
       method: 'shaken',
-      difficulty: 'easy',
       flavors: ['smoky', 'bitter', 'citrus'],
       description: 'An equal-parts mezcal sour.',
       url: 'https://dancj.github.io/home-bartender/recipes/naked-and-famous/',
     });
+  });
+
+  it('emits exactly the documented keys', () => {
+    expect(Object.keys(recipeToJson(naked, '')).sort()).toEqual(
+      ['description', 'flavors', 'method', 'slug', 'spirits', 'title', 'url']
+    );
   });
 
   it('passes empty spirits/flavors through as [], not dropped', () => {

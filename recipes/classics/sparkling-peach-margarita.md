@@ -1,18 +1,16 @@
 ---
 title: Sparkling Peach Margarita
-blurb: "A bright, tart-sweet margarita lengthened with peach and a sparkling top."
+blurb: "Tequila, lime, and peach syrup topped with soda or sparkling wine — tart, fruity, and fizzy."
 category: classic
 publish: true
 glass: margarita
 method: shaken
 method_note: topped
 ice: cubed
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - tequila
 format: single
-serves: 1
 flavors:
   - citrus
   - fruity

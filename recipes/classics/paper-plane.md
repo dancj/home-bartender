@@ -1,6 +1,6 @@
 ---
 title: Paper Plane
-blurb: An equal-parts modern classic — bourbon, amaro, Aperol, and lemon in perfect balance.
+blurb: Bourbon, Amaro Nonino, Aperol, and lemon in near-equal parts — bittersweet, orangey, and tart.
 category: classic
 publish: true
 glass: coupe
@@ -8,13 +8,11 @@ glass_note: or rocks with a big cube
 method: shaken
 ice: none
 ice_note: (served up) · or large cube in rocks variation
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - bourbon
   - aperitif
 format: single
-serves: 1
 flavors:
   - bitter
   - citrus

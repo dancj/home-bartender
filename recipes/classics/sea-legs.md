@@ -7,13 +7,11 @@ glass: coupe
 method: shaken
 ice: none
 ice_note: (served up)
-difficulty: medium
 roots: [daiquiri]
 spirits:
   - mezcal
   - scotch
 format: single
-serves: 1
 flavors:
   - smoky
   - nutty
@@ -38,7 +36,7 @@ ingredients:
   - 1 oz scotch
   - 1 oz mezcal
   - ¾ oz fresh lime juice
-  - ¾ oz orgeat
+  - ¾ oz orgeat (almond syrup)
   - 2 dashes celery bitters
 garnish: Salt rim
 steps:

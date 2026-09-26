@@ -1,18 +1,16 @@
 ---
 title: Army & Navy
-blurb: A vintage gin sour with orgeat — bright, nutty, and deceptively simple.
+blurb: A gin sour sweetened with orgeat — tart lemon up front, almond underneath, a dash of Angostura.
 category: classic
 publish: true
 glass: coupe
 method: shaken
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - gin
 format: single
-serves: 1
 flavors:
   - citrus
   - nutty
@@ -37,7 +35,7 @@ created: 2026-04-06
 ingredients:
   - 2 oz gin
   - ¾ oz fresh lemon juice
-  - ½ oz orgeat
+  - ½ oz orgeat (almond syrup)
   - 1 dash Angostura bitters
 steps:
   - Combine all ingredients in a shaker with ice

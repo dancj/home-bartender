@@ -7,14 +7,12 @@ glass: coupe
 method: stirred
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [martini, old-fashioned]
 spirits:
   - bourbon
   - liqueur
   - wine
 format: single
-serves: 1
 flavors:
   - spirit-forward
   - sweet
@@ -39,7 +37,7 @@ ingredients:
   - 2 oz bourbon
   - 1 oz sweet vermouth
   - 2 dashes Angostura bitters
-garnish: Luxardo cherry (or quality maraschino)
+garnish: Cocktail cherry (Luxardo maraschino)
 steps:
   - Combine bourbon, sweet vermouth, and bitters in a mixing glass with ice
   - Stir well until chilled and properly diluted (~30 seconds)

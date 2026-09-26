@@ -148,7 +148,7 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
 
       // The filter rows' own axes — the active count and Clear button ignore
       // `makeable`, which lives in the separate My Bar bar.
-      const PANEL_FIELDS = ['spirit', 'difficulty', 'method', 'flavor'];
+      const PANEL_FIELDS = ['spirit', 'method', 'flavor'];
       const FIELDS = [...PANEL_FIELDS, 'makeable'];
 
       // localStorage can throw (private mode, disabled) — degrade to
@@ -249,7 +249,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         if (filters.spirit && !dataList(ds.spirits).includes(filters.spirit)) return false;
         if (filters.flavor && !dataList(ds.flavors).includes(filters.flavor)) return false;
         if (filters.method && ds.method !== filters.method) return false;
-        if (filters.difficulty && ds.difficulty !== filters.difficulty) return false;
         if (filters.makeable && !isMakeable(dataList(ds.spirits), ownedSet)) return false;
         return true;
       }
@@ -260,7 +259,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         const record = (c: HTMLElement) => ({
           title: c.dataset.title ?? '',
           primarySpirit: dataList(c.dataset.spirits)[0] ?? '',
-          difficulty: c.dataset.difficulty ?? '',
         });
         // appendChild moves in-place; hidden state is untouched by reordering.
         for (const c of [...cards].sort((a, b) => compareCards(record(a), record(b), mode)))

@@ -1,12 +1,11 @@
 ---
 title: "Smoky Ginger Sour (His)"
-blurb: "Smoky mezcal and sweet vermouth with ginger, lemon and Aperol — bold, complex and citrusy"
+blurb: "Mezcal and sweet vermouth with Aperol, lemon, and ginger syrup — smoky, bittersweet, and spicy"
 category: classic
 publish: true
 glass: rocks
 method: shaken
 ice: large-cube
-difficulty: easy
 ingredients:
   - "1.5 oz mezcal"
   - "0.5 oz sweet vermouth"

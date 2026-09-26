@@ -12,6 +12,7 @@
     "astro": "astro",
     "validate": "node scripts/validate.mjs",
     "promote": "node scripts/promote.mjs",
+    "photos": "node scripts/photos.mjs",
     "migrate:bodies": "node scripts/migrate-body-to-frontmatter.mjs",
     "codegen": "node scripts/codegen-taxonomy.mjs",
     "icons": "node scripts/prep-icons.mjs",

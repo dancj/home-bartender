@@ -4,7 +4,6 @@
 export const CATEGORIES = ['classic', 'original', 'seasonal', 'inbox'];
 export const METHODS = ['shaken', 'stirred', 'built', 'blended'];
 export const ICES = ['cubed', 'large-cube', 'crushed', 'none'];
-export const DIFFICULTIES = ['easy', 'medium', 'advanced'];
 export const FORMATS = ['single', 'batch', 'punch'];
 export const ROOTS = ['old-fashioned', 'martini', 'daiquiri', 'sidecar', 'whiskey-highball', 'flip'];
 export const GLASSES = ['coupe', 'nick-and-nora', 'rocks', 'double-rocks', 'highball', 'collins', 'flute', 'wine', 'margarita', 'martini', 'mug', 'snifter', 'julep-tin'];

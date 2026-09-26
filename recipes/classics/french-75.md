@@ -1,6 +1,6 @@
 ---
 title: French 75
-blurb: A gin sour topped with Champagne — celebratory, bright, and dangerously drinkable.
+blurb: Gin, lemon, and simple syrup topped with Champagne — tart, dry, and fizzy.
 category: classic
 publish: true
 glass: flute
@@ -9,13 +9,11 @@ method: shaken
 method_note: built
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [daiquiri, whiskey-highball]
 spirits:
   - gin
   - champagne
 format: single
-serves: 1
 flavors:
   - citrus
   - bubbly

@@ -1,5 +1,5 @@
 # Home Bartender
-A personal cocktail recipe collection with filtering by spirit, method, difficulty, and flavor.
+A personal cocktail recipe collection with filtering by spirit, method, and flavor.
 
 ## Recipes
 Full recipe list: https://dancj.github.io/home-bartender/

@@ -33,7 +33,8 @@ const accent = spiritAccentVar(primarySpirit);
 const primaryRoot = data.roots[0];
 const hasHero = Boolean(data.hero_image);
 const glassIcon = iconUrl('glass', data.glass);
-// Render 0/1/2 gallery photos, drop the row when empty (plan KD3).
+// Ingredient illustrations (the gallery field) render inside the recipe,
+// between ingredients and steps. The rail holds only the hero.
 const galleryItems = (data.gallery ?? []).slice(0, 2);
 
 // Resolve related[] slugs to full recipes so cards render real titles instead
@@ -70,7 +71,7 @@ const tabLabels: Record<TabId, string> = {
 };
 const isTabbed = tabIds.length > 1;
 ---
-<BaseLayout title={`${data.title} — Home Bartending`} description={data.blurb}>
+<BaseLayout title={`${data.title} — Home Bartending`} description={data.blurb} width="wide">
   <article data-pagefind-body>
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <ol>
@@ -101,13 +102,6 @@ const isTabbed = tabIds.length > 1;
             </>
           )}
         </div>
-        {galleryItems.length > 0 && (
-          <div class="detail-gallery">
-            {galleryItems.map((img) => (
-              <Image src={img} alt="" widths={[200, 400]} sizes="(min-width: 700px) 20vw, 45vw" loading="lazy" decoding="async" />
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Right: identity, facts, tabs, root callout. */}
@@ -131,14 +125,6 @@ const isTabbed = tabIds.length > 1;
           <div class="fact-cell">
             <span class="fact-label">Ice</span>
             <span class="fact-value">{label('ice', data.ice)}{data.ice_note && <span class="fact-note"> {data.ice_note}</span>}</span>
-          </div>
-          <div class="fact-cell">
-            <span class="fact-label">Difficulty</span>
-            <span class="fact-value">{label('difficulty', data.difficulty)}</span>
-          </div>
-          <div class="fact-cell">
-            <span class="fact-label">Serves</span>
-            <span class="fact-value">{data.serves}</span>
           </div>
         </div>
 
@@ -174,6 +160,18 @@ const isTabbed = tabIds.length > 1;
             {data.ingredients.length > 0 && (
               <Ingredients items={data.ingredients} garnish={data.garnish} float={data.float} />
             )}
+            {galleryItems.map((img) => (
+              <figure class="ingredients-art">
+                <Image
+                  src={img}
+                  alt={`Ingredients for ${data.title}`}
+                  widths={[400, 800, 1200]}
+                  sizes="(min-width: 700px) 40vw, 90vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            ))}
             {data.house_made && <HouseMade {...data.house_made} />}
             {data.steps.length > 0 && <Steps items={data.steps} />}
           </section>
@@ -352,6 +350,14 @@ const isTabbed = tabIds.length > 1;
     gap: 40px;
     align-items: start;
   }
+  /* Desktop: use the wide container — photo and recipe split the width, the
+     recipe side slightly wider for comfortable line lengths. */
+  @media (min-width: 901px) {
+    .detail-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: 56px;
+    }
+  }
   .detail-rail {
     display: flex;
     flex-direction: column;
@@ -367,7 +373,6 @@ const isTabbed = tabIds.length > 1;
       position: static;
     }
   }
-
   .detail-hero {
     aspect-ratio: 4 / 5;
     border-radius: var(--radius-hero);
@@ -401,16 +406,15 @@ const isTabbed = tabIds.length > 1;
     color: var(--accent);
     opacity: 0.75;
   }
-  .detail-gallery {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+  /* Ingredient illustration inside the recipe tab: shown whole at its own
+     shape (hand-drawn art, possibly transparent), no crop or card chrome. */
+  .ingredients-art {
+    margin: 0;
   }
-  .detail-gallery img {
+  .ingredients-art img {
     display: block;
     width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
+    height: auto;
     border-radius: var(--radius-photo);
   }
 

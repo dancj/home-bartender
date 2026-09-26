@@ -1,11 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { compareCards, parseSortMode, type SortableCard } from './indexSort';
 
-const card = (
-  title: string,
-  primarySpirit = '',
-  difficulty = ''
-): SortableCard => ({ title, primarySpirit, difficulty });
+const card = (title: string, primarySpirit = ''): SortableCard => ({ title, primarySpirit });
 
 const sort = (cards: SortableCard[], mode: Parameters<typeof compareCards>[2]) =>
   [...cards].sort((a, b) => compareCards(a, b, mode)).map((c) => c.title);
@@ -50,39 +46,15 @@ describe('compareCards spirit mode', () => {
   });
 });
 
-describe('compareCards difficulty mode', () => {
-  it('orders easy < medium < advanced (taxonomy order, not alphabetical)', () => {
-    expect(
-      sort(
-        [
-          card('Hard', '', 'advanced'),
-          card('Mid', '', 'medium'),
-          card('Easy', '', 'easy'),
-        ],
-        'difficulty'
-      )
-    ).toEqual(['Easy', 'Mid', 'Hard']);
-  });
-
-  it('sorts an unknown difficulty last and breaks ties by title', () => {
-    expect(
-      sort(
-        [card('Weird', '', 'bogus'), card('B', '', 'easy'), card('A', '', 'easy')],
-        'difficulty'
-      )
-    ).toEqual(['A', 'B', 'Weird']);
-  });
-});
-
 describe('parseSortMode', () => {
   it('accepts known modes', () => {
     expect(parseSortMode('spirit')).toBe('spirit');
-    expect(parseSortMode('difficulty')).toBe('difficulty');
     expect(parseSortMode('title')).toBe('title');
   });
 
   it('falls back to title for null or unknown values', () => {
     expect(parseSortMode(null)).toBe('title');
+    expect(parseSortMode('difficulty')).toBe('title');
     expect(parseSortMode('bogus')).toBe('title');
   });
 });

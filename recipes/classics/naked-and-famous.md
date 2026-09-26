@@ -1,20 +1,18 @@
 ---
 title: Naked & Famous
-blurb: An equal-parts mezcal sour — smoky, bitter, herbal, and bright all at once.
+blurb: An equal-parts mezcal sour with Yellow Chartreuse and Aperol — smoky, bitter, herbal, and tart.
 category: classic
 publish: true
 glass: coupe
 method: shaken
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - mezcal
   - liqueur
   - aperitif
 format: single
-serves: 1
 flavors:
   - smoky
   - bitter

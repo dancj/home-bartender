@@ -309,6 +309,7 @@ describe('mentionsHouseMadeWorthyPrep — trigger predicate', () => {
   it.each([
     ['- ½ oz simple syrup', false, 'bare simple syrup is store-bought'],
     ['- 1 bar spoon maple syrup', false, 'bare maple syrup is store-bought'],
+    ['- ½ oz orgeat (almond syrup)', false, 'orgeat gloss is store-bought'],
     ['- ¼ oz agave nectar', false, 'agave is not a syrup'],
     ['- 2 oz fresh grapefruit juice', false, 'no prep mention'],
     ['- Lime wedge', false, 'no prep mention'],

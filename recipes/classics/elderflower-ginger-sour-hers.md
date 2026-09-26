@@ -1,19 +1,24 @@
 ---
 title: "Elderflower Ginger Sour (Hers)"
-blurb: "A floral, gingery tequila sour with St Germain and lemon — bright, elegant and a little spicy"
+blurb: "A tequila sour with St Germain, lemon, and ginger syrup — floral, tart, and a little spicy"
 category: classic
 publish: true
 glass: coupe
 method: shaken
 ice: none
-difficulty: easy
+spirits:
+  - tequila
+flavors:
+  - floral
+  - spice
+  - citrus
 ingredients:
   - "2 oz blanco tequila"
-  - "0.8 oz St Germain elderflower liqueur"
+  - "0.8 oz elderflower liqueur (St-Germain)"
   - "0.8 oz fresh lemon juice"
   - "0.5 oz ginger gum syrup"
 steps:
-  - "Add blanco tequila, St Germain elderflower liqueur, fresh lemon juice, and ginger gum syrup to a shaker with ice. Shake hard for 12 seconds."
+  - "Add blanco tequila, elderflower liqueur, fresh lemon juice, and ginger gum syrup to a shaker with ice. Shake hard for 12 seconds."
   - "Double strain into a chilled coupe or rocks glass over ice."
   - "Express a lemon twist or edible flower over the glass and place on the rim."
 garnish: "Lemon twist or edible flower"

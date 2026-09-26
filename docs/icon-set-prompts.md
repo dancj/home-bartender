@@ -7,7 +7,7 @@ Every facet value comes from `data/taxonomy.yaml` (the single source of truth). 
 ## How to use
 
 1. Paste one prompt block below into the generator.
-2. Keep the **STYLE block identical across every run** — that's what makes all 86 icons read as one family.
+2. Keep the **STYLE block identical across every run** — that's what makes all 83 icons read as one family.
 3. Save each result by its slug (`coupe.png`, `tequila.png`, …) so the files map straight onto the taxonomy.
 4. Image generators return raster images, not SVG. Drop the generated grid PNGs into `docs/imgs/`, add an entry to `data/icon-grids.json` (group, slice options, row-major slug order — `null` skips a duplicate/variant cell), and run `npm run icons` to slice + vectorize them into `src/assets/icons/<group>/<slug>.svg` (requires `brew install potrace`). Sliced raster previews land in `.icon-work/` for QA.
 
@@ -30,7 +30,6 @@ Every facet value comes from `data/taxonomy.yaml` (the single source of truth). 
 | Categories | 4 |
 | Methods | 4 |
 | Ice | 4 |
-| Difficulty | 3 |
 | Format | 3 |
 | Families | 6 |
 | Glassware | 13 |
@@ -38,7 +37,7 @@ Every facet value comes from `data/taxonomy.yaml` (the single source of truth). 
 | Flavors | 19 |
 | Occasions | 7 |
 | Structural headings | 9 |
-| **Total** | **86** |
+| **Total** | **83** |
 
 `martini` and `wine` each appear in two facets (glass + family / spirit) — decide whether they share one glyph or get context-specific variants.
 
@@ -109,29 +108,7 @@ Output each icon separately on a solid white background so I can export them ind
 
 > Watch: `cubed` vs `large-cube` read only through size/quantity. If they converge, specify "large-cube fills most of the frame; cubed shows three small cubes taking up less than half."
 
-## 4. Difficulty (3)
-
-```
-Create a set of 3 matching icons for a home bartender website. Bartender/cocktail themed.
-
-STYLE (apply identically to all 3):
-- Monochrome: solid black on a solid WHITE background
-- Single consistent stroke weight, line-art style (not filled silhouettes)
-- Square 1:1 framing, generous even padding, each icon optically the same size
-- Minimal and clean — readable at 24px, no text, no labels, no shadows or gradients
-- Cohesive set: same visual language and detail level across all 3
-
-ICONS:
-1. "easy" — beginner-friendly, few steps. Metaphor: one filled dot of three.
-2. "medium" — moderate effort. Metaphor: two filled dots of three.
-3. "advanced" — complex, many steps/techniques. Metaphor: three filled dots of three.
-
-Output each icon separately on a solid white background so I can export them individually.
-```
-
-> A filled/unfilled pip scale (1, 2, 3 dots) reads more clearly as difficulty than a glass-count metaphor (which looks like serving size).
-
-## 5. Format (3)
+## 4. Format (3)
 
 ```
 Create a set of 3 matching icons for a home bartender website. Bartender/cocktail themed.
@@ -151,7 +128,7 @@ ICONS:
 Output each icon separately on a solid white background so I can export them individually.
 ```
 
-## 6. Families (6)
+## 5. Families (6)
 
 ```
 Create a set of 6 matching icons for a home bartender website. Bartender/cocktail themed.
@@ -176,7 +153,7 @@ Output each icon separately on a solid white background so I can export them ind
 
 > Families ride on glass + garnish, so they overlap with Glassware. The garnish detail (olive, lime wheel, sugar rim, nutmeg froth, orange twist) is what keeps them distinct — if the generator simplifies garnish away, they collapse into plain glasses.
 
-## 7. Glassware (13)
+## 6. Glassware (13)
 
 ```
 Create a set of 13 matching icons for a home bartender website. Each is a distinct piece of glassware/drinkware, shown empty.
@@ -209,7 +186,7 @@ Output each icon separately on a solid white background so I can export them ind
 
 > 13 in one shot may strain the generator. If sloppy, split into stemware (coupe, nick-and-nora, flute, wine, margarita, martini, snifter) and tumblers/other (rocks, double-rocks, highball, collins, mug, julep-tin) — same STYLE block in both. Near-twins to police: `rocks`/`double-rocks` (size) and `highball`/`collins` (proportion).
 
-## 8. Spirits (14)
+## 7. Spirits (14)
 
 ```
 Create a set of 14 matching icons for a home bartender website. Each represents a category of spirit/wine.
@@ -242,7 +219,7 @@ Output each icon separately on a solid white background so I can export them ind
 
 > 14 in one shot may strain the generator. If sloppy, split into by-plant (tequila, mezcal, rye, gin, rum, brandy) and by-vessel (whiskey, bourbon, scotch, vodka, aperitif, liqueur, wine, champagne). Watch `tequila`/`mezcal` (smoke wisp is the only tell) and `wine`/`champagne` (popping cork is the tell).
 
-## 9. Flavors (19) — run as 3 batches
+## 8. Flavors (19) — run as 3 batches
 
 ### Batch 1 — Fruit & citrus (6)
 
@@ -316,7 +293,7 @@ Output each icon separately on a solid white background.
 
 > Pairs to inspect: `sour`/`tart` (lemon vs lime wedge — may need to share a glyph), `savory` olive vs the martini/aperitif olive (the pick is the differentiator), `bright` sunburst vs `refreshing` (keep bright a pure sunburst).
 
-## 10. Occasions (7)
+## 9. Occasions (7)
 
 ```
 Create a set of 7 matching icons for a home bartender website. Each represents an occasion/mood for a cocktail.
@@ -342,7 +319,7 @@ Output each icon separately on a solid white background.
 
 > Cross-group overlaps: `batch-friendly` (pitcher) vs `format:batch` and section `batch`; `summer` (plain sun) vs `brunch` (flute) vs flavor `bright` (sunburst); `nightcap` (moon) vs `weeknight` (clock).
 
-## 11. Structural section headings (9)
+## 10. Structural section headings (9)
 
 These are recipe-page chrome, not taxonomy slugs. Suggested filenames use a `section-` prefix.
 

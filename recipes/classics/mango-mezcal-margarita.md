@@ -1,17 +1,15 @@
 ---
 title: Mango Mezcal Margarita
-blurb: "A smoky margarita with concentrated mango and a bittersweet triple sec backbone."
+blurb: "A mezcal margarita with reduced mango nectar — smoky, tart, and fruity."
 category: classic
 publish: true
 glass: margarita
 method: shaken
 ice: cubed
-difficulty: medium
 roots: [daiquiri]
 spirits:
   - mezcal
 format: single
-serves: 1
 flavors:
   - fruity
   - smoky

@@ -7,14 +7,12 @@ glass: margarita
 glass_note: or rocks
 method: shaken
 ice: cubed
-difficulty: medium
 roots: [sidecar]
 spirits:
   - tequila
   - liqueur
   - mezcal
 format: single
-serves: 1
 flavors:
   - citrus
   - spice
@@ -39,9 +37,9 @@ ingredients:
   - 1 oz fresh lime juice
   - ¾ oz mango habanero syrup
   - ½ oz triple sec or Cointreau
-garnish: Tajin or salt rim
+garnish: Chili-lime salt (Tajín) or salt rim
 steps:
-  - Rim glass with lime and tajin (or salt)
+  - Rim glass with lime and chili-lime salt (Tajín) or plain salt
   - Combine tequila, lime juice, mango habanero syrup, and triple sec in a shaker with ice
   - Shake well until chilled
   - Strain into glass over ice

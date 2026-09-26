@@ -1,19 +1,17 @@
 ---
 title: Lavender Fields
-blurb: A floral, elegant gin cocktail with elderflower and a silky egg white foam.
+blurb: Gin, elderflower liqueur, and lavender honey syrup shaken with egg white — floral and honeyed, with a silky foam.
 category: original
 publish: true
 glass: coupe
 method: shaken
 method_note: Dry shake first for egg white foam, then shake with ice
 ice: none
-difficulty: medium
 roots: [daiquiri]
 spirits:
   - gin
   - liqueur
 format: single
-serves: 1
 flavors:
   - floral
   - sour

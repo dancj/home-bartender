@@ -1,18 +1,16 @@
 ---
 title: Last Word
-blurb: A Prohibition-era equal-parts gin sour — herbal, tart, and vivid green.
+blurb: An equal-parts gin sour with green Chartreuse and maraschino — herbal, tart, and pale green.
 category: classic
 publish: true
 glass: coupe
 method: shaken
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - gin
 format: single
-serves: 1
 flavors:
   - citrus
   - herbal
@@ -29,8 +27,8 @@ related:
   - gin-gimlet
   - army-and-navy
 aliases: []
-hero_image: ""
-gallery: []
+hero_image: ./last-word.jpg
+gallery: [./last-word-ingredients.jpg]
 preparations: []
 created: 2026-07-14
 ingredients:

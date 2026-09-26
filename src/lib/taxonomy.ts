@@ -1,7 +1,6 @@
 import type { Recipe } from './recipes';
 import {
   SPIRIT_LABELS,
-  DIFFICULTY_LABELS,
   METHOD_LABELS,
   GLASS_LABELS,
   ROOT_LABELS,
@@ -17,7 +16,6 @@ import {
 // Re-export the generated label maps so existing callers keep working.
 export {
   SPIRIT_LABELS,
-  DIFFICULTY_LABELS,
   METHOD_LABELS,
   GLASS_LABELS,
   ROOT_LABELS,
@@ -33,7 +31,6 @@ export {
 const LABEL_MAPS: Record<string, Record<string, string>> = {
   spirit: SPIRIT_LABELS,
   spirits: SPIRIT_LABELS,
-  difficulty: DIFFICULTY_LABELS,
   method: METHOD_LABELS,
   glass: GLASS_LABELS,
   root: ROOT_LABELS,

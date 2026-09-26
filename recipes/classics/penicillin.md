@@ -1,18 +1,16 @@
 ---
 title: Penicillin
-blurb: A modern classic — blended scotch with fresh lemon, honey-ginger syrup, and a smoky Laphroaig float.
+blurb: Blended scotch, lemon, and honey-ginger syrup under a peaty scotch float — sweet, spicy, and smoky.
 category: classic
 publish: true
 glass: rocks
 method: shaken
 ice: large-cube
-difficulty: medium
 roots: [daiquiri]
 spirits:
   - scotch
   - whiskey
 format: single
-serves: 1
 flavors:
   - smoky
   - sour
@@ -38,12 +36,12 @@ ingredients:
   - 2 oz blended scotch
   - ¾ oz fresh lemon juice
   - ¾ oz honey-ginger syrup
-float: ¼ oz Laphroaig (or other Islay single malt)
+float: ¼ oz peaty scotch (Laphroaig, Ardbeg)
 steps:
   - Combine scotch, lemon juice, and honey-ginger syrup in a shaker with ice
   - Shake well until chilled
   - Strain into a rocks glass over a large ice cube
-  - Float ¼ oz Laphroaig by pouring slowly over the back of a bar spoon — don't stir it in
+  - Float ¼ oz peaty scotch by pouring slowly over the back of a bar spoon — don't stir it in
 house_made:
   name: Honey-Ginger Syrup
   yield: Makes ~4 oz. Keeps 2–3 weeks refrigerated.
@@ -61,9 +59,9 @@ batch:
     - 16 oz blended scotch
     - 6 oz fresh lemon juice
     - 6 oz honey-ginger syrup
-  instructions: Combine and refrigerate. Shake each serving individually with ice and strain. Float ¼ oz Laphroaig per glass at serve time.
+  instructions: Combine and refrigerate. Shake each serving individually with ice and strain. Float ¼ oz peaty scotch per glass at serve time.
 ---
 
 ## Notes
 
-Created by Sam Ross at Milk & Honey, NYC in 2005. The Laphroaig float is non-negotiable — it sits on top and hits your nose before the first sip. Don't skip the fresh lemon; bottled juice won't do it justice. Blended scotch (Monkey Shoulder, Famous Grouse) in the base keeps the drink from getting too peaty throughout.
+Created by Sam Ross at Milk & Honey, NYC in 2005. The peaty scotch float (Laphroaig, Ardbeg, or any smoky Islay malt) is non-negotiable — it sits on top and hits your nose before the first sip. Don't skip the fresh lemon; bottled juice won't do it justice. Blended scotch (Monkey Shoulder, Famous Grouse) in the base keeps the drink from getting too peaty throughout.

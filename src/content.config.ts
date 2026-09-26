@@ -4,7 +4,6 @@ import {
   CATEGORIES,
   METHODS,
   ICES,
-  DIFFICULTIES,
   FORMATS,
   GLASSES,
   ROOTS,
@@ -28,13 +27,11 @@ const recipes = defineCollection({
     method_note: z.string().optional().default(''),
     ice: z.enum(ICES),
     ice_note: z.string().optional().default(''),
-    difficulty: z.enum(DIFFICULTIES),
 
     roots: z.array(z.enum(ROOTS)).default([]),
 
     spirits: z.array(z.enum(SPIRITS)).default([]),
     format: z.enum(FORMATS).default('single'),
-    serves: z.number().default(1),
 
     flavors: z.array(z.enum(FLAVORS)).default([]),
     tags: z.array(z.string()).default([]),
