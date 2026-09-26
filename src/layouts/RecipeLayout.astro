@@ -71,7 +71,7 @@ const tabLabels: Record<TabId, string> = {
 };
 const isTabbed = tabIds.length > 1;
 ---
-<BaseLayout title={`${data.title} — Home Bartending`} description={data.blurb}>
+<BaseLayout title={`${data.title} — Home Bartending`} description={data.blurb} width="wide">
   <article data-pagefind-body>
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <ol>
@@ -349,6 +349,14 @@ const isTabbed = tabIds.length > 1;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 40px;
     align-items: start;
+  }
+  /* Desktop: use the wide container — photo and recipe split the width, the
+     recipe side slightly wider for comfortable line lengths. */
+  @media (min-width: 901px) {
+    .detail-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: 56px;
+    }
   }
   .detail-rail {
     display: flex;
