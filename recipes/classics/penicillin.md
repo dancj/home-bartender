@@ -1,6 +1,6 @@
 ---
 title: Penicillin
-blurb: Blended scotch, lemon, and honey-ginger syrup under a Laphroaig float — sweet, spicy, and smoky.
+blurb: Blended scotch, lemon, and honey-ginger syrup under a peaty scotch float — sweet, spicy, and smoky.
 category: classic
 publish: true
 glass: rocks
