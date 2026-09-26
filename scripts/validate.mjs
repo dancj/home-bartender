@@ -66,13 +66,13 @@ export function extractH2Headings(body) {
 
 // Trigger predicate for the House-Made soft rule. Returns true when the
 // ingredient line names a craft preparation likely to need a `house_made`
-// frontmatter field. Bare `simple syrup` and `maple syrup` are intentionally
-// excluded — they are store-bought and would generate noise on day one.
+// frontmatter field. Bare `simple syrup`, `maple syrup`, and `orgeat (almond
+// syrup)` are intentionally excluded — they are store-bought.
 export function mentionsHouseMadeWorthyPrep(line) {
   if (/\b(shrub|tincture|cordial|infusion)\b/i.test(line)) return true;
   if (/\b\w+-washed\b/i.test(line)) return true;
   if (/\bsyrup\b/i.test(line)) {
-    if (/\b(simple|maple)\s+syrup\b/i.test(line)) return false;
+    if (/\b(simple|maple|almond)\s+syrup\b/i.test(line)) return false;
     return true;
   }
   return false;

@@ -37,7 +37,7 @@ created: 2026-04-06
 ingredients:
   - 2 oz gin
   - ¾ oz fresh lemon juice
-  - ½ oz orgeat
+  - ½ oz orgeat (almond syrup)
   - 1 dash Angostura bitters
 steps:
   - Combine all ingredients in a shaker with ice

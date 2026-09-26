@@ -38,7 +38,7 @@ ingredients:
   - 1 oz scotch
   - 1 oz mezcal
   - ¾ oz fresh lime juice
-  - ¾ oz orgeat
+  - ¾ oz orgeat (almond syrup)
   - 2 dashes celery bitters
 garnish: Salt rim
 steps:
