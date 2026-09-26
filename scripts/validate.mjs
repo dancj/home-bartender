@@ -7,7 +7,7 @@
 //   - duplicate slug detection across directories
 //   - alias-vs-slug collision warnings
 //
-// Enum membership for category, method, ice, difficulty, format, glass,
+// Enum membership for category, method, ice, format, glass,
 // root, spirits, flavors, occasions is delegated entirely to Zod (see
 // src/content.config.ts, populated from data/taxonomy.yaml).
 //

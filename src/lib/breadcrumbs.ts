@@ -22,7 +22,6 @@ const FACETS: Record<string, FacetMeta> = {
   flavor: { eyebrow: 'By flavor' },
   spirit: { eyebrow: 'By spirit' },
   root: { eyebrow: 'By root', index: '/roots/' },
-  difficulty: { eyebrow: 'By difficulty' },
   occasion: { eyebrow: 'By occasion' },
   tag: { eyebrow: 'By tag' },
 };

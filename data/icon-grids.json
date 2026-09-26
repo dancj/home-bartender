@@ -3,13 +3,6 @@
     "group": "methods",
     "cells": ["shaken", "stirred", "built", "blended"]
   },
-  "hbt_difficulty.png": {
-    "group": "difficulty",
-    "slice": { "axis": "cols", "depth": 1 },
-    "keepSegment": "first",
-    "keepGapY": 8,
-    "cells": ["easy", "medium", "advanced"]
-  },
   "hbt_family2.png": {
     "group": "families",
     "inset": 0.08,

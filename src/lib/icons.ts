@@ -7,7 +7,6 @@
 const ICON_DIRS: Record<string, string> = {
   spirit: 'spirits',
   spirits: 'spirits',
-  difficulty: 'difficulty',
   method: 'methods',
   glass: 'glassware',
   root: 'families',

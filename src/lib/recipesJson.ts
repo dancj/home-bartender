@@ -10,7 +10,6 @@ export interface RecipeJsonInput {
   blurb: string;
   spirits: string[];
   method: string;
-  difficulty: string;
   flavors: string[];
 }
 
@@ -19,7 +18,6 @@ export interface RecipeJsonOutput {
   slug: string;
   spirits: string[];
   method: string;
-  difficulty: string;
   flavors: string[];
   description: string;
   url: string;
@@ -39,7 +37,6 @@ export function recipeToJson(recipe: RecipeJsonInput, sitePrefix: string): Recip
     slug: recipe.slug,
     spirits: recipe.spirits,
     method: recipe.method,
-    difficulty: recipe.difficulty,
     flavors: recipe.flavors,
     description: recipe.blurb,
     url: `${sitePrefix.replace(/\/$/, '')}/recipes/${recipe.slug}/`,

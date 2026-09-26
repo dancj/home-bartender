@@ -20,7 +20,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  CATEGORIES, METHODS, ICES, DIFFICULTIES, FORMATS,
+  CATEGORIES, METHODS, ICES, FORMATS,
   GLASSES, ROOTS, SPIRITS, FLAVORS, OCCASIONS,
 } from './taxonomy.generated.mjs';
 
@@ -28,7 +28,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
 
 const CANONICAL = new Set([
-  ...CATEGORIES, ...METHODS, ...ICES, ...DIFFICULTIES, ...FORMATS,
+  ...CATEGORIES, ...METHODS, ...ICES, ...FORMATS,
   ...GLASSES, ...ROOTS, ...SPIRITS, ...FLAVORS, ...OCCASIONS,
 ]);
 

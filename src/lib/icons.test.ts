@@ -9,7 +9,6 @@ import {
   ROOTS,
   METHODS,
   ICES,
-  DIFFICULTIES,
   FORMATS,
 } from '../taxonomy.generated';
 
@@ -18,7 +17,6 @@ describe('resolveIconKey', () => {
     expect(resolveIconKey('glass', 'coupe')).toBe('glassware/coupe');
     expect(resolveIconKey('method', 'shaken')).toBe('methods/shaken');
     expect(resolveIconKey('ice', 'none')).toBe('ice/none');
-    expect(resolveIconKey('difficulty', 'easy')).toBe('difficulty/easy');
     expect(resolveIconKey('format', 'batch')).toBe('format/batch');
     expect(resolveIconKey('spirit', 'gin')).toBe('spirits/gin');
     expect(resolveIconKey('spirits', 'gin')).toBe('spirits/gin');
@@ -34,6 +32,7 @@ describe('resolveIconKey', () => {
     expect(resolveIconKey('occasion', 'brunch')).toBeNull();
     expect(resolveIconKey('occasions', 'brunch')).toBeNull();
     expect(resolveIconKey('tag', 'tiki')).toBeNull();
+    expect(resolveIconKey('difficulty', 'easy')).toBeNull(); // removed field (#206)
   });
 
   it('returns null for an empty slug', () => {
@@ -64,7 +63,6 @@ describe('taxonomy ↔ icon parity', () => {
     families: ROOTS,
     methods: METHODS,
     ice: ICES,
-    difficulty: DIFFICULTIES,
     format: FORMATS,
     sections: SECTION_ICONS,
   };
