@@ -7,6 +7,12 @@ glass: coupe
 method: shaken
 ice: none
 difficulty: easy
+spirits:
+  - tequila
+flavors:
+  - floral
+  - spice
+  - citrus
 ingredients:
   - "2 oz blanco tequila"
   - "0.8 oz St Germain elderflower liqueur"
