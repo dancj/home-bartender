@@ -39,7 +39,7 @@ ingredients:
   - 1½ oz blanco tequila *(can sub rum)*
   - ½ oz Aperol
   - ½ oz fresh lime juice
-  - ½ oz orgeat
+  - ½ oz orgeat (almond syrup)
 steps:
   - Combine all ingredients in a shaker with ice
   - Shake well until chilled
