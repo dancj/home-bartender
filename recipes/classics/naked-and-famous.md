@@ -7,14 +7,12 @@ glass: coupe
 method: shaken
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - mezcal
   - liqueur
   - aperitif
 format: single
-serves: 1
 flavors:
   - smoky
   - bitter

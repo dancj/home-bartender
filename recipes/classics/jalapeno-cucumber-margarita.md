@@ -6,12 +6,10 @@ publish: true
 glass: margarita
 method: shaken
 ice: cubed
-difficulty: medium
 roots: [daiquiri]
 spirits:
   - tequila
 format: single
-serves: 1
 flavors:
   - citrus
   - spice

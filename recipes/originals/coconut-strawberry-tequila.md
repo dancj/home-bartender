@@ -7,14 +7,12 @@ glass: rocks
 glass_note: or coupe
 method: shaken
 ice: large-cube
-difficulty: easy
 roots: [sidecar]
 spirits:
   - tequila
   - mezcal
   - liqueur
 format: single
-serves: 1
 flavors:
   - fruity
   - sweet

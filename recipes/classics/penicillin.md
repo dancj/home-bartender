@@ -6,13 +6,11 @@ publish: true
 glass: rocks
 method: shaken
 ice: large-cube
-difficulty: medium
 roots: [daiquiri]
 spirits:
   - scotch
   - whiskey
 format: single
-serves: 1
 flavors:
   - smoky
   - sour

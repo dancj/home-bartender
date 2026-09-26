@@ -9,13 +9,11 @@ method: shaken
 method_note: built
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [daiquiri, whiskey-highball]
 spirits:
   - gin
   - champagne
 format: single
-serves: 1
 flavors:
   - citrus
   - bubbly

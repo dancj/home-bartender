@@ -8,13 +8,11 @@ glass_note: or wine glass
 method: built
 method_note: Muddled in glass, then built and topped
 ice: crushed
-difficulty: easy
 roots: [daiquiri, whiskey-highball]
 spirits:
   - rum
   - champagne
 format: single
-serves: 1
 flavors:
   - bubbly
   - herbal

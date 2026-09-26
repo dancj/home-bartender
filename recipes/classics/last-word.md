@@ -7,12 +7,10 @@ glass: coupe
 method: shaken
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - gin
 format: single
-serves: 1
 flavors:
   - citrus
   - herbal

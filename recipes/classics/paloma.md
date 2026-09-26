@@ -7,13 +7,11 @@ glass: highball
 method: shaken
 method_note: topped
 ice: cubed
-difficulty: easy
 roots: [whiskey-highball]
 spirits:
   - tequila
   - mezcal
 format: single
-serves: 1
 flavors:
   - citrus
   - refreshing

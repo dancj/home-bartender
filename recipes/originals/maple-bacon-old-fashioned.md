@@ -6,14 +6,12 @@ publish: true
 glass: rocks
 method: stirred
 ice: large-cube
-difficulty: advanced
 roots: [old-fashioned]
 spirits:
   - bourbon
   - whiskey
   - scotch
 format: single
-serves: 1
 flavors:
   - savory
   - smoky
