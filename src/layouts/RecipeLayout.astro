@@ -38,6 +38,10 @@ const glassIcon = iconUrl('glass', data.glass);
 const galleryItems = hasHero ? (data.gallery ?? []).slice(0, 2) : [];
 // Hero + gallery become one swipe row on phones when there's more than one photo.
 const isSwipe = galleryItems.length > 0;
+// Lineup shots may be landscape. Those show at their own shape, full column
+// width, which makes the rail too tall to stay sticky.
+const isLandscape = (img: { width: number; height: number }) => img.width > img.height;
+const hasLandscape = galleryItems.some(isLandscape);
 
 // Resolve related[] slugs to full recipes so cards render real titles instead
 // of de-slugged text. Order follows the related[] list (see resolveRelated).
@@ -84,7 +88,9 @@ const isTabbed = tabIds.length > 1;
 
     <div class="detail-grid" style={`--accent: ${accent}`}>
       {/* Left: sticky photo rail. Fallback tile until hero_image exists. */}
-      <div class:list={['detail-rail', isSwipe && 'detail-rail--swipe']}>
+      <div
+        class:list={['detail-rail', isSwipe && 'detail-rail--swipe', hasLandscape && 'detail-rail--tall']}
+      >
         <div
           class="detail-photos"
           data-photo-swipe={isSwipe || undefined}
@@ -116,6 +122,7 @@ const isTabbed = tabIds.length > 1;
               {galleryItems.map((img) => (
                 <Image
                   src={img}
+                  class:list={[isLandscape(img) && 'is-landscape']}
                   alt={`Ingredients for ${data.title}`}
                   widths={[300, 600, 900]}
                   sizes="(min-width: 700px) 20vw, 85vw"
@@ -472,6 +479,14 @@ const isTabbed = tabIds.length > 1;
     justify-self: center;
     width: calc(50% - 6px);
   }
+  .detail-gallery img.is-landscape {
+    grid-column: 1 / -1;
+    width: 100%;
+    aspect-ratio: auto;
+  }
+  .detail-rail--tall {
+    position: static;
+  }
 
   /* Phones: hero + gallery share one horizontal scroll-snap row, all 3:4, with
      the next photo peeking so the swipe is discoverable. */
@@ -498,6 +513,13 @@ const isTabbed = tabIds.length > 1;
     }
     .detail-rail--swipe .detail-gallery img {
       border-radius: var(--radius-hero);
+    }
+    /* A landscape lineup keeps the 3:4 slide so heights match, shown whole
+       on a dark band instead of cropped. */
+    .detail-rail--swipe .detail-gallery img.is-landscape {
+      aspect-ratio: 3 / 4;
+      object-fit: contain;
+      background: var(--color-header-bg);
     }
     .photo-dots {
       display: flex;
