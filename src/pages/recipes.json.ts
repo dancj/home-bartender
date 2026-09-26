@@ -17,7 +17,6 @@ export const GET: APIRoute = async ({ site }) => {
         blurb: r.data.blurb,
         spirits: r.data.spirits,
         method: r.data.method,
-        difficulty: r.data.difficulty,
         flavors: r.data.flavors,
       },
       sitePrefix,

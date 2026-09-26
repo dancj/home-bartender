@@ -6,7 +6,6 @@ publish: true
 glass: rocks
 method: shaken
 ice: large-cube
-difficulty: easy
 ingredients:
   - "1.5 oz mezcal"
   - "0.5 oz sweet vermouth"

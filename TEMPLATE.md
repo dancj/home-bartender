@@ -20,7 +20,6 @@ method: shaken               # shaken | stirred | built | blended
 method_note: ""              # optional addendum (e.g. "topped", "dry shake first")
 ice: cubed                   # cubed | large-cube | crushed | none
 ice_note: ""                 # optional
-difficulty: easy             # easy | medium | advanced
 
 # Cocktail Codex root(s) — optional, populated intentionally per recipe
 roots: [old-fashioned]       # old-fashioned | martini | daiquiri | sidecar | whiskey-highball | flip
@@ -28,7 +27,6 @@ roots: [old-fashioned]       # old-fashioned | martini | daiquiri | sidecar | wh
 # Format / serving
 spirits: [tequila]           # canonical set (see below); empty for mocktails
 format: single               # single | batch | punch
-serves: 1
 
 # Filterable taxonomy
 flavors: [citrus, refreshing]
@@ -97,7 +95,6 @@ Add new values by editing `data/taxonomy.yaml` and running `npm run codegen` —
 | `category` | `classic`, `original`, `seasonal`, `inbox` |
 | `method` | `shaken`, `stirred`, `built`, `blended` |
 | `ice` | `cubed`, `large-cube`, `crushed`, `none` |
-| `difficulty` | `easy`, `medium`, `advanced` |
 | `format` | `single`, `batch`, `punch` |
 | `root` | `old-fashioned`, `martini`, `daiquiri`, `sidecar`, `whiskey-highball`, `flip` |
 | `glass` | `coupe`, `nick-and-nora`, `rocks`, `double-rocks`, `highball`, `collins`, `flute`, `wine`, `margarita`, `martini`, `mug`, `snifter`, `julep-tin` |

@@ -7,12 +7,10 @@ glass: margarita
 method: shaken
 method_note: topped
 ice: cubed
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - tequila
 format: single
-serves: 1
 flavors:
   - citrus
   - fruity

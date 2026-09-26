@@ -7,13 +7,11 @@ glass: coupe
 method: shaken
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [sidecar]
 spirits:
   - vodka
   - liqueur
 format: single
-serves: 1
 flavors:
   - citrus
   - fruity

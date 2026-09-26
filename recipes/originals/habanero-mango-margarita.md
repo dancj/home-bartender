@@ -7,14 +7,12 @@ glass: margarita
 glass_note: or rocks
 method: shaken
 ice: cubed
-difficulty: medium
 roots: [sidecar]
 spirits:
   - tequila
   - liqueur
   - mezcal
 format: single
-serves: 1
 flavors:
   - citrus
   - spice

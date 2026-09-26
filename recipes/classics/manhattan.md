@@ -7,14 +7,12 @@ glass: coupe
 method: stirred
 ice: none
 ice_note: (served up)
-difficulty: easy
 roots: [martini, old-fashioned]
 spirits:
   - bourbon
   - liqueur
   - wine
 format: single
-serves: 1
 flavors:
   - spirit-forward
   - sweet

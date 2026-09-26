@@ -8,13 +8,11 @@ glass_note: or rocks with a big cube
 method: shaken
 ice: none
 ice_note: (served up) · or large cube in rocks variation
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - bourbon
   - aperitif
 format: single
-serves: 1
 flavors:
   - bitter
   - citrus

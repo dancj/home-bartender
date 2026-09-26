@@ -6,7 +6,6 @@ publish: true
 glass: coupe
 method: shaken
 ice: none
-difficulty: easy
 spirits:
   - tequila
 flavors:

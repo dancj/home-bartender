@@ -104,15 +104,6 @@ body:
         - snifter
         - julep-tin
 
-  - type: dropdown
-    id: difficulty
-    attributes:
-      label: Difficulty
-      options:
-        - easy
-        - medium
-        - advanced
-
   - type: input
     id: garnish
     attributes:

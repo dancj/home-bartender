@@ -132,14 +132,6 @@ const isTabbed = tabIds.length > 1;
             <span class="fact-label">Ice</span>
             <span class="fact-value">{label('ice', data.ice)}{data.ice_note && <span class="fact-note"> {data.ice_note}</span>}</span>
           </div>
-          <div class="fact-cell">
-            <span class="fact-label">Difficulty</span>
-            <span class="fact-value">{label('difficulty', data.difficulty)}</span>
-          </div>
-          <div class="fact-cell">
-            <span class="fact-label">Serves</span>
-            <span class="fact-value">{data.serves}</span>
-          </div>
         </div>
 
         {data.flavors.length > 0 && (

@@ -7,13 +7,11 @@ glass: rocks
 glass_note: or tiki mug
 method: shaken
 ice: crushed
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - rum
   - aperitif
 format: single
-serves: 1
 flavors:
   - bitter
   - fruity

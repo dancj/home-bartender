@@ -6,12 +6,10 @@ publish: true
 glass: rocks
 method: stirred
 ice: cubed
-difficulty: medium
 roots: [old-fashioned]
 spirits:
   - bourbon
 format: single
-serves: 1
 flavors:
   - fruity
   - nutty

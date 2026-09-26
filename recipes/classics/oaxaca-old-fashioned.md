@@ -6,13 +6,11 @@ publish: true
 glass: rocks
 method: stirred
 ice: large-cube
-difficulty: medium
 roots: [old-fashioned]
 spirits:
   - tequila
   - mezcal
 format: single
-serves: 1
 flavors:
   - smoky
   - spirit-forward

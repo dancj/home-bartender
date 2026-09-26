@@ -6,12 +6,10 @@ publish: true
 glass: rocks
 method: stirred
 ice: large-cube
-difficulty: easy
 roots: [old-fashioned]
 spirits:
   - whiskey
 format: single
-serves: 1
 flavors:
   - fruity
   - spirit-forward

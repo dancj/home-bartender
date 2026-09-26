@@ -8,12 +8,10 @@ glass_note: or Collins with sparkling water
 method: shaken
 ice: none
 ice_note: (served up) · or rocks in Collins variation
-difficulty: easy
 roots: [daiquiri]
 spirits:
   - gin
 format: single
-serves: 1
 flavors:
   - citrus
   - botanical

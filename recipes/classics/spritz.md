@@ -9,14 +9,12 @@ method: shaken
 method_note: built
 ice: cubed
 ice_note: over ice
-difficulty: easy
 roots: [whiskey-highball]
 spirits:
   - aperitif
   - liqueur
   - champagne
 format: single
-serves: 1
 flavors:
   - citrus
   - bubbly

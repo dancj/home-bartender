@@ -6,12 +6,10 @@ publish: true
 glass: margarita
 method: shaken
 ice: cubed
-difficulty: medium
 roots: [daiquiri]
 spirits:
   - mezcal
 format: single
-serves: 1
 flavors:
   - fruity
   - smoky

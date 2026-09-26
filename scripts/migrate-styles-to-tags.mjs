@@ -2,7 +2,7 @@
 // One-shot migration: rename `styles:` frontmatter key to `tags:` across
 // every recipe under recipes/**/*.md, dedup'ing values that overlap with
 // any canonical hard enum (methods/glasses/families/spirits/flavors/
-// occasions/categories/ices/difficulties/formats — sourced from
+// occasions/categories/ices/formats — sourced from
 // data/taxonomy.yaml via scripts/taxonomy.generated.mjs).
 //
 // Rationale for dedup: after schema hardening, tag values that match a
@@ -20,7 +20,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  CATEGORIES, METHODS, ICES, DIFFICULTIES, FORMATS,
+  CATEGORIES, METHODS, ICES, FORMATS,
   GLASSES, ROOTS, SPIRITS, FLAVORS, OCCASIONS,
 } from './taxonomy.generated.mjs';
 
@@ -28,7 +28,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
 
 const CANONICAL = new Set([
-  ...CATEGORIES, ...METHODS, ...ICES, ...DIFFICULTIES, ...FORMATS,
+  ...CATEGORIES, ...METHODS, ...ICES, ...FORMATS,
   ...GLASSES, ...ROOTS, ...SPIRITS, ...FLAVORS, ...OCCASIONS,
 ]);
 

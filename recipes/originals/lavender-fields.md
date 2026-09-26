@@ -7,13 +7,11 @@ glass: coupe
 method: shaken
 method_note: Dry shake first for egg white foam, then shake with ice
 ice: none
-difficulty: medium
 roots: [daiquiri]
 spirits:
   - gin
   - liqueur
 format: single
-serves: 1
 flavors:
   - floral
   - sour
