@@ -27,8 +27,8 @@ related:
   - gin-gimlet
   - army-and-navy
 aliases: []
-hero_image: ""
-gallery: []
+hero_image: ./last-word.jpg
+gallery: [./last-word-ingredients.jpg]
 preparations: []
 created: 2026-07-14
 ingredients:

@@ -33,8 +33,15 @@ const accent = spiritAccentVar(primarySpirit);
 const primaryRoot = data.roots[0];
 const hasHero = Boolean(data.hero_image);
 const glassIcon = iconUrl('glass', data.glass);
-// Render 0/1/2 gallery photos, drop the row when empty (plan KD3).
-const galleryItems = (data.gallery ?? []).slice(0, 2);
+// Render 0/1/2 gallery photos, drop the row when empty (plan KD3). A gallery
+// without a hero stays hidden so the fallback tile never pairs with a photo.
+const galleryItems = hasHero ? (data.gallery ?? []).slice(0, 2) : [];
+// Hero + gallery become one swipe row on phones when there's more than one photo.
+const isSwipe = galleryItems.length > 0;
+// Lineup shots may be landscape. Those show at their own shape, full column
+// width, which makes the rail too tall to stay sticky.
+const isLandscape = (img: { width: number; height: number }) => img.width > img.height;
+const hasLandscape = galleryItems.some(isLandscape);
 
 // Resolve related[] slugs to full recipes so cards render real titles instead
 // of de-slugged text. Order follows the related[] list (see resolveRelated).
@@ -81,30 +88,55 @@ const isTabbed = tabIds.length > 1;
 
     <div class="detail-grid" style={`--accent: ${accent}`}>
       {/* Left: sticky photo rail. Fallback tile until hero_image exists. */}
-      <div class="detail-rail">
-        <div class:list={['detail-hero', !hasHero && 'detail-hero--empty']}>
-          {data.hero_image ? (
-            <Image
-              src={data.hero_image}
-              alt={data.title}
-              widths={[300, 600, 900]}
-              sizes="(min-width: 700px) 40vw, 90vw"
-              loading="eager"
-              decoding="async"
-            />
-          ) : (
-            <>
-              {glassIcon && (
-                <span class="tax-icon tile-icon" style={`--icon-url: url("${glassIcon}")`} aria-hidden="true"></span>
-              )}
-              {primarySpirit && <span class="tile-name">{label('spirits', primarySpirit)}</span>}
-            </>
+      <div
+        class:list={['detail-rail', isSwipe && 'detail-rail--swipe', hasLandscape && 'detail-rail--tall']}
+      >
+        <div
+          class="detail-photos"
+          data-photo-swipe={isSwipe || undefined}
+          tabindex={isSwipe ? 0 : undefined}
+          role={isSwipe ? 'region' : undefined}
+          aria-label={isSwipe ? 'Recipe photos' : undefined}
+        >
+          <div class:list={['detail-hero', !hasHero && 'detail-hero--empty']}>
+            {data.hero_image ? (
+              <Image
+                src={data.hero_image}
+                alt={data.title}
+                widths={[300, 600, 900]}
+                sizes="(min-width: 700px) 40vw, 90vw"
+                loading="eager"
+                decoding="async"
+              />
+            ) : (
+              <>
+                {glassIcon && (
+                  <span class="tax-icon tile-icon" style={`--icon-url: url("${glassIcon}")`} aria-hidden="true"></span>
+                )}
+                {primarySpirit && <span class="tile-name">{label('spirits', primarySpirit)}</span>}
+              </>
+            )}
+          </div>
+          {galleryItems.length > 0 && (
+            <div class="detail-gallery">
+              {galleryItems.map((img) => (
+                <Image
+                  src={img}
+                  class:list={[isLandscape(img) && 'is-landscape']}
+                  alt={`Ingredients for ${data.title}`}
+                  widths={[300, 600, 900]}
+                  sizes="(min-width: 700px) 20vw, 85vw"
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+            </div>
           )}
         </div>
-        {galleryItems.length > 0 && (
-          <div class="detail-gallery">
-            {galleryItems.map((img) => (
-              <Image src={img} alt="" widths={[200, 400]} sizes="(min-width: 700px) 20vw, 45vw" loading="lazy" decoding="async" />
+        {isSwipe && (
+          <div class="photo-dots" aria-hidden="true">
+            {[0, ...galleryItems].map((_, i) => (
+              <span class="photo-dot" data-active={i === 0 ? '' : undefined}></span>
             ))}
           </div>
         )}
@@ -225,6 +257,25 @@ const isTabbed = tabIds.length > 1;
     )}
   </article>
 </BaseLayout>
+
+<script>
+  import { activeSlide } from '../scripts/photoSwipe';
+
+  const photoRow = document.querySelector<HTMLElement>('[data-photo-swipe]');
+  const dots = Array.from(document.querySelectorAll<HTMLElement>('.photo-dot'));
+  if (photoRow && dots.length > 1) {
+    const slides = Array.from(photoRow.querySelectorAll<HTMLElement>('.detail-hero, .detail-gallery img'));
+    photoRow.addEventListener(
+      'scroll',
+      () => {
+        const step = slides[1].offsetLeft - slides[0].offsetLeft;
+        const active = activeSlide(photoRow.scrollLeft, step, dots.length);
+        dots.forEach((d, i) => d.toggleAttribute('data-active', i === active));
+      },
+      { passive: true },
+    );
+  }
+</script>
 
 <script>
   import { resolveActiveTab, nextTabIndex } from '../scripts/recipeTabs';
@@ -359,6 +410,14 @@ const isTabbed = tabIds.length > 1;
       position: static;
     }
   }
+  .detail-photos {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .photo-dots {
+    display: none;
+  }
 
   .detail-hero {
     aspect-ratio: 4 / 5;
@@ -401,9 +460,74 @@ const isTabbed = tabIds.length > 1;
   .detail-gallery img {
     display: block;
     width: 100%;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 3 / 4;
     object-fit: cover;
     border-radius: var(--radius-photo);
+  }
+  /* A lone lineup shot sits centred at one column's width: spanning both
+     columns would make the sticky rail taller than the viewport. */
+  .detail-gallery > :only-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(50% - 6px);
+  }
+  .detail-gallery img.is-landscape {
+    grid-column: 1 / -1;
+    width: 100%;
+    aspect-ratio: auto;
+  }
+  .detail-rail--tall {
+    position: static;
+  }
+
+  /* Phones: hero + gallery share one horizontal scroll-snap row, all 3:4, with
+     the next photo peeking so the swipe is discoverable. */
+  @media (max-width: 700px) {
+    .detail-rail--swipe .detail-photos {
+      flex-direction: row;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .detail-rail--swipe .detail-photos::-webkit-scrollbar {
+      display: none;
+    }
+    .detail-rail--swipe .detail-gallery {
+      display: contents;
+    }
+    .detail-rail--swipe .detail-hero,
+    .detail-rail--swipe .detail-gallery img {
+      flex: 0 0 85%;
+      width: auto;
+      aspect-ratio: 3 / 4;
+      scroll-snap-align: start;
+    }
+    .detail-rail--swipe .detail-gallery img {
+      border-radius: var(--radius-hero);
+    }
+    /* A landscape lineup keeps the 3:4 slide so heights match, shown whole
+       on a dark band instead of cropped. */
+    .detail-rail--swipe .detail-gallery img.is-landscape {
+      aspect-ratio: 3 / 4;
+      object-fit: contain;
+      background: var(--color-header-bg);
+    }
+    .photo-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+    .photo-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      opacity: 0.25;
+    }
+    .photo-dot[data-active] {
+      opacity: 0.9;
+    }
   }
 
   .detail-main {
