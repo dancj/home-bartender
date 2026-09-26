@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Batch photo intake. Drop slug-named photos into intake/photos/:
-//   <slug>.jpg              → hero_image
-//   <slug>-ingredients.jpg  → gallery
+//   <slug>.jpg              → hero_image (featured photo)
+//   <slug>-ingredients.jpg  → gallery (illustration between ingredients and steps)
 // then run `npm run photos`. Each photo is auto-rotated, capped at 1600px on
-// the long edge, re-encoded as JPEG (metadata stripped), written next to its
-// recipe .md, and wired into frontmatter. Unknown slugs and unsupported files
+// the long edge, re-encoded (metadata stripped), written next to its recipe
+// .md, and wired into frontmatter. Heroes become JPEG; a PNG/WebP ingredients
+// illustration stays PNG so hand-drawn art keeps its transparency. Unknown slugs and unsupported files
 // stay in intake/ and are reported. Never commits — ship via the normal PR flow.
 
 import { readdir, readFile, writeFile, unlink } from 'node:fs/promises';
@@ -44,6 +45,13 @@ export function parsePhotoName(name) {
 }
 
 const unquote = (s) => s.trim().replace(/^["']|["']$/g, '');
+const stripExt = (f) => f.replace(/\.[a-z]+$/i, '');
+
+export function outputName(file, slug, role) {
+  if (role === 'hero') return `${slug}.jpg`;
+  const keepsAlpha = /\.(png|webp)$/i.test(file);
+  return `${slug}${INGREDIENTS_SUFFIX}.${keepsAlpha ? 'png' : 'jpg'}`;
+}
 
 // Line-based edit (like promote.mjs) so the rest of the frontmatter keeps its
 // exact formatting.
@@ -64,7 +72,8 @@ export function setPhotoFrontmatter(content, { role, file }) {
       if (!m) throw new Error('gallery is not a flow list like `gallery: [...]` — hand-edit it.');
       items = m[1].split(',').map(unquote).filter(Boolean);
     }
-    value = `[${[...items.filter((i) => i !== file), file].join(', ')}]`;
+    // Same basename in another format is the same illustration: replace it.
+    value = `[${[...items.filter((i) => stripExt(i) !== stripExt(file)), file].join(', ')}]`;
   }
 
   const line = `${key}: ${value}`;
@@ -132,19 +141,14 @@ export async function ingestPhotos({
   }
   candidates = candidates.filter((c) => counts.get(key(c)) === 1);
 
-  // The page hides the gallery without a hero and shows at most two gallery
-  // photos, so refuse ingredients shots that would never render.
-  const heroInBatch = new Set(candidates.filter((c) => c.role === 'hero').map((c) => c.slug));
+  // The page shows at most two gallery images, so refuse one that would never
+  // render.
   const valid = [];
   for (const c of candidates) {
     if (c.role === 'ingredients') {
       const fm = parseFrontmatter(await readFileFn(c.recipePath, 'utf8'));
-      const ownFile = `./${c.slug}${INGREDIENTS_SUFFIX}.jpg`;
-      const others = (fm.gallery ?? []).filter((g) => g !== ownFile);
-      if (!fm.hero_image && !heroInBatch.has(c.slug)) {
-        rejected.push({ file: c.file, reason: 'recipe has no hero photo — add <slug>.jpg first' });
-        continue;
-      }
+      const own = `./${c.slug}${INGREDIENTS_SUFFIX}`;
+      const others = (fm.gallery ?? []).filter((g) => stripExt(g) !== own);
       if (others.length >= 2) {
         rejected.push({ file: c.file, reason: 'gallery is full (two photos) — hand-edit it' });
         continue;
@@ -154,7 +158,7 @@ export async function ingestPhotos({
   }
 
   for (const { file, role, slug, recipePath } of valid) {
-    const outName = `${slug}${role === 'ingredients' ? INGREDIENTS_SUFFIX : ''}.jpg`;
+    const outName = outputName(file, slug, role);
     const src = path.join(intakeDir, file);
     const dst = path.join(path.dirname(recipePath), outName);
     try {
@@ -176,11 +180,13 @@ export async function ingestPhotos({
 
 async function sharpResize(src, dst) {
   const sharp = (await import('sharp')).default;
-  await sharp(src)
+  const img = sharp(src)
     .rotate()
-    .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 82, mozjpeg: true })
-    .toFile(dst);
+    .resize({ width: MAX_EDGE, height: MAX_EDGE, fit: 'inside', withoutEnlargement: true });
+  const encoded = dst.endsWith('.png')
+    ? img.png({ compressionLevel: 9 })
+    : img.jpeg({ quality: 82, mozjpeg: true });
+  await encoded.toFile(dst);
 }
 
 if (fileURLToPath(import.meta.url) === process.argv[1]) {
