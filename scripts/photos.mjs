@@ -11,7 +11,7 @@ import { readdir, readFile, writeFile, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { CATEGORY_BY_DIR } from './validate.mjs';
+import { CATEGORY_BY_DIR, parseFrontmatter } from './validate.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ACCEPTED_EXTS = new Set(['jpg', 'jpeg', 'png', 'webp']);
@@ -92,29 +92,65 @@ export async function ingestPhotos({
 }) {
   const intakeDir = path.join(rootDir, 'intake', 'photos');
 
+  // Published recipes only: `npm run promote` moves just the .md, so photos
+  // wired to an inbox draft would be left behind and break the build.
   const recipeBySlug = new Map();
+  const inboxSlugs = new Set();
   for (const dir of Object.keys(CATEGORY_BY_DIR)) {
     for (const name of await listDir(readdirFn, path.join(rootDir, 'recipes', dir))) {
-      if (name.endsWith('.md') && !name.startsWith('_')) {
-        recipeBySlug.set(name.slice(0, -3), path.join(rootDir, 'recipes', dir, name));
-      }
+      if (!name.endsWith('.md') || name.startsWith('_')) continue;
+      const slug = name.slice(0, -3);
+      if (dir === 'inbox') inboxSlugs.add(slug);
+      else recipeBySlug.set(slug, path.join(rootDir, 'recipes', dir, name));
     }
   }
 
   // Validate the whole batch before touching anything.
   const moved = [];
   const rejected = [];
-  const valid = [];
+  let candidates = [];
   for (const file of (await listDir(readdirFn, intakeDir)).sort()) {
     if (file.startsWith('.')) continue; // .DS_Store etc.
     try {
       const { slug, role } = parsePhotoName(file);
+      if (inboxSlugs.has(slug)) throw new Error(`"${slug}" is an inbox draft — promote it first`);
       const recipePath = recipeBySlug.get(slug);
       if (!recipePath) throw new Error(`no recipe with slug "${slug}"`);
-      valid.push({ file, role, slug, recipePath });
+      candidates.push({ file, role, slug, recipePath });
     } catch (e) {
       rejected.push({ file, reason: e.message });
     }
+  }
+
+  // Two files for the same slug+role (e.g. .jpg and .png) would both write the
+  // same output and both be deleted — reject the pair instead of guessing.
+  const key = (c) => `${c.slug}:${c.role}`;
+  const counts = new Map();
+  for (const c of candidates) counts.set(key(c), (counts.get(key(c)) ?? 0) + 1);
+  for (const c of candidates.filter((c) => counts.get(key(c)) > 1)) {
+    rejected.push({ file: c.file, reason: `multiple files for ${c.slug} ${c.role} — keep one` });
+  }
+  candidates = candidates.filter((c) => counts.get(key(c)) === 1);
+
+  // The page hides the gallery without a hero and shows at most two gallery
+  // photos, so refuse ingredients shots that would never render.
+  const heroInBatch = new Set(candidates.filter((c) => c.role === 'hero').map((c) => c.slug));
+  const valid = [];
+  for (const c of candidates) {
+    if (c.role === 'ingredients') {
+      const fm = parseFrontmatter(await readFileFn(c.recipePath, 'utf8'));
+      const ownFile = `./${c.slug}${INGREDIENTS_SUFFIX}.jpg`;
+      const others = (fm.gallery ?? []).filter((g) => g !== ownFile);
+      if (!fm.hero_image && !heroInBatch.has(c.slug)) {
+        rejected.push({ file: c.file, reason: 'recipe has no hero photo — add <slug>.jpg first' });
+        continue;
+      }
+      if (others.length >= 2) {
+        rejected.push({ file: c.file, reason: 'gallery is full (two photos) — hand-edit it' });
+        continue;
+      }
+    }
+    valid.push(c);
   }
 
   for (const { file, role, slug, recipePath } of valid) {

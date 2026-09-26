@@ -89,6 +89,7 @@ const isTabbed = tabIds.length > 1;
           class="detail-photos"
           data-photo-swipe={isSwipe || undefined}
           tabindex={isSwipe ? 0 : undefined}
+          role={isSwipe ? 'region' : undefined}
           aria-label={isSwipe ? 'Recipe photos' : undefined}
         >
           <div class:list={['detail-hero', !hasHero && 'detail-hero--empty']}>
