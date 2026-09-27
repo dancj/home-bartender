@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.9.26.1] - 2026-09-26
+
+- #216 — feat(recipe): single hero, inline ingredients illustration, wider desktop layout (@dancj)
+- #215 — feat(recipes): recipe photos pipeline + Last Word photos (@dancj)
+- #213 — chore(learn): say peaty scotch float on techniques page (@dancj)
+- #212 — chore: remove difficulty and serves from recipes (@dancj)
+- #211 — chore(recipes): plain-language pass on recipe blurbs (@dancj)
+- #210 — fix(recipes): lead with common ingredient names (@dancj)
+- #205 — docs: update CHANGELOG for release 2026.9.25.2 (@app/github-actions)
+- #204 — fix(recipes): add spirits and flavors to Elderflower Ginger Sour (@dancj)
 ## [2026.9.25.2] - 2026-09-25
 
 - #203 — fix(cards): compact no-photo placeholder and restore spirit accents (@dancj)
