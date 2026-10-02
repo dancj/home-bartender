@@ -7,7 +7,7 @@ import SuperJuiceCalculator from '../../components/SuperJuiceCalculator.astro';
 // card grid: four chapters in learning order, chained by a terracotta spine
 // that fills as you scroll, with dark bar-mat interludes between them. Copy
 // here is condensed from the full chapter pages (tools.astro, techniques.astro,
-// super-juice.astro), which remain the canonical long-form routes.
+// syrups/super-juice.astro), which remain the canonical long-form routes.
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const chapters = [
@@ -255,7 +255,7 @@ const interludes = [
       <div class="rv">
         <SuperJuiceCalculator />
       </div>
-      <p class="chapter__more rv"><a href={`${base}/learn/super-juice/`}>Full chapter: Super Juice →</a></p>
+      <p class="chapter__more rv"><a href={`${base}/syrups/super-juice/`}>Full chapter: Super Juice →</a></p>
     </section>
 
     <footer class="outro rv">

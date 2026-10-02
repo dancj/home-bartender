@@ -1,0 +1,65 @@
+---
+import { getCollection, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/learn-prose.css';
+
+export async function getStaticPaths() {
+  // super-juice has its own page (prose + calculator) — see super-juice.astro.
+  const syrups = await getCollection(
+    'syrups',
+    ({ id, data }) => data.publish !== false && id !== 'super-juice',
+  );
+  return syrups.map((syrup) => ({ params: { slug: syrup.id }, props: { syrup } }));
+}
+
+const { syrup } = Astro.props;
+const { data } = syrup;
+const { Content } = await render(syrup);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title={`${data.title} — Home Bartending`} description={data.blurb}>
+  <p class="back">
+    <a href={`${base}/syrups/`}>← Syrups &amp; Mixers</a>
+  </p>
+  <article data-pagefind-body class="prose">
+    {data.hero_image && (
+      <Image
+        class="syrup-hero"
+        src={data.hero_image}
+        alt={data.title}
+        widths={[300, 600, 900]}
+        sizes="(min-width: 700px) 600px, 90vw"
+        loading="eager"
+        decoding="async"
+      />
+    )}
+    <h1>{data.title}</h1>
+    <p><em>{data.blurb}</em></p>
+    {data.yield && <p><em>{data.yield}</em></p>}
+    {data.ingredients.length > 0 && (
+      <>
+        <h2>Ingredients</h2>
+        <ul>{data.ingredients.map((i) => <li>{i}</li>)}</ul>
+      </>
+    )}
+    {data.steps.length > 0 && (
+      <>
+        <h2>Steps</h2>
+        <ol>{data.steps.map((s) => <li>{s}</li>)}</ol>
+      </>
+    )}
+    <Content />
+  </article>
+</BaseLayout>
+
+<style>
+  .syrup-hero {
+    width: 100%;
+    max-width: 28rem;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius-hero);
+    margin-bottom: 1.5rem;
+  }
+</style>

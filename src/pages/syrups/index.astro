@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Syrups & mixers live apart from the cocktail index — standalone preps,
+// not drinks. One flat list; add grouping when the list outgrows a screen.
+const syrups = (await getCollection('syrups', ({ data }) => data.publish !== false))
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout
+  title="Syrups & Mixers — Home Bartending"
+  description="House-made syrups, juices, and mixers for the home bar."
+>
+  <h1>Syrups &amp; Mixers</h1>
+  <p class="lede">House-made syrups, juices, and mixers for the home bar.</p>
+  <ul class="syrup-list" role="list">
+    {syrups.map((s) => (
+      <li>
+        <a href={`${base}/syrups/${s.id}/`} class="card syrup-card no-underline">
+          {s.data.hero_image && (
+            <Image src={s.data.hero_image} alt="" widths={[160, 320]} sizes="80px" loading="lazy" decoding="async" />
+          )}
+          <span>
+            <span class="syrup-card__title">{s.data.title}</span>
+            <span class="syrup-card__blurb">{s.data.blurb}</span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .lede {
+    color: var(--color-fg-muted);
+    margin-bottom: 1.5rem;
+  }
+  .syrup-list {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0;
+    list-style: none;
+  }
+  .syrup-card {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem 1rem;
+  }
+  .syrup-card img {
+    width: 80px;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    flex: none;
+  }
+  .syrup-card__title {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-fg);
+  }
+  .syrup-card__blurb {
+    display: block;
+    color: var(--color-fg-muted);
+  }
+</style>

@@ -1,7 +1,6 @@
 ---
 title: Super Juice
-order: 5
-summary: Stretch one citrus into eight with acid-adjusted peels — plus our 1:1 dilution for easy party batching.
+blurb: Stretch one citrus into eight with acid-adjusted peels — plus our 1:1 dilution for easy party batching.
 ---
 
 # Super Juice
