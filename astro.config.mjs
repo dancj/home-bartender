@@ -25,6 +25,8 @@ export default defineConfig({
       ['/by-family/daiquiri/', '/by-root/daiquiri/'],
       ['/by-family/sidecar/', '/by-root/sidecar/'],
       ['/by-family/whiskey-highball/', '/by-root/whiskey-highball/'],
+      // Super Juice moved from /learn into the Syrups & Mixers section (#223).
+      ['/learn/super-juice/', '/syrups/super-juice/'],
     ].map(([from, to]) => [from, `${base ?? ''}${to}`]),
   ),
 

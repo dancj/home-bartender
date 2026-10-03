@@ -1,0 +1,23 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SuperJuiceCalculator from '../../components/SuperJuiceCalculator.astro';
+import '../../styles/learn-prose.css';
+
+// Dedicated route for Super Juice: renders the prose from the `syrups`
+// collection and mounts the interactive calculator below it. [slug].astro
+// excludes this slug so the two pages don't collide on /syrups/super-juice/.
+const syrup = await getEntry('syrups', 'super-juice');
+if (!syrup) throw new Error('Missing syrups/super-juice.md');
+const { Content } = await render(syrup);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<BaseLayout title={`${syrup.data.title} — Home Bartending`} description={syrup.data.blurb}>
+  <p class="back">
+    <a href={`${base}/syrups/`}>← Syrups &amp; Mixers</a>
+  </p>
+  <article data-pagefind-body class="prose">
+    <Content />
+  </article>
+  <SuperJuiceCalculator />
+</BaseLayout>

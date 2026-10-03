@@ -84,4 +84,19 @@ const sections = defineCollection({
   }),
 });
 
-export const collections = { recipes, sections };
+// House-made syrups and mixers — standalone preps that aren't cocktails, so
+// they skip the recipe schema's glass/method/ice and taxonomy. Served at /syrups/.
+const syrups = defineCollection({
+  loader: glob({ pattern: '**/[^_]*.md', base: './syrups' }),
+  schema: ({ image }) => z.object({
+    title: z.string(),
+    blurb: z.string(),
+    publish: z.boolean().default(true),
+    yield: z.string().optional(),
+    ingredients: z.array(z.string()).default([]),
+    steps: z.array(z.string()).default([]),
+    hero_image: image().optional(),
+  }),
+});
+
+export const collections = { recipes, sections, syrups };

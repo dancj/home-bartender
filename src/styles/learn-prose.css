@@ -1,6 +1,6 @@
 /* Shared typography for /learn pages — the generic section route
    (src/pages/learn/[slug].astro) and the dedicated Super Juice route
-   (src/pages/learn/super-juice.astro) both render section markdown into a
+   (src/pages/syrups/super-juice.astro, src/pages/syrups/[slug].astro) both render section markdown into a
    `.prose` article with a `.back` link, so the styling lives here once. */
 
 .back {

@@ -22,9 +22,11 @@ const containerClass = width === 'wide' ? 'container-wide' : 'container-prose';
 const path = Astro.url.pathname;
 const isLearn = path.startsWith(`${base}/learn`);
 const isRoots = path.startsWith(`${base}/roots`);
+const isSyrups = path.startsWith(`${base}/syrups`);
 const navLinks = [
-  { href: `${base}/`, label: 'Recipes', current: !isLearn && !isRoots },
+  { href: `${base}/`, label: 'Recipes', current: !isLearn && !isRoots && !isSyrups },
   { href: `${base}/roots/`, label: 'Roots', current: isRoots },
+  { href: `${base}/syrups/`, label: 'Syrups', current: isSyrups },
   { href: `${base}/learn/`, label: 'Learn', current: isLearn },
 ];
 
@@ -310,6 +312,17 @@ const logoCoupe = await getImage({ src: logoCoupeSrc, width: 256, height: 256, f
     border-radius: var(--radius-md) var(--radius-md) 0 0;
     transition: background-color var(--transition-base),
       color var(--transition-base);
+  }
+  /* Four tabs plus the search toggle overflow a ~400px phone at full padding. */
+  @media (max-width: 30rem) {
+    .nav-links a {
+      padding-inline: 0.75rem;
+    }
+  }
+  @media (max-width: 23rem) {
+    .nav-links a {
+      padding-inline: 0.375rem;
+    }
   }
   .nav-links a:hover {
     background: color-mix(in srgb, var(--color-accent), white 8%);

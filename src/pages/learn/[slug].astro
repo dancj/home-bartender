@@ -8,7 +8,7 @@ export async function getStaticPaths() {
   // bespoke visual layout) are excluded here so they don't also resolve through
   // this generic prose route. `section.id` is the bare slug (e.g. `introduction`),
   // not the filename, for the glob content loader.
-  const dedicated = new Set(['super-juice', 'tools', 'techniques']);
+  const dedicated = new Set(['tools', 'techniques']);
   const sections = (await getCollection('sections')).filter(
     (section) => !dedicated.has(section.id),
   );
