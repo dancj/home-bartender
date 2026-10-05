@@ -38,6 +38,16 @@ steps:
   - Shake until chilled
   - Strain into a chilled coupe
   - Float ¼ oz Laphroaig by pouring slowly over the back of a bar spoon
+house_made:
+  name: Saffron Honey Syrup
+  ingredients:
+    - 1 part honey
+    - 1 part water
+    - A pinch or two of saffron threads
+  steps:
+    - Bring the honey and water to a boil with the saffron threads.
+    - Pour into a jar and let it infuse in the fridge.
+    - Strain out the threads before use.
 ---
 
 # Mezcal Honey Saffron
@@ -47,3 +57,5 @@ steps:
 ## Notes
 
 Based on a drink from a local restaurant.
+
+Infusion time for the saffron syrup is still being worked out.
