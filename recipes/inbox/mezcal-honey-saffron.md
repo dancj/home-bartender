@@ -59,3 +59,5 @@ house_made:
 Based on a drink from a local restaurant.
 
 Infusion time for the saffron syrup is still being worked out.
+
+Saffron is expensive: a small bottle ran about $25 at a local grocery store, and an organic food shop had it for a bit less. A pinch or two per batch of syrup goes a long way.
