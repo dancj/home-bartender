@@ -1,8 +1,8 @@
 ---
 title: Mezcal Honey Saffron
 blurb: Mezcal shaken with saffron honey syrup and Angostura, served up under a Laphroaig float.
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: coupe
 method: shaken
 ice: none
