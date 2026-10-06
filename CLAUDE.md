@@ -153,10 +153,10 @@ This is the primary path. When the owner gives a recipe in chat, or files a plai
 
 1. Normalize it per **Recipe Normalization Rules** below.
 2. Write `recipes/classics/{slug}.md` with `category: classic`, `publish: true`. Use `recipes/originals/` (`category: original`) only when the owner says it's their own creation.
-3. Published recipes get full validation, so resolve gaps **before** opening the PR: ask the owner for a missing house-made recipe, missing measurements, or anything you'd otherwise guess. Don't park gaps for later.
-4. Run `npm run validate` (0 errors).
+3. Published recipes get the full schema check, so resolve gaps **before** opening the PR: ask the owner for a missing house-made recipe, missing measurements, or anything you'd otherwise guess. Don't park gaps for later.
+4. Run `npm run validate` **and** `npx astro check`, both with 0 errors. `validate` covers structure (dir/category, `related[]`, body shape) but not enum membership. Zod enforces enums only in `astro check`, which PR CI doesn't run. A bad slug would otherwise first fail at the staging→main release build.
 5. Ship it per the Contributing rules:
-   - Branch `feat-recipe-{slug}`.
+   - Branch `feat-{N}-{slug}` when it came from issue #N, otherwise `feat-recipe-{slug}`.
    - PR title `feat(recipe): add {Recipe Title}`. Use that exact prefix, singular: `scripts/releaseCategorize.mjs` matches `feat(recipe):` to list the PR under **Recipes** in the release PR, and `feat(recipes):` falls through to Changes.
    - Body: what was added, any inferred enums the owner should sanity-check, and `Closes #N` when it came from an issue.
 
