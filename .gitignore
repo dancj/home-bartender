@@ -15,7 +15,7 @@ dist/pagefind/
 # Icon pipeline scratch space (npm run icons)
 .icon-work/
 
-# Raw recipe material staged for /ingest (never committed; drafts land in recipes/inbox/)
+# Local staging for npm run photos (intake/photos/); never committed
 intake/
 
 # OS
