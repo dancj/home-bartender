@@ -97,7 +97,7 @@ recipes/
   classics/       ← established cocktails (attribution filled only when there's a clear named creator + venue)
   originals/      ← contributor's own creations (only when the contributor has explicitly stated authorship, not when a recipe simply looks unusual)
   seasonal/       ← seasonal/holiday recipes
-  inbox/          ← new recipes pending review (publish: false)
+  inbox/          ← issue-form submissions pending review (publish: false)
 sections/         ← prose: introduction, techniques, tools (powers /learn/)
 syrups/           ← house-made syrups & mixers (own `syrups` collection, /syrups/); not cocktails
 TEMPLATE.md       ← standard recipe format with frontmatter schema
@@ -129,6 +129,8 @@ CI re-runs codegen on every PR and fails if any generated artifact is stale.
 
 ### Lifecycle
 
+Recipes the owner authors skip straight to a published category dir in one PR — see **Adding a Recipe You Wrote** below. The four stages here are the path for public **Submit a recipe** issue-form submissions, which land as inbox drafts.
+
 1. **Draft** — file lands in `recipes/inbox/<slug>.md` with `category: inbox` and `publish: false`. Hidden from the site index; visible only at `/inbox/?preview=1`.
 2. **Review** — fill in missing measurements, fix taxonomy, add attribution if borrowed, verify the frontmatter carries `ingredients[]` and `steps[]` (plus `house_made{}`, `batch{}`, and top-level `garnish` / `float` where relevant). The body collapses to `## Notes` and any narrative-only sections. The body+frontmatter contract is enforced by `npm run validate` on every `publish: true` recipe — an empty `ingredients[]` errors out, residual `## Ingredients` / `## Steps` / `## House-Made …` / `## How to Batch It` headings in the body error as migration leftovers, ingredient strings that reference craft preps (`shrub`, `tincture`, `cordial`, `infusion`, `*-washed`, or a non–store-bought syrup) warn when no `house_made` field is present, and `format: batch | punch` recipes warn when the `batch` field is missing.
 3. **Publish** — run `npm run promote -- <slug> --category=<classic|original|seasonal>`. The script rewrites frontmatter (singular `category`, `publish: true`), `git mv`s the file into the matching category dir, and re-runs `npm run validate`. Add `--dry-run` to preview. On validation failure the script rolls back atomically. If you'd rather hand-edit, the manual ritual is: (a) move the file to the matching category dir (`recipes/classics/`, `recipes/originals/`, or `recipes/seasonal/`), (b) change `category:` to the singular form, (c) flip `publish: true`.
@@ -142,41 +144,44 @@ CI re-runs codegen on every PR and fails if any generated artifact is stale.
 - **`related[]`** must list slugs that resolve to existing recipe files. Validator errors on dangling refs.
 - **`attribution.creator`** is filled only when there's a clear, named creator AND venue (e.g., Sam Ross / Milk & Honey; Joaquín Simó / Death & Co; Nathan Howard / Cole's). For established communal classics whose origin is murky or contested (Old Fashioned, Manhattan, Cosmopolitan, French 75, Gin Gimlet, Spritz, Mojito, etc.) and for originals, leave the whole `attribution` block empty — never invent or guess. The convention is conservative attribution: the block carries weight only when it's verifiable.
 - **Category placement** — don't agonize over `classics/` vs `originals/`. Default new promotions to `classics/`. Place in `originals/` only when the contributor has explicitly stated the recipe is their own creation. When in doubt, ask or pick classic.
-- **Image fields** — `hero_image` and `gallery` are resolved through Astro's image pipeline (`astro:assets`, via the `image()` schema helper). Each recipe gets a featured photo (`<slug>.jpg` → `hero_image: ./slug.jpg`, shown on the card and at the top of the recipe page) and optionally an ingredients illustration (`<slug>-ingredients.{jpg,png}` → `gallery: [./slug-ingredients.png]`, shown whole between the ingredients and the steps), both stored next to the recipe `.md`. Shoot the hero **3:4 portrait** (the hero/card frame is 4:5, slight trim); the illustration can be any shape. To add photos, drop slug-named files (jpg/png/webp — not HEIC) in `intake/photos/` and run `npm run photos` (published recipes only; promote inbox drafts first): it resizes to 1600px, converts heroes to JPEG and keeps PNG/WebP illustrations as PNG (transparency survives), moves each file next to its recipe, and sets the frontmatter. It never commits; ship the batch via a normal PR. Leave empty (or omit) when there's no photo — the card/detail fall back to a masked glass-icon tile. Don't fabricate paths to files that don't exist (the build resolves them and will fail). `preparations` remains reserved and unused — leave it empty.
+- **Image fields** — `hero_image` and `gallery` are resolved through Astro's image pipeline (`astro:assets`, via the `image()` schema helper). Each recipe gets a featured photo (`<slug>.jpg` → `hero_image: ./slug.jpg`, shown on the card and at the top of the recipe page) and optionally an ingredients illustration (`<slug>-ingredients.{jpg,png}` → `gallery: [./slug-ingredients.png]`, shown whole between the ingredients and the steps), both stored next to the recipe `.md`. Shoot the hero **3:4 portrait** (the hero/card frame is 4:5, slight trim); the illustration can be any shape. To add photos, drop slug-named files (jpg/png/webp — not HEIC) in `intake/photos/` and run `npm run photos` (published recipes only — recipes you author are published from the start; issue-form drafts must be promoted first): it resizes to 1600px, converts heroes to JPEG and keeps PNG/WebP illustrations as PNG (transparency survives), moves each file next to its recipe, and sets the frontmatter. It never commits; ship the batch via a normal PR. Leave empty (or omit) when there's no photo — the card/detail fall back to a masked glass-icon tile. Don't fabricate paths to files that don't exist (the build resolves them and will fail). `preparations` remains reserved and unused — leave it empty.
 - **Three collections** — `recipes` (in `recipes/`), `sections` (in `sections/`, schema is just `{ title, order, summary? }`, powers `/learn/`), and `syrups` (in `syrups/`, schema `{ title, blurb, publish?, yield?, ingredients[], steps[], hero_image? }`, powers `/syrups/`; photo sits next to the `.md`, `npm run photos` does not handle it). Same glob rules apply to all.
 
-## Email Recipe Processing
+## Adding a Recipe You Wrote
 
-When you receive an email containing a cocktail recipe (look for ingredients with oz measurements, spirit names, mixing instructions, or subject lines mentioning "recipe", "cocktail", "drink"):
+This is the primary path. When the owner gives a recipe in chat, or files a plain GitHub issue and hands it to `/lfg`, publish it in **one PR** — no inbox draft, no separate promote PR. `recipes/inbox/` is not used for these.
 
-1. Parse the recipe: name, ingredients, method, garnish, and any notes
+1. Normalize it per **Recipe Normalization Rules** below.
+2. Write `recipes/classics/{slug}.md` with `category: classic`, `publish: true`. Use `recipes/originals/` (`category: original`) only when the owner says it's their own creation.
+3. Published recipes get the full schema check, so resolve gaps **before** opening the PR: ask the owner for a missing house-made recipe, missing measurements, or anything you'd otherwise guess. Don't park gaps for later.
+4. Run `npm run validate` **and** `npx astro check`, both with 0 errors. `validate` covers structure (dir/category, `related[]`, body shape) but not enum membership. Zod enforces enums only in `astro check`, which PR CI doesn't run. A bad slug would otherwise first fail at the staging→main release build.
+5. Ship it per the Contributing rules:
+   - Branch `feat-{N}-{slug}` when it came from issue #N, otherwise `feat-recipe-{slug}`.
+   - PR title `feat(recipe): add {Recipe Title}`. Use that exact prefix, singular: `scripts/releaseCategorize.mjs` matches `feat(recipe):` to list the PR under **Recipes** in the release PR, and `feat(recipes):` falls through to Changes.
+   - Body: what was added, any inferred enums the owner should sanity-check, and `Closes #N` when it came from an issue.
+
+## Recipe Normalization Rules
+
+How to turn raw recipe text into a `TEMPLATE.md` file. Used by **Adding a Recipe You Wrote** and when completing issue-form drafts.
+
+1. Parse the recipe: name, ingredients, method, garnish, and any notes.
 2. Normalize into the `TEMPLATE.md` format with full YAML frontmatter:
    - Slug: lowercase-hyphenated derived from the recipe name
-   - `category: inbox`, `publish: false` (inbox recipes are drafts until reviewed)
    - Infer `glass`, `method` (shaken/stirred/built/blended), `ice` from ingredients and steps
    - Detect primary `spirits[]` from the ingredient list
-   - Write parsed ingredients into `ingredients[]` (each line as a single string), parsed steps into `steps[]`. Garnishes go in top-level `garnish: string` (single string; join multiple with " or ")
+   - Write parsed ingredients into `ingredients[]` (each line as a single string), parsed steps into `steps[]`. Garnishes go in top-level `garnish: string` (single string; join multiple with " or "). A float goes in top-level `float`
    - If the recipe has a syrup/infusion/shrub the bartender makes themselves, populate `house_made: { name, yield?, ingredients?, steps }` in frontmatter (NOT a body section)
    - If the recipe includes batch instructions, populate `batch: { yield, ingredients?, instructions? }`. `instructions` is plain text — markdown syntax in the field renders literally
-   - Populate the `attribution` block ONLY when the email names both a specific creator AND a specific venue (e.g., "Sam Ross at Milk & Honey", "Joaquín Simó at Death & Co"). Do NOT fill attribution for communal classics whose origin is murky (Old Fashioned, Manhattan, Cosmopolitan, French 75, Gin Gimlet, etc.) — leave all fields empty. Never invent a likely creator.
+   - Populate the `attribution` block ONLY when the source names both a specific creator AND a specific venue (e.g., "Sam Ross at Milk & Honey", "Joaquín Simó at Death & Co"). Do NOT fill attribution for communal classics whose origin is murky (Old Fashioned, Manhattan, Cosmopolitan, French 75, Gin Gimlet, etc.) — leave all fields empty. Never invent a likely creator.
    - If measurements are missing, leave them blank rather than guessing
    - Body should be just `## Notes` (and any narrative-only sections like `## Variations`) — do NOT put `## Ingredients` / `## Steps` / `## House-Made` / `## How to Batch It` in the body, those are migration leftovers and the linter will error on them
-   - Notes must stick to verifiable facts: substitutions, technique tips, named-source observations. Do NOT open with "An original…", "This is essentially X", or any other inferential origin claim — the project convention is conservative attribution, so editorial assertions about origin get rewritten at promotion time anyway. If the email's own text states an origin, quote/paraphrase faithfully; if not, stay silent on origin.
-3. Write the file to `recipes/inbox/{slug}.md`.
-4. Ship it as a PR per the Contributing rules — do not commit on `main`:
-   - `git checkout -b feat-inbox-{slug}` (no issue ref needed for ingest)
-   - `git add recipes/inbox/{slug}.md && git commit -m "feat(inbox): add {Recipe Title}"`
-   - `git push -u origin feat-inbox-{slug}`
-   - `gh pr create --title "feat(inbox): add {Recipe Title}" --body "..."` — body should summarize what was parsed, flag any missing measurements or guessed values, and link the source email if available.
-5. Confirm to the user what was saved, the branch name, and the PR URL.
-
-If `gh pr create` fails with a token-permission error, still complete steps 1–4 above (file + branch + push) and report the GitHub "create PR" URL from the push output so the user can open the PR manually.
-
-Inbox recipes do not appear on the public site until they're promoted (stages 2–4 of the Recipe Pipeline section above), which happens after the PR is merged.
+   - Notes must stick to verifiable facts: substitutions, technique tips, named-source observations. Do NOT open with "An original…", "This is essentially X", or any other inferential origin claim — the project convention is conservative attribution. If the source's own text states an origin, quote/paraphrase faithfully; if not, stay silent on origin.
 
 ## GitHub Issue Recipe Intake
 
-Third intake path alongside email and `/ingest`: the **Submit a recipe** issue form (`.github/ISSUE_TEMPLATE/recipe.yml`) plus the `.github/workflows/recipe-from-issue.yml` workflow. The form auto-applies the `recipe` label; the workflow fires on that label, parses the form body, writes a `publish: false` draft to `recipes/inbox/`, runs `npm run validate`, and opens a PR against `staging`. The label is the spam gate — non-collaborators can't apply labels, so only the form's own submissions trigger it. The PR is the review; a human completes it and merges (accept) or closes (decline).
+The intake path for recipes from anyone other than the owner: the **Submit a recipe** issue form (`.github/ISSUE_TEMPLATE/recipe.yml`) plus the `.github/workflows/recipe-from-issue.yml` workflow. The form auto-applies the `recipe` label; the workflow fires on that label, parses the form body, writes a `publish: false` draft to `recipes/inbox/`, runs `npm run validate`, and opens a PR against `staging`. The label is the spam gate — non-collaborators can't apply labels, so only the form's own submissions trigger it. The PR is the review; a human completes it and merges (accept) or closes (decline).
+
+A plain issue (not the form) never gets the `recipe` label, so the workflow skips it. The owner's own recipe issues are plain issues handed to `/lfg` and follow **Adding a Recipe You Wrote** instead.
 
 **How complete the draft is depends on how much the submitter filled in.** The form collects `blurb`, `method` / `ice` / `glass` (as dropdowns whose options ARE the taxonomy slugs), `ingredients`, `steps`, `garnish`, `notes`, and `attribution`. When those are all provided, the workflow writes a draft that is **release-build-valid on arrival** — `title`, `blurb`, `category`, and the three enums are the only Zod-required fields (`ingredients` / `steps` default to `[]`). When the submitter skips the optional dropdowns, the draft is partial and the workflow writes a `<!-- Reviewer: fill these before promoting: … -->` comment listing exactly what's missing.
 
@@ -202,8 +207,8 @@ See `TEMPLATE.md` for the authoritative schema. Minimal shape:
 ---
 title: Recipe Name
 blurb: "One-line description"
-category: inbox
-publish: false
+category: classic
+publish: true
 glass: ...
 method: shaken
 ice: cubed
