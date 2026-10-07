@@ -6,6 +6,7 @@
 //   - related[] slug resolution against the rest of the corpus
 //   - duplicate slug detection across directories
 //   - alias-vs-slug collision warnings
+//   - ingredients that block the estimated ABV (warning)
 //
 // Enum membership for category, method, ice, format, glass,
 // root, spirits, flavors, occasions is delegated entirely to Zod (see
@@ -17,6 +18,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
+import { estimateAbv } from '../src/lib/abv.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
@@ -141,6 +143,9 @@ export function lintBody(body, frontmatter) {
       'ingredient references a House-Made-worthy prep but no house_made field found',
     );
   }
+
+  const { blockers } = estimateAbv(frontmatter);
+  if (blockers.length) warnings.push(`no ABV estimate — ${blockers.join('; ')}`);
 
   if (frontmatter.format === 'batch' || frontmatter.format === 'punch') {
     if (!frontmatter.batch) {
