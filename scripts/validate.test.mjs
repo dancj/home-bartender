@@ -523,7 +523,7 @@ describe('filterFiles', () => {
 describe('lintBody — soft rules (batch format)', () => {
   const fm = (extra = {}) => ({
     publish: true,
-    ingredients: ['2 oz spirit'],
+    ingredients: ['2 oz gin'],
     steps: ['Combine'],
     ...extra,
   });
@@ -569,3 +569,16 @@ describe('lintBody — soft rules (batch format)', () => {
   });
 });
 
+
+describe('lintBody — ABV estimate warning (publish: true)', () => {
+  it('warns naming ingredients that block the ABV estimate', () => {
+    const fm = { ...CANONICAL_FM, ingredients: [...CANONICAL_FM.ingredients, '½ oz yuzu kosho'] };
+    expect(lintBody(CANONICAL_BODY, fm).warnings).toEqual([
+      'no ABV estimate — unknown ABV: ½ oz yuzu kosho',
+    ]);
+  });
+
+  it('skips drafts', () => {
+    expect(lintBody('', { publish: false, ingredients: ['1 oz yuzu kosho'] }).warnings).toEqual([]);
+  });
+});

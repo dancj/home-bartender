@@ -8,7 +8,7 @@ glass_note: or wine glass
 method: built
 method_note: Muddled in glass, then built and topped
 ice: crushed
-roots: [daiquiri, whiskey-highball]
+roots: [daiquiri, highball]
 spirits:
   - rum
   - champagne

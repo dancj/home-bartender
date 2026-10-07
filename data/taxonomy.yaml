@@ -57,8 +57,8 @@ roots:
     label: Sidecar
     source: Cocktail Codex
     note: Spirit + citrus + orange liqueur
-  - slug: whiskey-highball
-    label: Whiskey Highball
+  - slug: highball
+    label: Highball
     source: Cocktail Codex
     note: Spirit + bubbly modifier (built tall)
   - slug: flip

@@ -60,6 +60,13 @@ const recipes = defineCollection({
       source_url: z.string().default(''),
     }).default(() => ({ creator: '', bar: '', year: '', source_url: '' })),
 
+    // Estimated-ABV overrides (src/lib/abv.mjs): dilution as percent of
+    // pre-dilution volume; ingredient keyword → ABV percent.
+    abv: z.object({
+      dilution: z.number().optional(),
+      ingredients: z.record(z.string(), z.number()).optional(),
+    }).optional(),
+
     related: z.array(z.string()).default([]),
     aliases: z.array(z.string()).default([]),
 

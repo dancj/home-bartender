@@ -26,11 +26,11 @@ describe('groupByTax(_, "roots")', () => {
 
   it('lists a borderline recipe under BOTH of its roots', () => {
     const grouped = groupByTax(
-      [recipe('French 75', ['daiquiri', 'whiskey-highball'])],
+      [recipe('French 75', ['daiquiri', 'highball'])],
       'roots',
     );
     expect(grouped.get('daiquiri')?.map((r) => r.data.title)).toEqual(['French 75']);
-    expect(grouped.get('whiskey-highball')?.map((r) => r.data.title)).toEqual(['French 75']);
+    expect(grouped.get('highball')?.map((r) => r.data.title)).toEqual(['French 75']);
   });
 
   it('keeps roots sorted and groups members across recipes', () => {
