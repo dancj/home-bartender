@@ -1,0 +1,42 @@
+# Typical ABV (percent) by ingredient keyword, for the estimated-ABV readout
+# on recipe pages (src/lib/abv.mjs). An ingredient line matches the LONGEST
+# keyword it contains (case-insensitive), so "sweet vermouth" beats "vermouth".
+# Override per recipe with frontmatter `abv: { ingredients: { gin: 57 } }`.
+
+# Spirits
+- { abv: 47, match: [gin] }
+- { abv: 40, match: [vodka, rum, tequila, mezcal, bourbon, rye, scotch, whiskey, whisky, brandy, cognac, pisco] }
+- { abv: 50, match: [high-proof bourbon, overproof rum] }
+
+# Liqueurs, amari, aperitifs
+- { abv: 40, match: [cointreau, triple sec, yellow chartreuse] }
+- { abv: 55, match: [green chartreuse] }
+- { abv: 24, match: [campari] }
+- { abv: 11, match: [aperol] }
+- { abv: 32, match: [maraschino liqueur] }
+- { abv: 20, match: [elderflower liqueur, st-germain, chocolate liqueur, crème de cacao] }
+- { abv: 35, match: [amaro nonino] }
+- { abv: 30, match: [limoncello] }
+
+# Fortified & sparkling wine
+- { abv: 16, match: [sweet vermouth] }
+- { abv: 17, match: [dry vermouth] }
+- { abv: 12, match: [prosecco, champagne, sparkling wine] }
+
+# Bitters
+- { abv: 44.7, match: [angostura bitters] }
+- { abv: 40, match: [bitters] }
+
+# Non-alcoholic
+- abv: 0
+  match:
+    - juice
+    - syrup
+    - nectar
+    - orgeat
+    - seltzer
+    - soda
+    - tonic
+    - egg white
+    - leaves
+    - tepache
