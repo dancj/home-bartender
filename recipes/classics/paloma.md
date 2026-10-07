@@ -7,7 +7,7 @@ glass: highball
 method: shaken
 method_note: topped
 ice: cubed
-roots: [whiskey-highball]
+roots: [highball]
 spirits:
   - tequila
   - mezcal

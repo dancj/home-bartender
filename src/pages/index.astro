@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import RecipeCard from '../components/RecipeCard.astro';
 import EmptyState from '../components/EmptyState.astro';
 import { publishedRecipes } from '../lib/recipes';
-import { label, groupByTax } from '../lib/taxonomy';
+import { label } from '../lib/taxonomy';
 import { spiritAccentVar } from '../lib/accents';
 
 const recipes = (await publishedRecipes()).sort((a, b) =>
@@ -11,20 +11,14 @@ const recipes = (await publishedRecipes()).sort((a, b) =>
 );
 
 const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
-const flavors = [...groupByTax(recipes, 'flavors').keys()];
-const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
-  recipes.some((r) => r.data.method === m)
-);
 ---
 <BaseLayout
   title="Home Bartending"
   description="Personal cocktail recipe collection."
   width="wide"
 >
-  {/* Single-line filter bar: spirit chips (with accent dots), then Mood +
-      Method dropdowns, then the result count and Cards/List control. Same
-      filter model as before — chips are button[data-filter][data-value], the
-      dropdowns are select[data-filter-select] the script binds below. */}
+  {/* Single-line filter bar: spirit chips (with accent dots), then the result
+      count and Cards/List control. Chips are button[data-filter][data-value]. */}
   <div class="filter-bar-row">
     <ul class="chip-row spirit-row">
       {spirits.map((s) => (
@@ -42,21 +36,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
         </li>
       ))}
     </ul>
-
-    <span class="filter-divider" aria-hidden="true"></span>
-
-    <div class="filter-selects">
-      <label class="sr-only" for="mood-select">Mood</label>
-      <select id="mood-select" class="filter-select" data-filter-select="flavor">
-        <option value="">Mood</option>
-        {flavors.map((f) => <option value={f}>{label('flavor', f)}</option>)}
-      </select>
-      <label class="sr-only" for="method-select">Method</label>
-      <select id="method-select" class="filter-select" data-filter-select="method">
-        <option value="">Method</option>
-        {methods.map((m) => <option value={m}>{label('method', m)}</option>)}
-      </select>
-    </div>
 
     <div class="filter-bar-right">
       <span class="result-count" id="result-count">{recipes.length} recipes</span>
@@ -139,16 +118,13 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       );
       const clearBtn = document.getElementById('clear-filters');
       const sortSelect = document.getElementById('sort-select');
-      const filterSelects = Array.from(
-        document.querySelectorAll<HTMLSelectElement>('select[data-filter-select]')
-      );
       const viewButtons = Array.from(
         document.querySelectorAll<HTMLButtonElement>('button[data-view]')
       );
 
       // The filter rows' own axes — the active count and Clear button ignore
       // `makeable`, which lives in the separate My Bar bar.
-      const PANEL_FIELDS = ['spirit', 'method', 'flavor'];
+      const PANEL_FIELDS = ['spirit'];
       const FIELDS = [...PANEL_FIELDS, 'makeable'];
 
       // localStorage can throw (private mode, disabled) — degrade to
@@ -247,8 +223,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
       ): boolean {
         const ds = card.dataset;
         if (filters.spirit && !dataList(ds.spirits).includes(filters.spirit)) return false;
-        if (filters.flavor && !dataList(ds.flavors).includes(filters.flavor)) return false;
-        if (filters.method && ds.method !== filters.method) return false;
         if (filters.makeable && !isMakeable(dataList(ds.spirits), ownedSet)) return false;
         return true;
       }
@@ -292,13 +266,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           const on = owned.includes(b.dataset.mybar ?? '');
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
-        // Keep the Mood/Method dropdowns in sync with the filter state (URL
-        // restore, popstate, clear) and tint them when a value is chosen.
-        for (const sel of filterSelects) {
-          const key = sel.dataset.filterSelect ?? '';
-          sel.value = filters[key] ?? '';
-          sel.classList.toggle('filter-select--active', Boolean(filters[key]));
-        }
         if (myBarCountEl)
           myBarCountEl.textContent = owned.length ? `${owned.length} owned` : '';
         if (active > 0 && summary?.parentElement instanceof HTMLDetailsElement)
@@ -334,16 +301,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
           writeFilters(f);
           applyFilters(f);
           if (key === 'makeable' && f[key]) maybeRevealMyBar(f);
-        });
-      }
-      for (const sel of filterSelects) {
-        sel.addEventListener('change', () => {
-          const f = readFilters();
-          const key = sel.dataset.filterSelect ?? '';
-          if (sel.value) f[key] = sel.value;
-          else delete f[key];
-          writeFilters(f);
-          applyFilters(f);
         });
       }
       for (const btn of myBarButtons) {
@@ -453,41 +410,6 @@ const methods = ['shaken', 'stirred', 'built', 'blended'].filter((m) =>
     padding: 7px 15px;
     font-size: 13px;
     gap: 7px;
-  }
-  .filter-divider {
-    width: 1px;
-    align-self: stretch;
-    min-height: 1.5rem;
-    background: var(--color-rule);
-  }
-  .filter-selects {
-    display: inline-flex;
-    gap: 8px;
-  }
-  /* Mood / Method dropdowns as pills matching the chips; native arrow replaced
-     with an inline chevron. Tinted when a value is chosen (--active). */
-  .filter-select {
-    appearance: none;
-    -webkit-appearance: none;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--color-fg-muted);
-    background: var(--color-surface)
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236B5F50' stroke-width='1.5'/%3E%3C/svg%3E")
-      no-repeat right 13px center;
-    background-size: 9px;
-    border: 1px solid var(--color-rule);
-    border-radius: 999px;
-    padding: 7px 32px 7px 15px;
-    cursor: pointer;
-  }
-  .filter-select:hover {
-    border-color: var(--color-rule-strong);
-  }
-  .filter-select--active {
-    color: var(--color-fg);
-    border-color: var(--color-accent);
   }
   .filter-bar-right {
     margin-left: auto;

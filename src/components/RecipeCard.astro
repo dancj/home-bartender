@@ -25,8 +25,6 @@ const metaFlavors = data.flavors.slice(0, 2).map((f) => label('flavor', f));
   class="recipe-card"
   data-title={data.title}
   data-spirits={data.spirits.join(',')}
-  data-flavors={data.flavors.join(',')}
-  data-method={data.method}
 >
   <a href={`${base}/recipes/${slug}/`} class="card h-full recipe-photo-card" style={`--accent: ${accent}`}>
     <div class:list={['card-media', !hasPhoto && 'card-media--empty']}>
