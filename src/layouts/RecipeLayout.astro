@@ -40,6 +40,8 @@ const galleryItems = (data.gallery ?? []).slice(0, 2);
 // Estimated ABV (issue #171); null when any ingredient can't be priced in.
 const abv = estimateAbv(data);
 const fmtOz = (n: number) => `${n.toFixed(1)} oz`;
+const DILUTION_SOURCE: Record<string, string> = { stirred: 'stirring', shaken: 'shaking', blended: 'blending' };
+const dilutionSource = DILUTION_SOURCE[data.method] ?? 'ice';
 
 // Resolve related[] slugs to full recipes so cards render real titles instead
 // of de-slugged text. Order follows the related[] list (see resolveRelated).
@@ -142,7 +144,7 @@ const isTabbed = tabIds.length > 1;
             <summary>How the ABV is estimated</summary>
             <p>
               {fmtOz(abv.alcoholOz!)} alcohol in {fmtOz(abv.preOz!)} of ingredients, plus
-              {' '}{abv.dilution}% dilution from {({ stirred: 'stirring', shaken: 'shaking', blended: 'blending' } as Record<string, string>)[data.method] ?? 'ice'}
+              {' '}{abv.dilution}% dilution from {dilutionSource}
               {' '}→ about {fmtOz(abv.finalOz!)} in the glass. An estimate — varies by bottle and technique.
             </p>
           </details>
