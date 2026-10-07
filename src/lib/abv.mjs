@@ -75,6 +75,8 @@ function dilutionFor(method, ice) {
 }
 
 /**
+ * @param {{ ingredients?: string[], float?: string, method?: string, ice?: string,
+ *   abv?: { dilution?: number, ingredients?: Record<string, number> } }} recipe
  * @returns {{ abv: number|null, alcoholOz?: number, preOz?: number, dilution?: number, finalOz?: number, blockers: string[] }}
  */
 export function estimateAbv({ ingredients = [], float = '', method, ice, abv: override = {} }) {
