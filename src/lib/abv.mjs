@@ -26,7 +26,7 @@ const BUILT_DILUTION = { none: 0, crushed: 25 };
 const BUILT_DEFAULT = 15;
 
 const FRACTIONS = { '¼': 0.25, '½': 0.5, '¾': 0.75, '⅓': 1 / 3, '⅔': 2 / 3 };
-const NUM = String.raw`\d+(?:\.\d+)?[¼½¾⅓⅔]?|[¼½¾⅓⅔]`;
+const NUM = String.raw`\d+(?:\.\d+)?(?: ?[¼½¾⅓⅔])?|[¼½¾⅓⅔]`;
 const AMOUNT_RE = new RegExp(String.raw`^(${NUM})(?:\s*[–-]\s*(${NUM}))?\s+`);
 
 function num(s) {
@@ -59,13 +59,22 @@ export function parseIngredient(line) {
   return { name: s, oz: /egg white/i.test(s) ? qty : 0 };
 }
 
+// Whole-word match, so "ginger beer" doesn't hit "gin".
+function hasWord(text, word) {
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?<!\\p{L})${escaped}(?!\\p{L})`, 'u').test(text);
+}
+
 /** Percent ABV for an ingredient name, or null if unknown. Longest keyword wins. */
 export function lookupAbv(name, overrides = {}) {
   const n = name.toLowerCase();
   let best = null;
-  for (const [k, abv] of [...TABLE, ...Object.entries(overrides).map(([k, v]) => [k.toLowerCase(), v])]) {
-    if (n.includes(k) && (!best || k.length >= best[0].length)) best = [k, abv];
-  }
+  const consider = (k, abv) => {
+    if (hasWord(n, k) && (!best || k.length >= best[0].length)) best = [k, abv];
+  };
+  for (const [k, abv] of TABLE) consider(k, abv);
+  // Overrides run last so they win ties with the table.
+  for (const [k, abv] of Object.entries(overrides)) consider(k.toLowerCase(), abv);
   return best ? best[1] : null;
 }
 

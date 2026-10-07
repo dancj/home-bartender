@@ -11,6 +11,7 @@ describe('parseIngredient', () => {
     ['0.8 oz elderflower liqueur (St-Germain)', 0.8, 'elderflower liqueur'],
     ['2 oz blanco tequila *(can sub rum)*', 2, 'blanco tequila'],
     ['1 egg white', 1, 'egg white'],
+    ['1 ½ oz gin', 1.5, 'gin'],
     ['8–10 fresh mint leaves', 0, 'fresh mint leaves'],
     ['Splash of club soda or sparkling wine', 0.5, 'club soda or sparkling wine'],
     ['Top with soda water', 2, 'soda water'],
@@ -52,6 +53,9 @@ describe('lookupAbv', () => {
   it('non-alcoholic items are 0', () => {
     expect(lookupAbv('fresh lime juice')).toBe(0);
     expect(lookupAbv('demerara simple syrup')).toBe(0);
+  });
+  it('matches whole words only', () => {
+    expect(lookupAbv('ginger beer')).toBeNull();
   });
   it('unknown is null', () => {
     expect(lookupAbv('yuzu kosho')).toBeNull();
