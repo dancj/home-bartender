@@ -9,7 +9,7 @@ method: shaken
 method_note: built
 ice: cubed
 ice_note: over ice
-roots: [whiskey-highball]
+roots: [highball]
 spirits:
   - aperitif
   - liqueur

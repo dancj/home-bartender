@@ -9,7 +9,7 @@ method: shaken
 method_note: built
 ice: none
 ice_note: (served up)
-roots: [daiquiri, whiskey-highball]
+roots: [daiquiri, highball]
 spirits:
   - gin
   - champagne

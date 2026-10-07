@@ -40,7 +40,7 @@ export const FORMAT_LABELS: Record<Format, string> = {
   'punch': "Punch",
 };
 
-export const ROOTS = ['old-fashioned', 'martini', 'daiquiri', 'sidecar', 'whiskey-highball', 'flip'] as const;
+export const ROOTS = ['old-fashioned', 'martini', 'daiquiri', 'sidecar', 'highball', 'flip'] as const;
 export type Root = (typeof ROOTS)[number];
 
 export const ROOT_LABELS: Record<Root, string> = {
@@ -48,7 +48,7 @@ export const ROOT_LABELS: Record<Root, string> = {
   'martini': "Martini",
   'daiquiri': "Daiquiri",
   'sidecar': "Sidecar",
-  'whiskey-highball': "Whiskey Highball",
+  'highball': "Highball",
   'flip': "Flip",
 };
 
@@ -57,7 +57,7 @@ export const ROOT_NOTES: Record<Root, string> = {
   'martini': "Spirit + fortified wine + flavoring (stirred)",
   'daiquiri': "Spirit + citrus + sweetener (shaken)",
   'sidecar': "Spirit + citrus + orange liqueur",
-  'whiskey-highball': "Spirit + bubbly modifier (built tall)",
+  'highball': "Spirit + bubbly modifier (built tall)",
   'flip': "Spirit + sugar + whole egg",
 };
 

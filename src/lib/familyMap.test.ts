@@ -49,10 +49,10 @@ describe('buildFamilyMap', () => {
 
   it('places a bridge recipe (two families) in each of its families — AE3', () => {
     const recipes = [
-      makeRecipe('classics/french-75', ['daiquiri', 'whiskey-highball'], [], 'French 75'),
+      makeRecipe('classics/french-75', ['daiquiri', 'highball'], [], 'French 75'),
     ];
     const inDaiquiri = buildFamilyMap(recipes, 'daiquiri', BASE);
-    const inHighball = buildFamilyMap(recipes, 'whiskey-highball', BASE);
+    const inHighball = buildFamilyMap(recipes, 'highball', BASE);
     expect(inDaiquiri.branches.map((b) => b.title)).toContain('French 75');
     expect(inHighball.branches.map((b) => b.title)).toContain('French 75');
   });
