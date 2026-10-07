@@ -6,6 +6,7 @@ import { publishedRecipes } from '../lib/recipes';
 import { resolveRelated } from '../lib/related';
 import RecipeCard from '../components/RecipeCard.astro';
 import { label } from '../lib/taxonomy';
+import { estimateAbv } from '../lib/abv.mjs';
 import { spiritAccentVar, flavorAccentVar } from '../lib/accents';
 import { iconUrl } from '../lib/icon-urls';
 import Ingredients from '../components/recipe/Ingredients.astro';
@@ -36,6 +37,11 @@ const glassIcon = iconUrl('glass', data.glass);
 // Ingredient illustrations (the gallery field) render inside the recipe,
 // between ingredients and steps. The rail holds only the hero.
 const galleryItems = (data.gallery ?? []).slice(0, 2);
+// Estimated ABV (issue #171); null when any ingredient can't be priced in.
+const abv = estimateAbv(data);
+const fmtOz = (n: number) => `${n.toFixed(1)} oz`;
+const DILUTION_SOURCE: Record<string, string> = { stirred: 'stirring', shaken: 'shaking', blended: 'blending' };
+const dilutionSource = DILUTION_SOURCE[data.method] ?? 'ice';
 
 // Resolve related[] slugs to full recipes so cards render real titles instead
 // of de-slugged text. Order follows the related[] list (see resolveRelated).
@@ -126,7 +132,23 @@ const isTabbed = tabIds.length > 1;
             <span class="fact-label">Ice</span>
             <span class="fact-value">{label('ice', data.ice)}{data.ice_note && <span class="fact-note"> {data.ice_note}</span>}</span>
           </div>
+          {abv.abv !== null && (
+            <div class="fact-cell">
+              <span class="fact-label">ABV</span>
+              <span class="fact-value">~{abv.abv}%<span class="fact-note"> est.</span></span>
+            </div>
+          )}
         </div>
+        {abv.abv !== null && (
+          <details class="abv-detail">
+            <summary>How the ABV is estimated</summary>
+            <p>
+              {fmtOz(abv.alcoholOz!)} alcohol in {fmtOz(abv.preOz!)} of ingredients, plus
+              {' '}{abv.dilution}% dilution from {dilutionSource}
+              {' '}→ about {fmtOz(abv.finalOz!)} in the glass. An estimate — varies by bottle and technique.
+            </p>
+          </details>
+        )}
 
         {data.flavors.length > 0 && (
           <ul class="flavor-chips" aria-label="Flavors">
@@ -482,6 +504,19 @@ const isTabbed = tabIds.length > 1;
   .fact-note {
     color: var(--color-fg-muted);
     font-style: italic;
+  }
+
+  .abv-detail {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-fg-muted);
+  }
+  .abv-detail summary {
+    cursor: pointer;
+    width: fit-content;
+  }
+  .abv-detail p {
+    margin: 6px 0 0;
   }
 
   /* Flavor chips — shared .chip shape, inactive, each with an accent dot. */
