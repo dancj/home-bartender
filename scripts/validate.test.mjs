@@ -346,6 +346,14 @@ describe('lintBody — soft rules (House-Made)', () => {
     expect(result).toEqual({ errors: [], warnings: [] });
   });
 
+  it('does not warn when a syrup reference is present instead of house_made', () => {
+    const result = lintBody(
+      CANONICAL_BODY,
+      fmWith(['2 oz gin', '¾ oz honey-ginger syrup'], { syrup: 'honey-ginger-syrup' }),
+    );
+    expect(result).toEqual({ errors: [], warnings: [] });
+  });
+
   it('does not warn when ingredient is store-bought (simple syrup)', () => {
     const result = lintBody(CANONICAL_BODY, fmWith(['2 oz gin', '½ oz simple syrup']));
     expect(result).toEqual({ errors: [], warnings: [] });

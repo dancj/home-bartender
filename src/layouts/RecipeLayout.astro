@@ -1,5 +1,6 @@
 ---
 import { Image } from 'astro:assets';
+import { getEntry } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
 import type { Recipe } from '../lib/recipes';
 import { publishedRecipes } from '../lib/recipes';
@@ -45,6 +46,10 @@ const dilutionSource = DILUTION_SOURCE[data.method] ?? 'ice';
 
 // Resolve related[] slugs to full recipes so cards render real titles instead
 // of de-slugged text. Order follows the related[] list (see resolveRelated).
+// A syrup ref pulls its prep from syrups/ (shown as a drawer, linked out).
+const syrup = data.syrup ? await getEntry('syrups', data.syrup) : undefined;
+if (data.syrup && !syrup) throw new Error(`${recipe.id}: syrup "${data.syrup}" not found in syrups/`);
+
 const relatedRecipes =
   data.related.length > 0 ? resolveRelated(await publishedRecipes(), data.related) : [];
 
@@ -195,6 +200,15 @@ const isTabbed = tabIds.length > 1;
               </figure>
             ))}
             {data.house_made && <HouseMade {...data.house_made} />}
+            {syrup && (
+              <HouseMade
+                name={syrup.data.title}
+                yield={syrup.data.yield}
+                ingredients={syrup.data.ingredients}
+                steps={syrup.data.steps}
+                href={`${base}/syrups/${syrup.id}/`}
+              />
+            )}
             {data.steps.length > 0 && <Steps items={data.steps} />}
           </section>
 

@@ -42,18 +42,7 @@ steps:
   - Add ice and shake again until well chilled
   - Double-strain into a chilled coupe
   - The egg white foam will settle on top naturally
-house_made:
-  name: Lavender Honey Syrup
-  yield: Makes ~6 oz. Keeps 2 weeks refrigerated.
-  ingredients:
-    - 1½ oz dried lavender
-    - ½ cup honey
-    - ½ cup water
-  steps:
-    - Combine honey and water in a saucepan and bring to a boil
-    - Add lavender, reduce heat, and simmer for 5 minutes
-    - Remove from heat and steep for 10 minutes
-    - Strain through a fine mesh strainer and refrigerate
+syrup: lavender-honey-syrup
 batch:
   yield: "Makes 8 servings (without egg white — add per glass):"
   ingredients:

@@ -170,7 +170,8 @@ How to turn raw recipe text into a `TEMPLATE.md` file. Used by **Adding a Recipe
    - Infer `glass`, `method` (shaken/stirred/built/blended), `ice` from ingredients and steps
    - Detect primary `spirits[]` from the ingredient list
    - Write parsed ingredients into `ingredients[]` (each line as a single string), parsed steps into `steps[]`. Garnishes go in top-level `garnish: string` (single string; join multiple with " or "). A float goes in top-level `float`
-   - If the recipe has a syrup/infusion/shrub the bartender makes themselves, populate `house_made: { name, yield?, ingredients?, steps }` in frontmatter (NOT a body section)
+   - If the recipe uses a house-made syrup or mixer, put it in `syrups/<slug>.md` (reuse an existing one when it matches) and reference it with top-level `syrup: <slug>`; the recipe page shows it as a collapsible drawer linking to `/syrups/<slug>/`. `npm run validate` errors on a dangling `syrup` slug
+   - For infusions/washes/shrubs specific to one drink, populate `house_made: { name, yield?, ingredients?, steps }` in frontmatter instead (NOT a body section)
    - If the recipe includes batch instructions, populate `batch: { yield, ingredients?, instructions? }`. `instructions` is plain text — markdown syntax in the field renders literally
    - Populate the `attribution` block ONLY when the source names both a specific creator AND a specific venue (e.g., "Sam Ross at Milk & Honey", "Joaquín Simó at Death & Co"). Do NOT fill attribution for communal classics whose origin is murky (Old Fashioned, Manhattan, Cosmopolitan, French 75, Gin Gimlet, etc.) — leave all fields empty. Never invent a likely creator.
    - If measurements are missing, leave them blank rather than guessing
@@ -222,7 +223,8 @@ float: ""                           # optional (e.g. ¼ oz Laphroaig for penicil
 steps:
   - Combine in a shaker with ice.
   - Shake hard, strain.
-house_made:                         # optional
+syrup: honey-ginger-syrup           # optional — slug in syrups/
+house_made:                         # optional — one-off infusions/washes
   name: Honey-Ginger Syrup
   yield: Makes ~4 oz.
   ingredients:                      # optional — omit when the procedure produces the ingredient

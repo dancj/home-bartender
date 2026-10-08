@@ -25,6 +25,7 @@ ingredients:
   - ½ oz peach syrup
   - Splash of club soda or sparkling wine
 garnish: Salt rim
+syrup: peach-syrup
 steps:
   - Shake tequila, lime juice, and peach syrup with ice.
   - Strain over fresh ice into a salt-rimmed glass.
