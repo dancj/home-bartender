@@ -26,14 +26,7 @@ steps:
   - Combine all ingredients in a shaker with ice.
   - Shake until well chilled.
   - Strain over fresh ice into a margarita glass.
-house_made:
-  name: Reduced Mango Nectar
-  yield: Makes ~1 cup (8 oz).
-  ingredients:
-    - 2 cups store-bought mango nectar
-  steps:
-    - Simmer the mango nectar over medium heat until reduced by half to 1 cup.
-    - Let cool before using.
+syrup: reduced-mango-nectar
 batch:
   yield: Makes 8 servings (~1 L dispenser).
   ingredients:

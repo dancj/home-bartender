@@ -4,6 +4,7 @@
 //     category: classic, etc.)
 //   - publish flag ↔ directory coherence (inbox/ vs published dirs)
 //   - related[] slug resolution against the rest of the corpus
+//   - syrup slug resolution against syrups/
 //   - duplicate slug detection across directories
 //   - alias-vs-slug collision warnings
 //   - ingredients that block the estimated ABV (warning)
@@ -22,6 +23,7 @@ import { estimateAbv } from '../src/lib/abv.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const RECIPES_DIR = path.join(ROOT, 'recipes');
+const SYRUPS_DIR = path.join(ROOT, 'syrups');
 
 export const CATEGORY_BY_DIR = {
   classics: 'classic',
@@ -138,7 +140,7 @@ export function lintBody(body, frontmatter) {
   const triggersHouseMade =
     ingredients.some(mentionsHouseMadeWorthyPrep) ||
     batchIngredients.some(mentionsHouseMadeWorthyPrep);
-  if (triggersHouseMade && !frontmatter.house_made) {
+  if (triggersHouseMade && !frontmatter.house_made && !frontmatter.syrup) {
     warnings.push(
       'ingredient references a House-Made-worthy prep but no house_made field found',
     );
@@ -223,6 +225,7 @@ async function main() {
     recipesDir: RECIPES_DIR,
   });
   const slugs = new Map();
+  const syrupSlugs = new Set((await walk(SYRUPS_DIR)).map((f) => path.basename(f, '.md')));
   const errors = [];
   const warnings = [];
 
@@ -291,6 +294,9 @@ async function main() {
     if (!fm) continue;
     for (const r of fm.related ?? []) {
       if (!slugs.has(r)) errors.push(`${rel}: related[] "${r}" does not resolve to any recipe`);
+    }
+    if (fm.syrup && !syrupSlugs.has(fm.syrup)) {
+      errors.push(`${rel}: syrup "${fm.syrup}" does not resolve to any syrups/*.md`);
     }
     for (const a of fm.aliases ?? []) {
       if (slugs.has(a)) warnings.push(`${rel}: alias "${a}" collides with an existing recipe slug`);

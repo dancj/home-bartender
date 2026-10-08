@@ -47,6 +47,8 @@ const recipes = defineCollection({
       ingredients: z.array(z.string()).optional(),
       steps: z.array(z.string()),
     }).optional(),
+    // Slug of a syrups/ entry; shown as a drawer on the recipe page.
+    syrup: z.string().optional(),
     batch: z.object({
       yield: z.string(),
       ingredients: z.array(z.string()).optional(),

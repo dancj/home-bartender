@@ -43,19 +43,7 @@ steps:
   - Combine tequila, lime juice, mango habanero syrup, and triple sec in a shaker with ice
   - Shake well until chilled
   - Strain into glass over ice
-house_made:
-  name: Mango Habanero Syrup
-  yield: Makes ~3 oz. Keeps 1–2 weeks refrigerated.
-  ingredients:
-    - ½ cup agave nectar
-    - ½ cup mango juice
-    - 2 habanero peppers, halved and de-stemmed
-    - Pinch of salt
-  steps:
-    - Combine all ingredients in a saucepan
-    - Simmer for 5 minutes
-    - Remove from heat and let sit for 20 minutes
-    - Strain into a jar and refrigerate
+syrup: mango-habanero-syrup
 batch:
   yield: "Makes 8 servings:"
   ingredients:
