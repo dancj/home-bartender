@@ -30,15 +30,7 @@ steps:
   - Add all ingredients to a shaker filled with ice.
   - Shake hard for 10–15 seconds until cold.
   - Strain into a rocks or tiki glass filled with fresh crushed ice.
-house_made:
-  name: Demerara Simple Syrup
-  yield: Makes ~1½ cups. Keeps 2–3 weeks refrigerated.
-  ingredients:
-    - 1 cup demerara sugar
-    - 1 cup water
-  steps:
-    - Combine and warm, stirring until the sugar dissolves.
-    - Cool before using.
+syrup: demerara-simple-syrup
 attribution:
   creator: ""
   bar: ""

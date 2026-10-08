@@ -44,7 +44,10 @@ steps:
   - Combine in a shaker with ice.
   - Shake hard, strain into a rocks glass.
 
-# House-Made preparation (optional, single object — change to an array if a recipe ever needs more)
+# House-made syrup or mixer (optional) — slug of a syrups/<slug>.md entry; renders as a drawer
+syrup: honey-ginger-syrup
+
+# One-off House-Made preparation like an infusion or wash (optional, single object)
 house_made:
   name: Honey-Ginger Syrup   # rendered as "House-Made <name>"
   yield: Makes ~4 oz. Keeps 2–3 weeks refrigerated.   # optional italic line

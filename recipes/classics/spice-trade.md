@@ -41,14 +41,7 @@ steps:
   - Add gin, cinnamon syrup, and lemon juice
   - Add ice and shake well until thoroughly chilled
   - Fine-strain into a chilled coupe
-house_made:
-  name: Cinnamon Syrup
-  ingredients:
-    - 1 cup water
-    - 1 cup white sugar
-    - 3–4 cinnamon sticks
-  steps:
-    - Combine in a saucepan over medium heat, stirring until sugar dissolves. Simmer 10 minutes. Remove from heat, let steep 30 minutes, then strain. Keeps refrigerated for 2–3 weeks.
+syrup: cinnamon-syrup
 batch:
   yield: "Makes 8 servings:"
   ingredients:

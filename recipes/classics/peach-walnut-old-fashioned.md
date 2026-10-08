@@ -27,16 +27,7 @@ steps:
   - Combine bourbon, peach syrup, and bitters in a rocks glass over ice.
   - Stir for 10–15 seconds.
   - Flame an orange peel over the top and garnish with a grilled peach slice.
-house_made:
-  name: Peach Syrup
-  yield: Makes ~1 cup. Reserve the strained peaches for a smash, preserve, or food topping.
-  ingredients:
-    - 5–6 medium ripe peaches
-    - ½ cup sugar
-  steps:
-    - Combine peaches and sugar in a sealed container and mix.
-    - Refrigerate 48 hours to macerate.
-    - Strain the syrup and reserve the peaches.
+syrup: peach-syrup-48-hour
 attribution:
   creator: ""
   bar: ""
