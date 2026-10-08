@@ -15,3 +15,5 @@ hero_image: ./peach-syrup.jpg
 ## Notes
 
 Maceration keeps the fresh peach flavor better than boiling the peaches.
+
+The peaches have to be ripe for the flavor to come through. The recipe is still being dialed in.
