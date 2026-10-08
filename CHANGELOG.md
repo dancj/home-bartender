@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.10.7.1] - 2026-10-07
+
+- #234 — feat: estimated ABV on recipe pages (@dancj)
+- #233 — chore: rename Whiskey Highball to Highball; drop Mood/Method filters (@dancj)
+- #230 — docs: publish owner-written recipes in one PR; retire email intake and /ingest (@dancj)
+- #228 — feat(recipe): promote Mezcal Honey Saffron to classics (@dancj)
+- #226 — feat(inbox): add Mezcal Honey Saffron (@dancj)
+- #225 — docs: update CHANGELOG for release 2026.10.3.1 (@app/github-actions)
 ## [2026.10.3.1] - 2026-10-03
 
 - #224 — feat(syrups): add Syrups & Mixers section with Peach Syrup (@dancj)
