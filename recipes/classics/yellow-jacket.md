@@ -28,8 +28,8 @@ related:
   - naked-and-famous
   - last-word
 aliases: []
-hero_image: ""
-gallery: []
+hero_image: ./yellow-jacket.jpg
+gallery: [./yellow-jacket-ingredients.png]
 preparations: []
 created: 2026-10-17
 ingredients:

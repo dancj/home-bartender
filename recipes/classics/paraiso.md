@@ -25,8 +25,8 @@ attribution:
 related: []
 aliases:
   - mezcal-honey-saffron
-hero_image: ""
-gallery: []
+hero_image: ./paraiso.jpg
+gallery: [./paraiso-ingredients.png]
 preparations: []
 created: 2026-10-03
 ingredients:
