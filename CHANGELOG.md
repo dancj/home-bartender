@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.11.4.1] - 2026-11-04
+
+- #255 — feat(batch): set a custom serving count on batch recipes (@dancj)
+- #253 — chore(deps): update all non-major dependencies (@app/renovate)
+- #250 — docs: update CHANGELOG for release 2026.10.23.1 (@app/github-actions)
 ## [2026.10.23.1] - 2026-10-23
 
 - #248 — feat(photos): add Paraíso and Yellow Jacket photos (@dancj)
