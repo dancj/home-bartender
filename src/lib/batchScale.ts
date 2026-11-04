@@ -1,16 +1,13 @@
 // Rescale a recipe's batch block to a custom serving count (issue #254).
-// Pure and DOM-free: the BatchInstructions script imports it on the client.
-// Amounts are parsed from the free-text batch strings, same grammar as abv.mjs.
 
 const FRACTIONS: Record<string, number> = { '¼': 0.25, '½': 0.5, '¾': 0.75, '⅓': 1 / 3, '⅔': 2 / 3 };
 const QUARTERS: Record<number, string> = { 0.25: '¼', 0.5: '½', 0.75: '¾' };
 const NUM = String.raw`\d+(?:\.\d+)?(?: ?[¼½¾⅓⅔])?|[¼½¾⅓⅔]`;
 const LEAD_RE = new RegExp(String.raw`^(${NUM})(?:(\s*[–-]\s*)(${NUM}))?(\s+)([^\s(]+)`);
-const PAREN_RE = new RegExp(String.raw`\((${NUM})(\s*)([a-zA-Z]+)\)`, 'g');
-// Units whose count changes shape at 1; anything else passes through untouched.
+const PAREN_RE = new RegExp(String.raw`\((~?)(${NUM})(\s*)([a-zA-Z]+)\)`, 'g');
 const PLURALS: Record<string, string> = { cup: 'cups', dash: 'dashes', bottle: 'bottles', serving: 'servings' };
 const SINGULARS = Object.fromEntries(Object.entries(PLURALS).map(([s, p]) => [p, s]));
-const QUARTER_UNITS = new Set(['oz', 'cup', 'cups']);
+const QUARTER_UNITS = new Set(['oz', 'cup', 'cups', 'tsp', 'bottle', 'bottles']);
 
 function num(s: string): number {
   const frac = FRACTIONS[s.at(-1)!] ?? 0;
@@ -28,7 +25,7 @@ function fmt(n: number, unit: string): string {
 
 function inflect(unit: string, value: string): string {
   const lower = unit.toLowerCase();
-  if (value === '1') return SINGULARS[lower] ?? unit;
+  if (/^(1|[¼½¾])$/.test(value)) return SINGULARS[lower] ?? unit;
   return PLURALS[lower] ?? unit;
 }
 
@@ -44,14 +41,14 @@ export function scaleLine(line: string, factor: number): string {
   const m = line.match(LEAD_RE);
   if (!m) return line;
   const [lead, a, dash, b, space, unit] = m;
-  const first = fmt(num(a) * factor, unit);
-  const amount = b ? `${first}${dash}${fmt(num(b) * factor, unit)}` : first;
-  const last = b ? amount.split(dash).at(-1)! : amount;
-  const rest = line.slice(lead.length).replace(PAREN_RE, (_, n, sp, u) => {
+  const low = fmt(num(a) * factor, unit);
+  const high = b ? fmt(num(b) * factor, unit) : null;
+  const amount = high ? `${low}${dash}${high}` : low;
+  const rest = line.slice(lead.length).replace(PAREN_RE, (_, approx, n, sp, u) => {
     const v = fmt(num(n) * factor, u);
-    return `(${v}${sp}${inflect(u, v)})`;
+    return `(${approx}${v}${sp}${inflect(u, v)})`;
   });
-  return `${amount}${space}${inflect(unit, last)}${rest}`;
+  return `${amount}${space}${inflect(unit, high ?? low)}${rest}`;
 }
 
 /** "Makes 8 servings:" at 12 → "Makes 12 servings:". */

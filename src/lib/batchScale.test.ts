@@ -34,6 +34,15 @@ describe('scaleLine', () => {
     expect(scaleLine('1 bottle (750ml) prosecco', 2)).toBe('2 bottles (1500ml) prosecco');
   });
 
+  it('scales approximate parentheticals', () => {
+    expect(scaleLine('8 bar spoons maple syrup (~2 oz)', 0.5)).toBe('4 bar spoons maple syrup (~1 oz)');
+  });
+
+  it('rounds bottles and tsp to quarters, singular at or below one', () => {
+    expect(scaleLine('1 bottle (750ml) Champagne', 5 / 8)).toBe('¾ bottle (469ml) Champagne');
+    expect(scaleLine('4 tsp agave nectar', 5 / 8)).toBe('2½ tsp agave nectar');
+  });
+
   it('leaves ratio parentheticals alone', () => {
     expect(scaleLine('6 oz agave nectar (1:1)', 2)).toBe('12 oz agave nectar (1:1)');
   });

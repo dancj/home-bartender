@@ -11,7 +11,6 @@ const { yield: yieldText, ingredients, instructions } = Astro.props;
 const paragraphs = instructions
   ? instructions.split(/\n\s*\n+/).map((p) => p.trim()).filter(Boolean)
   : [];
-// Scaler only when the yield names a serving count; otherwise render as-is.
 const base = baseServings(yieldText);
 ---
 <h2><Icon field="sections" slug="batch" /> How to Batch It</h2>
