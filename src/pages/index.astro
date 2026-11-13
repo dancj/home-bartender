@@ -20,7 +20,12 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
   {/* Single-line filter bar: spirit chips (with accent dots), then the result
       count and Cards/List control. Chips are button[data-filter][data-value]. */}
   <div class="filter-bar-row">
-    <ul class="chip-row spirit-row">
+    {/* Browse (spirit chips) and My Bar are separate modes, never combined (#268). */}
+    <div class="segmented" role="group" aria-label="Filter by">
+      <button type="button" class="segmented-btn" data-mode="browse" aria-pressed="true">Browse</button>
+      <button type="button" class="segmented-btn" data-mode="bar" aria-pressed="false">My Bar</button>
+    </div>
+    <ul class="chip-row spirit-row" id="spirit-row">
       {spirits.map((s) => (
         <li>
           <button
@@ -46,7 +51,7 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
     </div>
   </div>
 
-  <div class="my-bar-wrap">
+  <div class="my-bar-wrap" id="my-bar-wrap" hidden>
     <details class="filter-bar my-bar" id="my-bar">
       <summary>
         <span class="filter-label">My Bar</span>
@@ -66,9 +71,6 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
         <button type="button" class="chip share-bar-btn" id="share-bar">Share bar</button>
       </div>
     </details>
-    <button type="button" class="chip chip-makeable" data-filter="makeable" data-value="1">
-      What can I make?
-    </button>
   </div>
 
   <ul class="recipe-grid recipe-grid--photo" id="recipe-grid">
@@ -93,6 +95,9 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
       parseBarParam,
       buildBarShareUrl,
       MY_BAR_STORAGE_KEY,
+      indexMode,
+      switchIndexMode,
+      normalizeIndexFilters,
     } from '../lib/myBar';
     import { compareCards, parseSortMode } from '../lib/indexSort';
     import { SPIRITS } from '../taxonomy.generated';
@@ -109,6 +114,11 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
       const resultCountEl = document.getElementById('result-count');
       const summary = document.querySelector('#filter-panel > summary');
       const myBarEl = document.getElementById('my-bar');
+      const myBarWrapEl = document.getElementById('my-bar-wrap');
+      const spiritRowEl = document.getElementById('spirit-row');
+      const modeButtons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('button[data-mode]')
+      );
       const myBarCountEl = document.getElementById('mybar-count');
       const buttons = Array.from(
         document.querySelectorAll<HTMLButtonElement>('button[data-filter]')
@@ -187,7 +197,7 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
           const v = params.get(key);
           if (v) f[key] = v;
         }
-        return f;
+        return normalizeIndexFilters(f);
       }
 
       // Merge-safe: seed from the current URL and touch only filter keys, so
@@ -262,6 +272,11 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
           b.classList.toggle('chip-active', on);
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
+        const mode = indexMode(filters);
+        if (spiritRowEl) spiritRowEl.hidden = mode === 'bar';
+        if (myBarWrapEl) myBarWrapEl.hidden = mode !== 'bar';
+        for (const b of modeButtons)
+          b.setAttribute('aria-pressed', b.dataset.mode === mode ? 'true' : 'false');
         for (const b of myBarButtons) {
           const on = owned.includes(b.dataset.mybar ?? '');
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -287,7 +302,9 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
       function apply() {
         applySort();
         const f = readFilters();
+        writeFilters(f); // drops ?spirit= from a URL that also has ?makeable=1
         applyFilters(f);
+        if (indexMode(f) === 'bar' && myBarEl instanceof HTMLDetailsElement) myBarEl.open = true;
         maybeRevealMyBar(f); // covers initial load and popstate into ?makeable=1
       }
 
@@ -300,7 +317,15 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
           else f[key] = val;
           writeFilters(f);
           applyFilters(f);
-          if (key === 'makeable' && f[key]) maybeRevealMyBar(f);
+        });
+      }
+      for (const btn of modeButtons) {
+        btn.addEventListener('click', () => {
+          const mode = btn.dataset.mode === 'bar' ? 'bar' : 'browse';
+          const f = switchIndexMode(mode);
+          writeFilters(f);
+          applyFilters(f);
+          if (mode === 'bar' && myBarEl instanceof HTMLDetailsElement) myBarEl.open = true;
         });
       }
       for (const btn of myBarButtons) {
@@ -395,6 +420,9 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
     margin-bottom: 26px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--color-rule);
+  }
+  .spirit-row[hidden] {
+    display: none;
   }
   .chip-row {
     list-style: none;
@@ -535,14 +563,6 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
   }
   .my-bar-wrap {
     position: relative;
-  }
-  .my-bar > summary {
-    padding-right: 11.5rem;
-  }
-  .chip-makeable {
-    position: absolute;
-    top: 0.55rem;
-    right: 1rem;
   }
 
   /* ── Photo-card grid: wider min + gap than the shared .recipe-grid ─────── */

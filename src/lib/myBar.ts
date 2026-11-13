@@ -84,3 +84,27 @@ export function parseOwnedSpirits(
   const valid = new Set(validSlugs);
   return parsed.filter((s): s is string => typeof s === 'string' && valid.has(s));
 }
+
+/**
+ * The index shows either the spirit filters (Browse) or My Bar, never both
+ * (issue #268): combining them silently empties the list. My Bar mode is
+ * `?makeable=1`; Browse is everything else.
+ */
+export type IndexMode = 'browse' | 'bar';
+type Filters = Record<string, string>;
+
+export function indexMode(filters: Filters): IndexMode {
+  return filters.makeable ? 'bar' : 'browse';
+}
+
+/** Filters after switching modes: each mode clears the other's filter. */
+export function switchIndexMode(mode: IndexMode): Filters {
+  return mode === 'bar' ? { makeable: '1' } : {};
+}
+
+/** A URL carrying both modes' filters opens in My Bar mode, dropping `spirit`. */
+export function normalizeIndexFilters(filters: Filters): Filters {
+  if (!filters.makeable) return filters;
+  const { spirit: _spirit, ...rest } = filters;
+  return rest;
+}

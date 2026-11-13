@@ -6,6 +6,9 @@ import {
   parseBarParam,
   buildBarShareUrl,
   MY_BAR_STORAGE_KEY,
+  indexMode,
+  switchIndexMode,
+  normalizeIndexFilters,
 } from './myBar';
 
 describe('isMakeable', () => {
@@ -163,5 +166,30 @@ describe('buildBarShareUrl', () => {
 describe('MY_BAR_STORAGE_KEY', () => {
   it('is namespaced', () => {
     expect(MY_BAR_STORAGE_KEY).toBe('hb:my-bar');
+  });
+});
+
+describe('index Browse / My Bar modes (issue #268)', () => {
+  it('reads My Bar mode from makeable, Browse otherwise', () => {
+    expect(indexMode({ makeable: '1' })).toBe('bar');
+    expect(indexMode({ spirit: 'gin' })).toBe('browse');
+    expect(indexMode({})).toBe('browse');
+  });
+
+  it('switching to My Bar drops the spirit filter', () => {
+    expect(switchIndexMode('bar')).toEqual({ makeable: '1' });
+  });
+
+  it('switching to Browse drops makeable', () => {
+    expect(switchIndexMode('browse')).toEqual({});
+  });
+
+  it('a URL with both spirit and makeable keeps only My Bar', () => {
+    expect(normalizeIndexFilters({ spirit: 'scotch', makeable: '1' })).toEqual({ makeable: '1' });
+  });
+
+  it('leaves a single-mode filter set alone', () => {
+    expect(normalizeIndexFilters({ spirit: 'gin' })).toEqual({ spirit: 'gin' });
+    expect(normalizeIndexFilters({})).toEqual({});
   });
 });
