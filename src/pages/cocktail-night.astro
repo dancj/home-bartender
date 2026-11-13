@@ -100,12 +100,12 @@ const tables = [
     tools: 'Mixing jars, bar spoons, julep/Hawthorne strainers, big rocks + clear cubes, peeler, smoking gun at the far end.',
     write: 'Same build, swap the spirit: bourbon = Boulevardier, gin = Negroni.',
     paths: [
-      { slug: 'old-fashioned', steps: ['1 barspoon syrup: demerara · maple 🍂', '2–3 dashes bitters: Angostura · black walnut 🍂', '2 oz bourbon (or brown-butter / bacon-washed)', 'Stir 30 sec, strain over a big rock, express orange peel', 'Maple + brown butter + black walnut + 🔥 smoke = Maple Smoked OF'] },
+      { slug: 'old-fashioned', steps: ['1 barspoon syrup: demerara · maple 🍂', '2–3 dashes bitters: Angostura · black walnut 🍂', '2 oz bourbon (or brown-butter / bacon-washed)', 'Stir 30 sec, strain over a big rock, express orange peel'], note: 'Maple + brown butter + black walnut + 🔥 smoke = Maple Smoked OF' },
       { slug: 'oaxaca-old-fashioned', steps: ['½ oz agave', '2 dashes cocoa bitters', '1½ oz reposado + ½ oz mezcal', 'Stir, strain over a big rock, flamed orange peel'] },
       { slug: 'manhattan', steps: ['1 oz sweet vermouth', '2 oz bourbon', '2 dashes Angostura', 'Stir, strain into a coupe, cherry'] },
       { slug: 'boulevardier', steps: ['1 oz sweet vermouth', '1 oz Campari', '1½ oz bourbon', 'Stir, strain over a big rock, orange peel'] },
       { slug: 'negroni', steps: ['1 oz sweet vermouth', '1 oz Campari', '1 oz gin 🍸', 'Stir, strain over a big rock, orange peel'] },
-      { slug: 'martini', steps: ['½ oz dry vermouth', '2½ oz gin 🍸', 'Stir 30 sec, strain into a chilled coupe', 'Lemon twist or olive · splash of brine = dirty'] },
+      { slug: 'martini', steps: ['½ oz dry vermouth', '2½ oz gin 🍸', 'Stir 30 sec, strain into a chilled coupe', 'Lemon twist or olive'], note: 'Splash of olive brine = dirty' },
     ],
   },
   {
@@ -114,7 +114,7 @@ const tables = [
     tools: 'Boston shakers + numbered mason jars, jiggers, Hawthorne + fine strainers, chilled coupes, rim plates at the end.',
     write: 'Citrus or egg? SHAKE IT. · Taste green vs. yellow Chartreuse: Last Word next to Naked & Famous.',
     paths: [
-      { slug: 'margarita', steps: ['1 oz lime', '½ oz Cointreau', '½ oz agave', '2 oz tequila: blanco · jalapeño 🌶️ · reposado', 'Ice + shake 10 sec, half rim: salt · Tajín', 'Habanero: one barspoon, if you dare'] },
+      { slug: 'margarita', steps: ['1 oz lime', '½ oz Cointreau', '½ oz agave', '2 oz tequila: blanco · jalapeño 🌶️ · reposado', 'Ice + shake 10 sec, half rim: salt · Tajín'], note: 'Habanero: one barspoon, if you dare' },
       { slug: 'apple-cider-margarita', steps: ['Margarita path with reposado', '+ 1 oz apple cider 🍂', 'Cinnamon-sugar half rim'] },
       { slug: 'cranberry-mezcal-margarita', steps: ['1 oz lime', '½ oz Cointreau', '½ oz cranberry syrup 🍂', '2 oz mezcal', 'Ice + shake, rosemary + cranberries'] },
       { slug: 'whiskey-sour', steps: ['¾ oz lemon', '¾ oz syrup: rich simple · cranberry 🍂 · spiced 🍂', '2 oz bourbon', '1 egg white', 'Shake with ice, strain out the ice, shake again without', 'Coupe, Angostura dots on the foam'] },
@@ -137,7 +137,7 @@ const tables = [
       { slug: 'st-germain-gin-highball', steps: ['1½ oz gin 🍸', '¾ oz St-Germain', '½ oz lime', 'Top soda, lemon twist'] },
     ],
   },
-].map((t) => ({ ...t, paths: t.paths.map((p) => ({ ...recipe(p.slug), steps: p.steps })) }));
+].map((t) => ({ ...t, paths: t.paths.map((p: { slug: string; steps: string[]; note?: string }) => ({ ...recipe(p.slug), steps: p.steps, note: p.note })) }));
 
 const flight = [
   ['Blanco', 'unaged · bright, peppery, grassy'],
@@ -358,6 +358,7 @@ const shopping = [
               <div class="card-block">
                 <h4><a href={p.href}>{p.title}</a></h4>
                 <ol class="path">{p.steps.map((s) => <li>{s}</li>)}</ol>
+                {p.note && <p class="meta path-note">{p.note}</p>}
               </div>
             ))}
           </div>
@@ -571,6 +572,9 @@ const shopping = [
     font-family: var(--font-sans);
     font-size: 0.875rem;
     line-height: 1.5;
+  }
+  .path-note {
+    margin-top: 0.5rem;
   }
   .write {
     margin-top: 0.75rem;
