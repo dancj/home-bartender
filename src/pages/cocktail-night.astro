@@ -1,0 +1,599 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/learn-feature.css';
+
+// Hidden host plan for the 2026-11-20 cocktail workshop night. Gated behind
+// ?preview=1 like /inbox/, and left out of Pagefind (no data-pagefind-body).
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const titles = new Map((await getCollection('recipes')).map((r) => [r.id.split('/').pop(), r.data.title]));
+const syrupTitles = new Map((await getCollection('syrups')).map((s) => [s.id.split('/').pop(), s.data.title]));
+
+// Fails the build on a typo'd slug instead of shipping a dead QR link.
+function recipe(slug: string) {
+  const title = titles.get(slug);
+  if (!title) throw new Error(`cocktail-night: no recipe "${slug}"`);
+  return { href: `${base}/recipes/${slug}/`, title };
+}
+function syrup(slug: string) {
+  const title = syrupTitles.get(slug);
+  if (!title) throw new Error(`cocktail-night: no syrup "${slug}"`);
+  return { href: `${base}/syrups/${slug}/`, title };
+}
+
+const NIGHT = '2026-11-20';
+
+const flow = [
+  ['Welcome', 'Batched Margarita in the dispenser as people arrive.'],
+  ['One demo (~10 min)', 'An Old Fashioned (stir) and a Margarita (shake). Shake vs. stir and why. Then you’re off the clock.'],
+  ['Graze', 'People roam the three tables, build what they like, then chase a second drink down a different root.'],
+  ['Flight + flair, whenever', 'Agave tasting, smoke, fat-wash taste-off, egg-white foam.'],
+  ['Compare creations', 'Late in the night, everyone shares tasters of their best build.'],
+];
+
+const families = [
+  {
+    name: 'Old Fashioned',
+    rule: 'spirit + sugar + bitters',
+    drinks: [
+      ['old-fashioned', 'bourbon', 'the control'],
+      ['maple-smoked-old-fashioned', 'brown-butter bourbon', 'fat-wash taste-off, brown butter side 🍂'],
+      ['maple-bacon-old-fashioned', 'bacon-washed bourbon', 'fat-wash taste-off, bacon side'],
+      ['oaxaca-old-fashioned', 'reposado + mezcal', 'agave twin of the OF'],
+      ['boulevardier', 'bourbon', '+ Campari + sweet vermouth'],
+      ['negroni', 'gin 🍸', 'the Boulevardier with gin'],
+    ],
+  },
+  {
+    name: 'Martini',
+    rule: 'spirit + aromatized wine',
+    drinks: [
+      ['manhattan', 'bourbon', 'shares the sweet vermouth with the Boulevardier'],
+      ['martini', 'gin 🍸', '2½ : ½ dry vermouth'],
+    ],
+  },
+  {
+    name: 'Sour',
+    rule: 'spirit + citrus + sugar',
+    drinks: [['whiskey-sour', 'bourbon', 'egg-white foam · cranberry variation']],
+  },
+  {
+    name: 'Sidecar',
+    rule: 'spirit + citrus + liqueur',
+    drinks: [
+      ['margarita', 'blanco', 'the house marg + batched welcome pour'],
+      ['apple-cider-margarita', 'reposado', 'cinnamon-sugar rim 🍂'],
+      ['cranberry-mezcal-margarita', 'mezcal', 'cranberry syrup 🍂'],
+      ['paper-plane', 'bourbon', 'equal parts + Aperol + Nonino'],
+      ['avion-de-papel', 'reposado / mezcal', 'the agave Paper Plane'],
+      ['naked-and-famous', 'mezcal', 'yellow Chartreuse'],
+      ['last-word', 'gin 🍸', 'green Chartreuse + maraschino'],
+    ],
+  },
+  {
+    name: 'Highball',
+    rule: 'spirit + bubbles · the slow-down drinks',
+    drinks: [
+      ['paloma', 'tequila', 'grapefruit · twin of the marg'],
+      ['ranch-water', 'blanco', 'less is more'],
+      ['mexican-mule', 'tequila / mezcal / bourbon', 'ginger beer'],
+      ['spiced-cider-highball', 'reposado / bourbon', 'cider + spiced syrup 🍂'],
+      ['st-germain-gin-highball', 'gin 🍸', 'floral, low-ABV'],
+    ],
+  },
+].map((f) => ({ ...f, drinks: f.drinks.map(([slug, spirit, note]) => ({ ...recipe(slug), spirit, note })) }));
+
+const bridges = [
+  'Boulevardier → Negroni: same build, bourbon → gin',
+  'Manhattan ↔ Boulevardier: shared sweet vermouth, smooth vs. bitter',
+  'Paper Plane → Avión de Papel → Naked & Famous → Last Word: one equal-parts format, four spirits',
+  'Last Word vs. Naked & Famous: green vs. yellow Chartreuse',
+  'Old Fashioned → Oaxaca Old Fashioned: grain vs. agave',
+  'Margarita → Paloma: same tequila + lime, liqueur vs. bubbles',
+];
+
+// Butcher-paper paths. Specs follow the site recipes (they win over the plan doc).
+const tables = [
+  {
+    name: 'Table 1 · Stir',
+    sub: 'Old Fashioned + Martini roots · no citrus',
+    tools: 'Mixing jars, bar spoons, julep/Hawthorne strainers, big rocks + clear cubes, peeler, smoking gun at the far end.',
+    write: 'Same build, swap the spirit: bourbon = Boulevardier, gin = Negroni.',
+    paths: [
+      { slug: 'old-fashioned', steps: ['1 barspoon syrup: demerara · maple 🍂', '2–3 dashes bitters: Angostura · black walnut 🍂', '2 oz bourbon (or brown-butter / bacon-washed)', 'Stir 30 sec, strain over a big rock, express orange peel'], note: 'Maple + brown butter + black walnut + 🔥 smoke = Maple Smoked OF' },
+      { slug: 'oaxaca-old-fashioned', steps: ['½ oz agave', '2 dashes cocoa bitters', '1½ oz reposado + ½ oz mezcal', 'Stir, strain over a big rock, flamed orange peel'] },
+      { slug: 'manhattan', steps: ['1 oz sweet vermouth', '2 oz bourbon', '2 dashes Angostura', 'Stir, strain into a coupe, cherry'] },
+      { slug: 'boulevardier', steps: ['1 oz sweet vermouth', '1 oz Campari', '1½ oz bourbon', 'Stir, strain over a big rock, orange peel'] },
+      { slug: 'negroni', steps: ['1 oz sweet vermouth', '1 oz Campari', '1 oz gin 🍸', 'Stir, strain over a big rock, orange peel'] },
+      { slug: 'martini', steps: ['½ oz dry vermouth', '2½ oz gin 🍸', 'Stir 30 sec, strain into a chilled coupe', 'Lemon twist or olive'], note: 'Splash of olive brine = dirty' },
+    ],
+  },
+  {
+    name: 'Table 2 · Shake',
+    sub: 'Sour + Sidecar roots · anything with citrus',
+    tools: 'Boston shakers + numbered mason jars, jiggers, Hawthorne + fine strainers, chilled coupes, rim plates at the end.',
+    write: 'Citrus or egg? SHAKE IT. · Taste green vs. yellow Chartreuse: Last Word next to Naked & Famous.',
+    paths: [
+      { slug: 'margarita', steps: ['1 oz lime', '½ oz Cointreau', '½ oz agave', '2 oz tequila: blanco · jalapeño 🌶️ · reposado', 'Ice + shake 10 sec, half rim: salt · Tajín'], note: 'Habanero: one barspoon, if you dare' },
+      { slug: 'apple-cider-margarita', steps: ['Margarita path with reposado', '+ 1 oz apple cider 🍂', 'Cinnamon-sugar half rim'] },
+      { slug: 'cranberry-mezcal-margarita', steps: ['1 oz lime', '½ oz Cointreau', '½ oz cranberry syrup 🍂', '2 oz mezcal', 'Ice + shake, rosemary + cranberries'] },
+      { slug: 'whiskey-sour', steps: ['¾ oz lemon', '¾ oz syrup: rich simple · cranberry 🍂 · spiced 🍂', '2 oz bourbon', '1 egg white', 'Shake with ice, strain out the ice, shake again without', 'Coupe, Angostura dots on the foam'] },
+      { slug: 'paper-plane', steps: ['½ oz lemon', '¾ oz each Aperol, Nonino, bourbon', 'Shake, coupe'] },
+      { slug: 'avion-de-papel', steps: ['¾ oz lime', '¾ oz each Aperol, Nonino, reposado or mezcal', 'Shake, coupe'] },
+      { slug: 'naked-and-famous', steps: ['¾ oz lime', '¾ oz each Aperol, yellow Chartreuse, mezcal', 'Shake, coupe'] },
+      { slug: 'last-word', steps: ['¾ oz lime', '¾ oz each green Chartreuse, maraschino, gin 🍸', 'Shake, coupe'] },
+    ],
+  },
+  {
+    name: 'Table 3 · Build',
+    sub: 'Highball root · built in the glass · next to the water station',
+    tools: 'Highball glasses, ice scoop, jiggers, a bar spoon for one gentle lift.',
+    write: 'Finish every branch with one gentle lift. Don’t stir the bubbles flat.',
+    paths: [
+      { slug: 'paloma', steps: ['Shake 2 oz tequila, 1 oz grapefruit juice, ½ oz lime, ¼ oz agave', 'Strain over ice in a salt-rimmed glass', 'Top with 2 oz grapefruit seltzer'] },
+      { slug: 'ranch-water', steps: ['2 oz blanco', '½ oz lime', 'Top Topo Chico, dried lime wheel'] },
+      { slug: 'mexican-mule', steps: ['2 oz mezcal · tequila · bourbon', '½ oz lime', 'Top ginger beer, candied ginger'] },
+      { slug: 'spiced-cider-highball', steps: ['1½ oz reposado or bourbon', '2 oz apple cider', '¼ oz spiced syrup', 'Top ginger beer, cinnamon stick'] },
+      { slug: 'st-germain-gin-highball', steps: ['1½ oz gin 🍸', '¾ oz St-Germain', '½ oz lime', 'Top soda, lemon twist'] },
+    ],
+  },
+].map((t) => ({ ...t, paths: t.paths.map((p: { slug: string; steps: string[]; note?: string }) => ({ ...recipe(p.slug), steps: p.steps, note: p.note })) }));
+
+const flight = [
+  ['Blanco', 'unaged · bright, peppery, grassy'],
+  ['Reposado', 'months in oak · vanilla, mellow'],
+  ['Añejo', 'a year+ in oak · caramel, round'],
+];
+
+const preps = [
+  ...['cranberry-syrup', 'spiced-syrup', 'rich-simple-syrup', 'demerara-simple-syrup', 'super-juice'].map(syrup),
+  { ...recipe('maple-smoked-old-fashioned'), title: 'Brown-butter-washed bourbon' },
+  { ...recipe('maple-bacon-old-fashioned'), title: 'Bacon-washed bourbon' },
+];
+
+// Checklist ids are stable strings so saved checkmarks survive copy edits elsewhere.
+const timeline = [
+  {
+    when: 'Before the night: test runs',
+    items: [
+      'Fat washes end-to-end once (brown butter + bacon): nail ratio and filtering',
+      'Jalapeño tequila: find your timing (30–60 min, taste often)',
+      'Cranberry syrup test batch: try in a marg and a sour, decide on orange peel or cinnamon',
+      'Whiskey Sour: confirm the reverse-dry-shake foam',
+      'Taste the three agaves so you can point out what to notice',
+      'Clear-ice cooler trick: learn your freezer’s timing, practice cutting',
+    ],
+  },
+  {
+    when: '2–3 days out',
+    items: [
+      'Start both fat washes (need an overnight freeze)',
+      'Start jalapeño tequila',
+      'Make cranberry syrup (keeps 2 weeks)',
+      'Buy glassware, bar spoons, Boston shakers',
+    ],
+  },
+  {
+    when: 'Day before / morning of',
+    items: [
+      'Spiced syrup · super juices · rich, demerara, agave syrups',
+      'Start the clear-ice block (24–36 hrs ahead) · freeze ice balls and bag them',
+      'Batch the Margarita base · prep garnishes and peels · number the jars',
+      'Print the QR cards · draw the butcher-paper paths',
+    ],
+  },
+  {
+    when: 'Last hour',
+    items: [
+      'Buy bagged ice; load the cooler, fill table buckets',
+      'Cut the clear block; stage ice balls + clear cubes at the stir table (away from working ice)',
+      'Chill coupes · set out the table kits, flight corner, water station',
+    ],
+  },
+];
+
+const shopping = [
+  {
+    name: 'To obtain',
+    items: [
+      'Glassware: coupes, rocks, highballs, small tasters (thrift · restaurant supply · IKEA)',
+      'Bar spoons, one per table',
+      'Boston shakers, a few sets',
+      'Water station: dispenser or pitcher, stackable cups',
+      'Ice: 20–30 lb bagged (day-of), cooler, buckets + tongs, small cooler for the clear block',
+      'Butcher paper, pencil, markers (one color per path), tape',
+    ],
+  },
+  {
+    name: 'Spirits',
+    items: [
+      'Bourbon ×2',
+      'Blanco tequila ×2',
+      'Reposado tequila',
+      'Añejo tequila',
+      'Mezcal',
+      'Gin',
+    ],
+  },
+  {
+    name: 'Liqueurs, amari, vermouth',
+    items: [
+      'Aperol',
+      'Amaro Nonino',
+      'Campari',
+      'Cointreau',
+      'Sweet vermouth',
+      'Dry vermouth',
+      'Yellow Chartreuse (have)',
+      'Green Chartreuse (have)',
+      'Maraschino liqueur (have)',
+      'St-Germain (have)',
+      'Ancho Reyes (optional)',
+    ],
+  },
+  {
+    name: 'Bitters',
+    items: ['Angostura', 'Cocoa bitters', 'Black walnut bitters (order online)'],
+  },
+  {
+    name: 'Fresh + pantry',
+    items: [
+      'Limes, lemons, oranges',
+      'Fresh apple cider',
+      'Fresh cranberries (syrup + garnish)',
+      'Grapefruit juice',
+      'Jalapeños',
+      'Butter + bacon (fat washes)',
+      'Eggs',
+      'Maple syrup, agave, demerara + white sugar',
+      'Cinnamon sticks, star anise, cloves, allspice, nutmeg',
+      'Salt, Tajín, cinnamon sugar (rims)',
+      'Cocktail cherries, olives',
+    ],
+  },
+  {
+    name: 'Bubbles',
+    items: ['Ginger beer', 'Soda water', 'Topo Chico', 'Grapefruit seltzer'],
+  },
+  {
+    name: 'Garnish shop / grocery',
+    items: ['Dried lime + lemon wheels', 'Candied ginger', 'Rosemary', 'Dehydrated apple/orange'],
+  },
+].map((g) => ({ ...g, id: g.name.toLowerCase().replace(/[^a-z]+/g, '-') }));
+---
+<BaseLayout
+  title="Cocktail Night — Home Bartending"
+  description="Host plan for the cocktail workshop night."
+  width="wide"
+>
+  <div id="night-gate" class="gate">
+    <h1>Cocktail Night</h1>
+    <p>This page is not listed on the site.</p>
+    <p>Add <code>?preview=1</code> to the URL to view it.</p>
+  </div>
+
+  <article id="night-content" hidden>
+    <header class="feature-head">
+      <span class="eyebrow">Friday, November 20 · 8 friends · 5 roots</span>
+      <h1>Cocktail Night</h1>
+      <p class="lede">
+        A relaxed hands-on night: one quick demo, then three self-explanatory tables and
+        choose-your-own-adventure. One clear idea per drink — range comes from single swaps
+        across the menu, never three flavors stacked in one glass.
+      </p>
+      <p class="countdown" data-night={NIGHT}></p>
+    </header>
+
+    <nav class="jump" aria-label="On this page">
+      <a href="#flow">Flow</a>
+      <a href="#lineup">Lineup</a>
+      <a href="#tables">Tables</a>
+      <a href="#flight">Agave flight</a>
+      <a href="#prep">Prep</a>
+      <a href="#timeline">Timeline</a>
+      <a href="#shopping">Shopping</a>
+      <a href="#ice">Ice</a>
+    </nav>
+
+    <section class="feature-group" id="flow">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title">The flow</h2>
+        <span class="feature-group__count">A shape, not a schedule</span>
+      </div>
+      <ol class="seq" role="list">
+        {flow.map(([title, body], i) => (
+          <li class="seq__item">
+            <span class="seq__num" aria-hidden="true">{i + 1}</span>
+            <div>
+              <h3 class="seq__title">{title}</h3>
+              <p class="seq__body">{body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="feature-group" id="lineup">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title">The lineup</h2>
+        <span class="feature-group__count">🍸 gin branch · 🍂 fall</span>
+      </div>
+      <div class="cards">
+        {families.map((f) => (
+          <div class="card-block">
+            <h3>{f.name} <span class="rule">{f.rule}</span></h3>
+            <ul class="drinks">
+              {f.drinks.map((d) => (
+                <li>
+                  <a href={d.href}>{d.title}</a>
+                  <span class="meta">{d.spirit} · {d.note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <h3 class="sub">Bridges to show</h3>
+      <ul class="plain">{bridges.map((b) => <li>{b}</li>)}</ul>
+    </section>
+
+    <section class="feature-group" id="tables">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title">The tables</h2>
+        <span class="feature-group__count">Butcher-paper paths</span>
+      </div>
+      <p class="seq__body">
+        Pencil first, then marker. Amounts biggest (“ADD 2 OZ”), ingredients smaller. Trace each
+        bottle’s footprint. One marker color per path, START to drink. Bourbon and blanco: a
+        bottle at each table that uses them. Reposado, mezcal, gin: one bottle each on a spirit
+        shelf between tables.
+      </p>
+      {tables.map((t) => (
+        <div class="table-block">
+          <h3>{t.name}</h3>
+          <p class="meta">{t.sub}</p>
+          <p class="meta"><strong>Tools:</strong> {t.tools}</p>
+          <div class="cards">
+            {t.paths.map((p) => (
+              <div class="card-block">
+                <h4><a href={p.href}>{p.title}</a></h4>
+                <ol class="path">{p.steps.map((s) => <li>{s}</li>)}</ol>
+                {p.note && <p class="meta path-note">{p.note}</p>}
+              </div>
+            ))}
+          </div>
+          <p class="write"><strong>Write on the paper:</strong> “{t.write}”</p>
+        </div>
+      ))}
+    </section>
+
+    <section class="feature-group" id="flight">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title">Agave flight</h2>
+        <span class="feature-group__count">Its own corner</span>
+      </div>
+      <ol class="seq" role="list">
+        {flight.map(([name, desc], i) => (
+          <li class="seq__item">
+            <span class="seq__num" aria-hidden="true">{i + 1}</span>
+            <div>
+              <h3 class="seq__title">{name}</h3>
+              <p class="seq__body">{desc}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <p class="write">“Same agave. The only thing that changes is time in wood.”</p>
+      <p class="seq__body">Second round: build the same mini margarita three times, one per expression.</p>
+    </section>
+
+    <section class="feature-group" id="prep">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title">House-made preps</h2>
+        <span class="feature-group__count">Recipes on the site</span>
+      </div>
+      <ul class="plain">
+        {preps.map((p) => <li><a href={p.href}>{p.title}</a></li>)}
+        <li>Jalapeño tequila: slice into blanco, 30–60 min, taste often, strain</li>
+        <li>Habanero syrup: side bottle only, guests dose their own</li>
+      </ul>
+    </section>
+
+    <section class="feature-group" id="timeline">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title">Prep timeline</h2>
+        <span class="feature-group__count" data-progress="tl"></span>
+      </div>
+      {timeline.map((g, gi) => (
+        <div class="check-group">
+          <h3>{g.when}</h3>
+          <ul class="checks">
+            {g.items.map((item, i) => (
+              <li><label><input type="checkbox" data-check={`tl-${gi}-${i}`} /> {item}</label></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+
+    <section class="feature-group" id="shopping">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title">Shopping</h2>
+        <span class="feature-group__count" data-progress="sh"></span>
+      </div>
+      <div class="cards">
+        {shopping.map((g) => (
+          <div class="card-block check-group">
+            <h3>{g.name}</h3>
+            <ul class="checks">
+              {g.items.map((item, i) => (
+                <li><label><input type="checkbox" data-check={`sh-${g.id}-${i}`} /> {item}</label></li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="feature-group" id="ice">
+      <div class="feature-group__head">
+        <h2 class="feature-group__title">Ice plan</h2>
+        <span class="feature-group__count">Two jobs, keep them apart</span>
+      </div>
+      <ul class="plain">
+        <li><strong>Working ice:</strong> bagged ice in a cooler, refilling table buckets. Shakes, builds, water station. ~1–1.5 lb per person per hour, so 20–30 lb for 8.</li>
+        <li><strong>Showpiece ice:</strong> ice balls and clear cubes for the Old Fashioneds and Boulevardier. Keep them away from the working cooler.</li>
+        <li><strong>Clear cube:</strong> freeze a small cooler of water lid-off for 24–36 hrs, pull it before it fully freezes, keep the clear top ⅔, temper, cut with a serrated knife.</li>
+      </ul>
+    </section>
+  </article>
+
+  <script is:inline>
+    (function () {
+      if (new URLSearchParams(location.search).get('preview') !== '1') return;
+      document.getElementById('night-gate').hidden = true;
+      document.getElementById('night-content').hidden = false;
+
+      var cd = document.querySelector('.countdown');
+      var days = Math.ceil((new Date(cd.dataset.night + 'T00:00:00') - new Date()) / 864e5);
+      cd.textContent = days > 0 ? days + (days === 1 ? ' day' : ' days') + ' to go' : days === 0 ? 'Tonight!' : '';
+
+      // Per-browser convenience only; the page works without storage.
+      var KEY = 'cocktail-night-2026-checks';
+      var saved = {};
+      try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
+      var boxes = document.querySelectorAll('[data-check]');
+      function progress() {
+        ['tl', 'sh'].forEach(function (p) {
+          var all = document.querySelectorAll('[data-check^="' + p + '-"]');
+          var done = Array.prototype.filter.call(all, function (b) { return b.checked; }).length;
+          document.querySelector('[data-progress="' + p + '"]').textContent = done + ' of ' + all.length + ' done';
+        });
+      }
+      boxes.forEach(function (b) {
+        b.checked = !!saved[b.dataset.check];
+        b.addEventListener('change', function () {
+          saved[b.dataset.check] = b.checked;
+          try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+          progress();
+        });
+      });
+      progress();
+    })();
+  </script>
+</BaseLayout>
+
+<style>
+  .gate {
+    padding: 2.5rem 1.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-family: var(--font-sans);
+  }
+  .gate p {
+    color: var(--color-fg-muted);
+    margin-top: 0.5rem;
+  }
+  .countdown {
+    margin-top: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-accent);
+  }
+  .jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 2rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+  }
+  .jump a,
+  .card-block a,
+  .plain a {
+    color: var(--color-accent);
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    gap: 1rem;
+  }
+  .card-block {
+    padding: 1rem 1.125rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+  }
+  .card-block h3,
+  .card-block h4,
+  .table-block h3,
+  .check-group h3,
+  .sub {
+    font-family: var(--font-display);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .table-block {
+    margin-top: 2rem;
+  }
+  .rule,
+  .meta {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--color-fg-muted);
+  }
+  .table-block > .meta {
+    margin-bottom: 0.5rem;
+  }
+  .drinks,
+  .plain,
+  .checks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .plain {
+    font-family: var(--font-serif);
+    line-height: 1.55;
+  }
+  .sub {
+    margin-top: 1.5rem;
+  }
+  .path {
+    margin: 0;
+    padding-left: 1.1rem;
+    list-style: decimal;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .path-note {
+    margin-top: 0.5rem;
+  }
+  .write {
+    margin-top: 0.75rem;
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--color-fg-muted);
+  }
+  .check-group {
+    margin-bottom: 1.25rem;
+  }
+  .checks label {
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    cursor: pointer;
+  }
+  .checks input {
+    accent-color: var(--color-accent);
+  }
+</style>
