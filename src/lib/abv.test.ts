@@ -55,7 +55,8 @@ describe('lookupAbv', () => {
     expect(lookupAbv('demerara simple syrup')).toBe(0);
   });
   it('matches whole words only', () => {
-    expect(lookupAbv('ginger beer')).toBeNull();
+    expect(lookupAbv('candied ginger')).toBeNull();
+    expect(lookupAbv('ginger beer')).toBe(0);
   });
   it('unknown is null', () => {
     expect(lookupAbv('yuzu kosho')).toBeNull();
