@@ -86,23 +86,28 @@ export function parseOwnedSpirits(
 }
 
 /**
- * The index shows either the spirit filters (Browse) or My Bar, never both
- * (issue #268): combining them silently empties the list. My Bar mode is
- * `?makeable=1`; Browse is everything else.
+ * The index has two expandable tabs, Filter (spirit chips) and My Bar. At most
+ * one is open, and a filter applies only while its tab is open, so a hidden
+ * filter can never empty the list (issue #268). My Bar is `?makeable=1`.
  */
-export type IndexMode = 'browse' | 'bar';
+export type IndexTab = 'filter' | 'bar';
 type Filters = Record<string, string>;
 
-export function indexMode(filters: Filters): IndexMode {
-  return filters.makeable ? 'bar' : 'browse';
+export function indexTabFromFilters(filters: Filters): IndexTab | null {
+  if (filters.makeable) return 'bar';
+  return filters.spirit ? 'filter' : null;
 }
 
-/** Filters after switching modes: each mode clears the other's filter. */
-export function switchIndexMode(mode: IndexMode): Filters {
-  return mode === 'bar' ? { makeable: '1' } : {};
+/** Clicking a tab opens it (closing the other) or closes it if already open. */
+export function toggleIndexTab(
+  open: IndexTab | null,
+  clicked: IndexTab
+): { open: IndexTab | null; filters: Filters } {
+  const next = open === clicked ? null : clicked;
+  return { open: next, filters: next === 'bar' ? { makeable: '1' } : {} };
 }
 
-/** A URL carrying both modes' filters opens in My Bar mode, dropping `spirit`. */
+/** A URL carrying both tabs' filters opens My Bar, dropping `spirit`. */
 export function normalizeIndexFilters(filters: Filters): Filters {
   if (!filters.makeable) return filters;
   const { spirit: _spirit, ...rest } = filters;

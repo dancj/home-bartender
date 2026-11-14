@@ -17,15 +17,33 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
   description="Personal cocktail recipe collection."
   width="wide"
 >
-  {/* Single-line filter bar: spirit chips (with accent dots), then the result
-      count and Cards/List control. Chips are button[data-filter][data-value]. */}
+  {/* Toolbar: Filter and My Bar tabs (at most one open; a filter applies only
+      while its tab is open, #268), then the result count and Cards/List icons. */}
   <div class="filter-bar-row">
-    {/* Browse (spirit chips) and My Bar are separate modes, never combined (#268). */}
-    <div class="segmented" role="group" aria-label="Filter by">
-      <button type="button" class="segmented-btn" data-mode="browse" aria-pressed="true">Browse</button>
-      <button type="button" class="segmented-btn" data-mode="bar" aria-pressed="false">My Bar</button>
+    <div class="index-tabs" role="group" aria-label="Narrow the list">
+      <button type="button" class="index-tab" data-tab="filter" aria-expanded="false" aria-controls="spirit-panel">
+        Filter <span class="tab-detail" id="filter-detail"></span>
+      </button>
+      <button type="button" class="index-tab" data-tab="bar" aria-expanded="false" aria-controls="my-bar-panel">
+        My Bar <span class="tab-detail" id="mybar-count"></span>
+      </button>
     </div>
-    <ul class="chip-row spirit-row" id="spirit-row">
+
+    <div class="filter-bar-right">
+      <span class="result-count" id="result-count">Showing {recipes.length} recipes</span>
+      <div class="segmented" role="group" aria-label="View density">
+        <button type="button" class="segmented-btn" data-view="cards" aria-pressed="true" aria-label="Cards" title="Cards">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1" /><rect x="9" y="1.5" width="5.5" height="5.5" rx="1" /><rect x="1.5" y="9" width="5.5" height="5.5" rx="1" /><rect x="9" y="9" width="5.5" height="5.5" rx="1" /></svg>
+        </button>
+        <button type="button" class="segmented-btn" data-view="compact" aria-pressed="false" aria-label="List" title="List">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="2" rx="1" /><rect x="1.5" y="7" width="13" height="2" rx="1" /><rect x="1.5" y="11.5" width="13" height="2" rx="1" /></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="spirit-panel" hidden>
+    <ul class="chip-row">
       {spirits.map((s) => (
         <li>
           <button
@@ -33,6 +51,7 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
             class="chip filter-chip filter-chip--dot"
             data-filter="spirit"
             data-value={s}
+            data-label={label('spirits', s)}
             aria-pressed="false"
             style={`--accent: ${spiritAccentVar(s)}`}
           >
@@ -41,36 +60,20 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
         </li>
       ))}
     </ul>
-
-    <div class="filter-bar-right">
-      <span class="result-count" id="result-count">{recipes.length} recipes</span>
-      <div class="segmented" role="group" aria-label="View density">
-        <button type="button" class="segmented-btn" data-view="cards" aria-pressed="true">Cards</button>
-        <button type="button" class="segmented-btn" data-view="compact" aria-pressed="false">List</button>
-      </div>
-    </div>
   </div>
 
-  <div class="my-bar-wrap" id="my-bar-wrap" hidden>
-    <details class="filter-bar my-bar" id="my-bar">
-      <summary>
-        <span class="filter-label">My Bar</span>
-        <span class="filter-count" id="mybar-count"></span>
-      </summary>
-      <div class="mybar-body">
-        <p class="mybar-hint">Mark the spirits you own — the selection sticks around.</p>
-        <ul>
-          {spirits.map((s) => (
-            <li>
-              <button type="button" class="chip chip-mybar" data-mybar={s} aria-pressed="false">
-                {label('spirits', s)}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <button type="button" class="chip share-bar-btn" id="share-bar">Share bar</button>
-      </div>
-    </details>
+  <div class="tab-panel" id="my-bar-panel" hidden>
+    <p class="mybar-hint">Mark the spirits you own — the list shows what you can make. The selection sticks around.</p>
+    <ul class="chip-row">
+      {spirits.map((s) => (
+        <li>
+          <button type="button" class="chip chip-mybar" data-mybar={s} aria-pressed="false">
+            {label('spirits', s)}
+          </button>
+        </li>
+      ))}
+    </ul>
+    <button type="button" class="chip share-bar-btn" id="share-bar">Share bar</button>
   </div>
 
   <ul class="recipe-grid recipe-grid--photo" id="recipe-grid">
@@ -95,8 +98,9 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
       parseBarParam,
       buildBarShareUrl,
       MY_BAR_STORAGE_KEY,
-      indexMode,
-      switchIndexMode,
+      indexTabFromFilters,
+      toggleIndexTab,
+      type IndexTab,
       normalizeIndexFilters,
     } from '../lib/myBar';
     import { compareCards, parseSortMode } from '../lib/indexSort';
@@ -113,12 +117,13 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
       const emptyMyBarEl = document.getElementById('empty-state-mybar');
       const resultCountEl = document.getElementById('result-count');
       const summary = document.querySelector('#filter-panel > summary');
-      const myBarEl = document.getElementById('my-bar');
-      const myBarWrapEl = document.getElementById('my-bar-wrap');
-      const spiritRowEl = document.getElementById('spirit-row');
-      const modeButtons = Array.from(
-        document.querySelectorAll<HTMLButtonElement>('button[data-mode]')
+      const filterDetailEl = document.getElementById('filter-detail');
+      const tabButtons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('button[data-tab]')
       );
+      // Which tab is expanded. UI state, seeded from the URL; Filter can be open
+      // with no spirit picked, which the URL can't express.
+      let openTab: IndexTab | null = null;
       const myBarCountEl = document.getElementById('mybar-count');
       const buttons = Array.from(
         document.querySelectorAll<HTMLButtonElement>('button[data-filter]')
@@ -265,47 +270,37 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
         if (emptyMyBarEl) emptyMyBarEl.hidden = visible > 0 || !myBarEmpty;
         const active = PANEL_FIELDS.filter((k) => filters[k]).length;
         if (resultCountEl)
-          resultCountEl.textContent = `${visible} ${visible === 1 ? 'recipe' : 'recipes'}`;
+          resultCountEl.textContent = `Showing ${visible} ${visible === 1 ? 'recipe' : 'recipes'}`;
         for (const b of buttons) {
           const key = b.dataset.filter ?? '';
           const on = filters[key] === b.dataset.value;
           b.classList.toggle('chip-active', on);
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
-        const mode = indexMode(filters);
-        if (spiritRowEl) spiritRowEl.hidden = mode === 'bar';
-        if (myBarWrapEl) myBarWrapEl.hidden = mode !== 'bar';
-        for (const b of modeButtons)
-          b.setAttribute('aria-pressed', b.dataset.mode === mode ? 'true' : 'false');
+        for (const b of tabButtons) {
+          const isOpen = b.dataset.tab === openTab;
+          b.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          const panel = document.getElementById(b.getAttribute('aria-controls') ?? '');
+          if (panel) panel.hidden = !isOpen;
+        }
+        const picked = buttons.find((b) => b.dataset.value === filters.spirit);
+        if (filterDetailEl) filterDetailEl.textContent = picked ? `· ${picked.dataset.label}` : '';
         for (const b of myBarButtons) {
           const on = owned.includes(b.dataset.mybar ?? '');
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
         if (myBarCountEl)
-          myBarCountEl.textContent = owned.length ? `${owned.length} owned` : '';
+          myBarCountEl.textContent = owned.length ? `· ${owned.length}` : '';
         if (active > 0 && summary?.parentElement instanceof HTMLDetailsElement)
           summary.parentElement.open = true;
-      }
-
-      // The empty state says "Mark spirits in My Bar" — make sure the marking
-      // UI is actually visible whenever that state is reachable: on load, on a
-      // makeable click with nothing owned, and when the last spirit is unowned.
-      function maybeRevealMyBar(filters: Record<string, string> = readFilters()) {
-        if (
-          filters.makeable &&
-          !hasVisibleOwned(owned, shownSpirits) &&
-          myBarEl instanceof HTMLDetailsElement
-        )
-          myBarEl.open = true;
       }
 
       function apply() {
         applySort();
         const f = readFilters();
         writeFilters(f); // drops ?spirit= from a URL that also has ?makeable=1
+        openTab = indexTabFromFilters(f);
         applyFilters(f);
-        if (indexMode(f) === 'bar' && myBarEl instanceof HTMLDetailsElement) myBarEl.open = true;
-        maybeRevealMyBar(f); // covers initial load and popstate into ?makeable=1
       }
 
       for (const btn of buttons) {
@@ -319,13 +314,12 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
           applyFilters(f);
         });
       }
-      for (const btn of modeButtons) {
+      for (const btn of tabButtons) {
         btn.addEventListener('click', () => {
-          const mode = btn.dataset.mode === 'bar' ? 'bar' : 'browse';
-          const f = switchIndexMode(mode);
-          writeFilters(f);
-          applyFilters(f);
-          if (mode === 'bar' && myBarEl instanceof HTMLDetailsElement) myBarEl.open = true;
+          const next = toggleIndexTab(openTab, btn.dataset.tab === 'bar' ? 'bar' : 'filter');
+          openTab = next.open;
+          writeFilters(next.filters);
+          applyFilters(next.filters);
         });
       }
       for (const btn of myBarButtons) {
@@ -334,9 +328,7 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
           writeOwned(
             owned.includes(slug) ? owned.filter((s) => s !== slug) : [...owned, slug]
           );
-          const f = readFilters();
-          applyFilters(f);
-          maybeRevealMyBar(f);
+          applyFilters();
         });
       }
 
@@ -344,18 +336,13 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
       // so without this a second open tab silently clobbers the first one's
       // toggles. The event fires only in *other* tabs, so there is no loop.
       // applyFilters re-derives chip aria-pressed and the owned count from
-      // `owned`; maybeRevealMyBar has to run alongside it for the same reason
-      // the local toggle path runs both — dropping the last visible spirit in
-      // another tab surfaces "mark spirits in My Bar" here, and that message
-      // must not point at a collapsed drawer.
+      // `owned`.
       window.addEventListener('storage', (e) => {
         // key is null when another tab calls localStorage.clear(); that wipes
         // ownership too, so it must not be filtered out with the view-mode key.
         if (e.key !== null && e.key !== MY_BAR_STORAGE_KEY) return;
         owned = parseOwnedSpirits(e.newValue, SPIRITS); // null newValue → []
-        const f = readFilters();
-        applyFilters(f);
-        maybeRevealMyBar(f);
+        applyFilters();
       });
       const shareBtn = document.getElementById('share-bar');
       shareBtn?.addEventListener('click', () => {
@@ -421,8 +408,57 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
     padding-bottom: 20px;
     border-bottom: 1px solid var(--color-rule);
   }
-  .spirit-row[hidden] {
-    display: none;
+  /* Filter / My Bar tabs: outlined pills with a chevron; the open tab takes the
+     accent and its panel sits directly under the toolbar. */
+  .index-tabs {
+    display: inline-flex;
+    gap: 8px;
+  }
+  .index-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid var(--color-rule);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .index-tab::after {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    margin: -0.2rem 0 0 2px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 150ms ease;
+  }
+  .index-tab[aria-expanded='true'] {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+  .index-tab[aria-expanded='true']::after {
+    margin-top: 0.2rem;
+    transform: rotate(-135deg);
+  }
+  .tab-detail {
+    color: var(--color-fg-muted);
+    font-weight: 400;
+  }
+  .index-tab[aria-expanded='true'] .tab-detail {
+    color: inherit;
+  }
+  .tab-panel {
+    margin: -10px 0 26px;
+    padding: 1rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
   }
   .chip-row {
     list-style: none;
@@ -484,69 +520,21 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
     cursor: pointer;
     transition: background-color 120ms ease, color 120ms ease;
   }
+  .segmented-btn svg {
+    display: block;
+    fill: currentColor;
+  }
   .segmented-btn[aria-pressed='true'] {
     background: var(--color-accent);
     color: var(--color-accent-fg);
   }
 
-  /* ── My Bar (kept as-is; behavior unchanged from before the refresh) ───── */
-  .filter-bar {
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
-  }
-  .filter-bar > summary {
-    cursor: pointer;
-    padding: 0.85rem 1rem;
-    font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--color-fg);
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-  }
-  .filter-bar > summary::-webkit-details-marker { display: none; }
-  .filter-bar > summary::before {
-    content: '';
-    width: 0.5rem;
-    height: 0.5rem;
-    border-right: 1.5px solid var(--color-fg-muted);
-    border-bottom: 1.5px solid var(--color-fg-muted);
-    transform: rotate(-45deg);
-    transition: transform 150ms ease;
-    margin-right: 0.25rem;
-  }
-  .filter-bar[open] > summary::before {
-    transform: rotate(45deg);
-  }
-  .filter-label {
-    flex: 0 0 auto;
-  }
-  .filter-count {
-    color: var(--color-fg-muted);
-    font-weight: 400;
-    font-size: 0.75rem;
-  }
-  .mybar-body {
-    padding: 0.5rem 1rem 1.25rem;
-    border-top: 1px solid var(--color-rule);
-  }
-  .mybar-body ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-  }
+  /* ── My Bar panel ───── */
   .share-bar-btn {
     margin-top: 0.75rem;
   }
   .mybar-hint {
-    margin: -0.35rem 0 0.65rem;
+    margin: 0 0 0.65rem;
     font-family: var(--font-sans);
     font-size: 0.75rem;
     color: var(--color-fg-subtle);
@@ -560,9 +548,6 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
   .chip-mybar[aria-pressed='true']::before {
     content: '✓';
     font-weight: 700;
-  }
-  .my-bar-wrap {
-    position: relative;
   }
 
   /* ── Photo-card grid: wider min + gap than the shared .recipe-grid ─────── */

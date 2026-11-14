@@ -6,8 +6,8 @@ import {
   parseBarParam,
   buildBarShareUrl,
   MY_BAR_STORAGE_KEY,
-  indexMode,
-  switchIndexMode,
+  indexTabFromFilters,
+  toggleIndexTab,
   normalizeIndexFilters,
 } from './myBar';
 
@@ -169,26 +169,35 @@ describe('MY_BAR_STORAGE_KEY', () => {
   });
 });
 
-describe('index Browse / My Bar modes (issue #268)', () => {
-  it('reads My Bar mode from makeable, Browse otherwise', () => {
-    expect(indexMode({ makeable: '1' })).toBe('bar');
-    expect(indexMode({ spirit: 'gin' })).toBe('browse');
-    expect(indexMode({})).toBe('browse');
+describe('index Filter / My Bar tabs (issue #268)', () => {
+  it('opens the tab that matches the URL filters', () => {
+    expect(indexTabFromFilters({ makeable: '1' })).toBe('bar');
+    expect(indexTabFromFilters({ spirit: 'gin' })).toBe('filter');
+    expect(indexTabFromFilters({})).toBeNull();
   });
 
-  it('switching to My Bar drops the spirit filter', () => {
-    expect(switchIndexMode('bar')).toEqual({ makeable: '1' });
+  it('opening My Bar closes Filter and filters to what you can make', () => {
+    expect(toggleIndexTab('filter', 'bar')).toEqual({ open: 'bar', filters: { makeable: '1' } });
   });
 
-  it('switching to Browse drops makeable', () => {
-    expect(switchIndexMode('browse')).toEqual({});
+  it('opening Filter closes My Bar and starts with no spirit picked', () => {
+    expect(toggleIndexTab('bar', 'filter')).toEqual({ open: 'filter', filters: {} });
+  });
+
+  it('clicking the open tab closes it and clears its filter', () => {
+    expect(toggleIndexTab('bar', 'bar')).toEqual({ open: null, filters: {} });
+    expect(toggleIndexTab('filter', 'filter')).toEqual({ open: null, filters: {} });
+  });
+
+  it('opens a tab from the closed state', () => {
+    expect(toggleIndexTab(null, 'bar')).toEqual({ open: 'bar', filters: { makeable: '1' } });
   });
 
   it('a URL with both spirit and makeable keeps only My Bar', () => {
     expect(normalizeIndexFilters({ spirit: 'scotch', makeable: '1' })).toEqual({ makeable: '1' });
   });
 
-  it('leaves a single-mode filter set alone', () => {
+  it('leaves a single-tab filter set alone', () => {
     expect(normalizeIndexFilters({ spirit: 'gin' })).toEqual({ spirit: 'gin' });
     expect(normalizeIndexFilters({})).toEqual({});
   });
