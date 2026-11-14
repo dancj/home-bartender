@@ -84,3 +84,40 @@ export function parseOwnedSpirits(
   const valid = new Set(validSlugs);
   return parsed.filter((s): s is string => typeof s === 'string' && valid.has(s));
 }
+
+/**
+ * The index has two expandable tabs, Filter (spirit chips) and My Bar. At most
+ * one is open, and a filter applies only while its tab is open, so a hidden
+ * filter can never empty the list (issue #268). My Bar is `?makeable=1`.
+ */
+export type IndexTab = 'filter' | 'bar';
+type Filters = Record<string, string>;
+
+export function indexTabFromFilters(filters: Filters): IndexTab | null {
+  if (filters.makeable) return 'bar';
+  return filters.spirit ? 'filter' : null;
+}
+
+/** Clicking a tab opens it (closing the other) or closes it if already open. */
+export function toggleIndexTab(
+  open: IndexTab | null,
+  clicked: IndexTab
+): { open: IndexTab | null; filters: Filters } {
+  const next = open === clicked ? null : clicked;
+  return { open: next, filters: next === 'bar' ? { makeable: '1' } : {} };
+}
+
+/** A URL carrying both tabs' filters opens My Bar, dropping `spirit`. */
+export function normalizeIndexFilters(filters: Filters): Filters {
+  if (!filters.makeable) return filters;
+  const { spirit: _spirit, ...rest } = filters;
+  return rest;
+}
+
+/** The index count line, naming whichever filter is applied so it's never ambiguous. */
+export function resultCountText(n: number, filters: Filters, spiritLabel?: string): string {
+  const noun = n === 1 ? 'recipe' : 'recipes';
+  if (filters.makeable) return `Showing ${n} ${noun} you can make`;
+  if (filters.spirit && spiritLabel) return `Showing ${n} ${spiritLabel} ${noun}`;
+  return `Showing ${n} ${noun}`;
+}
