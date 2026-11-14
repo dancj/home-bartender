@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.11.13.1] - 2026-11-13
+
+- #266 — fix: keep syrup drawer marker inside the content edge (@dancj)
+- #262 — feat(recipe): add cocktail night lineup (@dancj)
+- #261 — feat(syrup): add Cranberry Syrup (@dancj)
+- #260 — feat(recipe): add Margarita (@dancj)
+- #257 — docs: update CHANGELOG for release 2026.11.4.1 (@app/github-actions)
+- #252 — chore(deps): update dependency node to v26 (@app/renovate)
 ## [2026.11.4.1] - 2026-11-04
 
 - #255 — feat(batch): set a custom serving count on batch recipes (@dancj)

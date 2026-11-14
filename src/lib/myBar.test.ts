@@ -6,6 +6,10 @@ import {
   parseBarParam,
   buildBarShareUrl,
   MY_BAR_STORAGE_KEY,
+  indexTabFromFilters,
+  toggleIndexTab,
+  resultCountText,
+  normalizeIndexFilters,
 } from './myBar';
 
 describe('isMakeable', () => {
@@ -163,5 +167,54 @@ describe('buildBarShareUrl', () => {
 describe('MY_BAR_STORAGE_KEY', () => {
   it('is namespaced', () => {
     expect(MY_BAR_STORAGE_KEY).toBe('hb:my-bar');
+  });
+});
+
+describe('index Filter / My Bar tabs (issue #268)', () => {
+  it('opens the tab that matches the URL filters', () => {
+    expect(indexTabFromFilters({ makeable: '1' })).toBe('bar');
+    expect(indexTabFromFilters({ spirit: 'gin' })).toBe('filter');
+    expect(indexTabFromFilters({})).toBeNull();
+  });
+
+  it('opening My Bar closes Filter and filters to what you can make', () => {
+    expect(toggleIndexTab('filter', 'bar')).toEqual({ open: 'bar', filters: { makeable: '1' } });
+  });
+
+  it('opening Filter closes My Bar and starts with no spirit picked', () => {
+    expect(toggleIndexTab('bar', 'filter')).toEqual({ open: 'filter', filters: {} });
+  });
+
+  it('clicking the open tab closes it and clears its filter', () => {
+    expect(toggleIndexTab('bar', 'bar')).toEqual({ open: null, filters: {} });
+    expect(toggleIndexTab('filter', 'filter')).toEqual({ open: null, filters: {} });
+  });
+
+  it('opens a tab from the closed state', () => {
+    expect(toggleIndexTab(null, 'bar')).toEqual({ open: 'bar', filters: { makeable: '1' } });
+  });
+
+  it('a URL with both spirit and makeable keeps only My Bar', () => {
+    expect(normalizeIndexFilters({ spirit: 'scotch', makeable: '1' })).toEqual({ makeable: '1' });
+  });
+
+  it('leaves a single-tab filter set alone', () => {
+    expect(normalizeIndexFilters({ spirit: 'gin' })).toEqual({ spirit: 'gin' });
+    expect(normalizeIndexFilters({})).toEqual({});
+  });
+});
+
+describe('resultCountText (issue #268)', () => {
+  it('names the spirit when Filter is applied', () => {
+    expect(resultCountText(4, { spirit: 'scotch' }, 'Scotch')).toBe('Showing 4 Scotch recipes');
+  });
+
+  it('says "you can make" when My Bar is applied', () => {
+    expect(resultCountText(26, { makeable: '1' })).toBe('Showing 26 recipes you can make');
+  });
+
+  it('is plain with no filter, and singular for one', () => {
+    expect(resultCountText(46, {})).toBe('Showing 46 recipes');
+    expect(resultCountText(1, { spirit: 'gin' }, 'Gin')).toBe('Showing 1 Gin recipe');
   });
 });
