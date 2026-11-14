@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file. The format 
 Versions follow [CalVer](https://calver.org/) in the form `YYYY.M.D.N`, where `N` is a same-day release counter starting at `1`. The release workflow tags `release-<version>` on `main` and opens a `docs:` PR back to `staging` with the new entry — a human merges that PR so the entry rides the next release.
 
 ## [Unreleased]
+## [2026.11.14.1] - 2026-11-14
+
+- #272 — fix(roots): draw family-map arrows under the sticky header (@dancj)
+- #269 — feat: Filter and My Bar tabs on the index (@dancj)
+- #267 — docs: update CHANGELOG for release 2026.11.13.1 (@app/github-actions)
 ## [2026.11.13.1] - 2026-11-13
 
 - #266 — fix: keep syrup drawer marker inside the content edge (@dancj)
