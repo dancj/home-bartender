@@ -113,3 +113,11 @@ export function normalizeIndexFilters(filters: Filters): Filters {
   const { spirit: _spirit, ...rest } = filters;
   return rest;
 }
+
+/** The index count line, naming whichever filter is applied so it's never ambiguous. */
+export function resultCountText(n: number, filters: Filters, spiritLabel?: string): string {
+  const noun = n === 1 ? 'recipe' : 'recipes';
+  if (filters.makeable) return `Showing ${n} ${noun} you can make`;
+  if (filters.spirit && spiritLabel) return `Showing ${n} ${spiritLabel} ${noun}`;
+  return `Showing ${n} ${noun}`;
+}

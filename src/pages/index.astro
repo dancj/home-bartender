@@ -22,10 +22,10 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
   <div class="filter-bar-row">
     <div class="index-tabs" role="group" aria-label="Narrow the list">
       <button type="button" class="index-tab" data-tab="filter" aria-expanded="false" aria-controls="spirit-panel">
-        Filter <span class="tab-detail" id="filter-detail"></span>
+        Filter
       </button>
       <button type="button" class="index-tab" data-tab="bar" aria-expanded="false" aria-controls="my-bar-panel">
-        My Bar <span class="tab-detail" id="mybar-count"></span>
+        My Bar
       </button>
     </div>
 
@@ -100,6 +100,7 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
       MY_BAR_STORAGE_KEY,
       indexTabFromFilters,
       toggleIndexTab,
+      resultCountText,
       type IndexTab,
       normalizeIndexFilters,
     } from '../lib/myBar';
@@ -117,14 +118,12 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
       const emptyMyBarEl = document.getElementById('empty-state-mybar');
       const resultCountEl = document.getElementById('result-count');
       const summary = document.querySelector('#filter-panel > summary');
-      const filterDetailEl = document.getElementById('filter-detail');
       const tabButtons = Array.from(
         document.querySelectorAll<HTMLButtonElement>('button[data-tab]')
       );
       // Which tab is expanded. UI state, seeded from the URL; Filter can be open
       // with no spirit picked, which the URL can't express.
       let openTab: IndexTab | null = null;
-      const myBarCountEl = document.getElementById('mybar-count');
       const buttons = Array.from(
         document.querySelectorAll<HTMLButtonElement>('button[data-filter]')
       );
@@ -269,8 +268,9 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
         if (emptyEl) emptyEl.hidden = visible > 0 || myBarEmpty;
         if (emptyMyBarEl) emptyMyBarEl.hidden = visible > 0 || !myBarEmpty;
         const active = PANEL_FIELDS.filter((k) => filters[k]).length;
+        const picked = buttons.find((b) => b.dataset.value === filters.spirit);
         if (resultCountEl)
-          resultCountEl.textContent = `Showing ${visible} ${visible === 1 ? 'recipe' : 'recipes'}`;
+          resultCountEl.textContent = resultCountText(visible, filters, picked?.dataset.label);
         for (const b of buttons) {
           const key = b.dataset.filter ?? '';
           const on = filters[key] === b.dataset.value;
@@ -283,14 +283,10 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
           const panel = document.getElementById(b.getAttribute('aria-controls') ?? '');
           if (panel) panel.hidden = !isOpen;
         }
-        const picked = buttons.find((b) => b.dataset.value === filters.spirit);
-        if (filterDetailEl) filterDetailEl.textContent = picked ? `· ${picked.dataset.label}` : '';
         for (const b of myBarButtons) {
           const on = owned.includes(b.dataset.mybar ?? '');
           b.setAttribute('aria-pressed', on ? 'true' : 'false');
         }
-        if (myBarCountEl)
-          myBarCountEl.textContent = owned.length ? `· ${owned.length}` : '';
         if (active > 0 && summary?.parentElement instanceof HTMLDetailsElement)
           summary.parentElement.open = true;
       }
@@ -408,21 +404,24 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
     padding-bottom: 20px;
     border-bottom: 1px solid var(--color-rule);
   }
-  /* Filter / My Bar tabs: outlined pills with a chevron; the open tab takes the
-     accent and its panel sits directly under the toolbar. */
+  /* Filter / My Bar folder tabs: they sit on the toolbar's bottom rule, and the
+     open tab merges into its panel below (the rule is the panel's top edge). */
   .index-tabs {
     display: inline-flex;
-    gap: 8px;
+    align-self: flex-end;
+    gap: 6px;
+    margin-bottom: -21px; /* row padding-bottom + 1px rule: tabs sit on the rule */
   }
   .index-tab {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 14px;
+    padding: 9px 16px;
     border: 1px solid var(--color-rule);
-    border-radius: 999px;
-    background: var(--color-surface);
-    color: var(--color-fg);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background: transparent;
+    color: var(--color-fg-muted);
     font-family: var(--font-sans);
     font-size: 13px;
     font-weight: 500;
@@ -439,25 +438,32 @@ const spirits = [...new Set(recipes.flatMap((r) => r.data.spirits))].sort();
     transition: transform 150ms ease;
   }
   .index-tab[aria-expanded='true'] {
-    border-color: var(--color-accent);
+    position: relative;
+    background: var(--color-surface);
     color: var(--color-accent);
+    box-shadow: 0 1px 0 var(--color-surface); /* covers the rule under the open tab */
   }
   .index-tab[aria-expanded='true']::after {
     margin-top: 0.2rem;
     transform: rotate(-135deg);
   }
-  .tab-detail {
-    color: var(--color-fg-muted);
-    font-weight: 400;
+  /* When the count/view controls wrap, put them above so the tabs stay on the rule. */
+  @media (max-width: 640px) {
+    .filter-bar-right {
+      order: -1;
+      width: 100%;
+      justify-content: flex-end;
+    }
   }
-  .index-tab[aria-expanded='true'] .tab-detail {
-    color: inherit;
+  .filter-bar-row:has(.index-tab[aria-expanded='true']) {
+    margin-bottom: 0;
   }
   .tab-panel {
-    margin: -10px 0 26px;
+    margin: 0 0 26px;
     padding: 1rem;
     border: 1px solid var(--color-rule);
-    border-radius: var(--radius-md);
+    border-top: none;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
     background: var(--color-surface);
   }
   .chip-row {

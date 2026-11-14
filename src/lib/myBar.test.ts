@@ -8,6 +8,7 @@ import {
   MY_BAR_STORAGE_KEY,
   indexTabFromFilters,
   toggleIndexTab,
+  resultCountText,
   normalizeIndexFilters,
 } from './myBar';
 
@@ -200,5 +201,20 @@ describe('index Filter / My Bar tabs (issue #268)', () => {
   it('leaves a single-tab filter set alone', () => {
     expect(normalizeIndexFilters({ spirit: 'gin' })).toEqual({ spirit: 'gin' });
     expect(normalizeIndexFilters({})).toEqual({});
+  });
+});
+
+describe('resultCountText (issue #268)', () => {
+  it('names the spirit when Filter is applied', () => {
+    expect(resultCountText(4, { spirit: 'scotch' }, 'Scotch')).toBe('Showing 4 Scotch recipes');
+  });
+
+  it('says "you can make" when My Bar is applied', () => {
+    expect(resultCountText(26, { makeable: '1' })).toBe('Showing 26 recipes you can make');
+  });
+
+  it('is plain with no filter, and singular for one', () => {
+    expect(resultCountText(46, {})).toBe('Showing 46 recipes');
+    expect(resultCountText(1, { spirit: 'gin' }, 'Gin')).toBe('Showing 1 Gin recipe');
   });
 });
