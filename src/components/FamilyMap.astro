@@ -108,6 +108,9 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
     /* viewBox aspect ratio reserves the canvas the absolutely-placed nodes sit
        in (and that scroll-arrows draws across). */
     aspect-ratio: var(--vb-w, 600) / var(--vb-h, 400);
+    /* Own stacking context: scroll-arrows mounts its overlay in here with an
+       inline z-index: 9999, which must stay below the sticky site header. */
+    isolation: isolate;
   }
 
   .family-map-nodes {
@@ -386,8 +389,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   // Below this width the map reflows to a vertical stack — arrows off.
   const mq = window.matchMedia('(max-width: 30rem)');
 
-  // The overlay <svg> mounts on <body>, so resolve the design token to a
-  // concrete color rather than relying on var() resolving in that context.
+  // Resolve the design token to a concrete color for the roughjs stroke.
   const stroke =
     getComputedStyle(document.documentElement)
       .getPropertyValue('--color-rule-strong')
@@ -404,8 +406,10 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
   }
   const maps = new Map<string, MapCtl>();
 
-  function specToArrow(s: ArrowSpec): ScrollArrowOptions {
+  function specToArrow(s: ArrowSpec, container: Element): ScrollArrowOptions {
     return {
+      // Mount the overlay in the figure (not <body>) so it stacks under the header.
+      container,
       start: `#${s.startId}`,
       end: `#${s.endId}`,
       // Lightly hand-drawn; sub-branch arrows read a touch softer.
@@ -453,7 +457,7 @@ const rootNote = ROOT_NOTES[family as keyof typeof ROOT_NOTES];
     if (!specs.length) return; // empty root (Flip) — no arrows
 
     const group = scrollArrowGroup({
-      arrows: specs.map(specToArrow),
+      arrows: specs.map((s) => specToArrow(s, fig)),
       stagger: 1,
       scroll: false, // driven manually below
       enabled: !mq.matches,
