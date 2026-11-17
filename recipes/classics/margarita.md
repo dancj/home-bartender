@@ -19,7 +19,7 @@ ingredients:
   - 2 oz blanco tequila
   - 1 oz fresh lime juice
   - ½ oz agave nectar (1:1 agave and water)
-  - ½ oz Cointreau
+  - ¾ oz Cointreau
 steps:
   - Combine all ingredients in a shaker with ice.
   - Shake until well chilled.
@@ -39,6 +39,6 @@ created: 2026-11-12
 
 ## Notes
 
-Remember the ratio: 2 oz tequila, 1 oz lime, ½ oz sweetener. Cointreau is the preferred orange liqueur here over triple sec. Many published specs run ¾ oz Cointreau; ½ oz keeps the orange in the background behind the agave.
+Remember the ratio: 2 oz tequila, 1 oz lime, ½ oz sweetener. Cointreau is the preferred orange liqueur here over triple sec. ¾ oz Cointreau is the house pour (bumped from ½ oz per GitHub issue #275).
 
 Agave nectar cut 1:1 with water is the go-to sweetener. A 2:1 demerara syrup was tried and didn't hit the same. Source: GitHub issue #251.
