@@ -27,7 +27,7 @@ const navLinks = [
   { href: `${base}/`, label: 'Recipes', current: !isLearn && !isRoots && !isSyrups },
   { href: `${base}/roots/`, label: 'Roots', current: isRoots },
   { href: `${base}/syrups/`, label: 'Syrups', current: isSyrups },
-  { href: `${base}/learn/`, label: 'Learn', current: isLearn },
+  // Learn tab hidden; /learn/ (now just Techniques) is still reachable directly.
 ];
 
 // Generate at high density so both header states stay crisp on retina; CSS
