@@ -3,8 +3,8 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import '../styles/learn-feature.css';
 
-// Hidden host plan for the 2026-11-20 cocktail workshop night. Gated behind
-// ?preview=1 like /inbox/, and left out of Pagefind (no data-pagefind-body).
+// Unlisted page for the 2026-11-20 cocktail workshop night, left out of Pagefind
+// (no data-pagefind-body). Guests get the menu; ?preview=1 adds the host plan.
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const titles = new Map((await getCollection('recipes')).map((r) => [r.id.split('/').pop(), r.data.title]));
 const syrupTitles = new Map((await getCollection('syrups')).map((s) => [s.id.split('/').pop(), s.data.title]));
@@ -263,16 +263,10 @@ const shopping = [
 ---
 <BaseLayout
   title="Cocktail Night — Home Bartending"
-  description="Host plan for the cocktail workshop night."
+  description="Menu for the cocktail workshop night."
   width="wide"
 >
-  <div id="night-gate" class="gate">
-    <h1>Cocktail Night</h1>
-    <p>This page is not listed on the site.</p>
-    <p>Add <code>?preview=1</code> to the URL to view it.</p>
-  </div>
-
-  <article id="night-content" hidden>
+  <article>
     <header class="feature-head">
       <span class="eyebrow">Friday, November 20 · 8 friends · 5 roots</span>
       <h1>Cocktail Night</h1>
@@ -287,12 +281,12 @@ const shopping = [
     <nav class="jump" aria-label="On this page">
       <a href="#flow">Flow</a>
       <a href="#lineup">Lineup</a>
-      <a href="#tables">Tables</a>
+      <a data-host hidden href="#tables">Tables</a>
       <a href="#flight">Agave flight</a>
-      <a href="#prep">Prep</a>
-      <a href="#timeline">Timeline</a>
-      <a href="#shopping">Shopping</a>
-      <a href="#ice">Ice</a>
+      <a data-host hidden href="#prep">Prep</a>
+      <a data-host hidden href="#timeline">Timeline</a>
+      <a data-host hidden href="#shopping">Shopping</a>
+      <a data-host hidden href="#ice">Ice</a>
     </nav>
 
     <section class="feature-group" id="flow">
@@ -337,7 +331,7 @@ const shopping = [
       <ul class="plain">{bridges.map((b) => <li>{b}</li>)}</ul>
     </section>
 
-    <section class="feature-group" id="tables">
+    <section class="feature-group" id="tables" data-host hidden>
       <div class="feature-group__head">
         <h2 class="feature-group__title">The tables</h2>
         <span class="feature-group__count">Butcher-paper paths</span>
@@ -387,7 +381,7 @@ const shopping = [
       <p class="seq__body">Second round: build the same mini margarita three times, one per expression.</p>
     </section>
 
-    <section class="feature-group" id="prep">
+    <section class="feature-group" id="prep" data-host hidden>
       <div class="feature-group__head">
         <h2 class="feature-group__title">House-made preps</h2>
         <span class="feature-group__count">Recipes on the site</span>
@@ -399,7 +393,7 @@ const shopping = [
       </ul>
     </section>
 
-    <section class="feature-group" id="timeline">
+    <section class="feature-group" id="timeline" data-host hidden>
       <div class="feature-group__head">
         <h2 class="feature-group__title">Prep timeline</h2>
         <span class="feature-group__count" data-progress="tl"></span>
@@ -416,7 +410,7 @@ const shopping = [
       ))}
     </section>
 
-    <section class="feature-group" id="shopping">
+    <section class="feature-group" id="shopping" data-host hidden>
       <div class="feature-group__head">
         <h2 class="feature-group__title">Shopping</h2>
         <span class="feature-group__count" data-progress="sh"></span>
@@ -435,7 +429,7 @@ const shopping = [
       </div>
     </section>
 
-    <section class="feature-group" id="ice">
+    <section class="feature-group" id="ice" data-host hidden>
       <div class="feature-group__head">
         <h2 class="feature-group__title">Ice plan</h2>
         <span class="feature-group__count">Two jobs, keep them apart</span>
@@ -450,13 +444,12 @@ const shopping = [
 
   <script is:inline>
     (function () {
-      if (new URLSearchParams(location.search).get('preview') !== '1') return;
-      document.getElementById('night-gate').hidden = true;
-      document.getElementById('night-content').hidden = false;
-
       var cd = document.querySelector('.countdown');
       var days = Math.ceil((new Date(cd.dataset.night + 'T00:00:00') - new Date()) / 864e5);
       cd.textContent = days > 0 ? days + (days === 1 ? ' day' : ' days') + ' to go' : days === 0 ? 'Tonight!' : '';
+
+      if (new URLSearchParams(location.search).get('preview') !== '1') return;
+      document.querySelectorAll('[data-host]').forEach(function (el) { el.hidden = false; });
 
       // Per-browser convenience only; the page works without storage.
       var KEY = 'cocktail-night-2026-checks';
@@ -484,18 +477,6 @@ const shopping = [
 </BaseLayout>
 
 <style>
-  .gate {
-    padding: 2.5rem 1.5rem;
-    background: var(--color-surface);
-    border: 1px solid var(--color-rule);
-    border-radius: var(--radius-md);
-    text-align: center;
-    font-family: var(--font-sans);
-  }
-  .gate p {
-    color: var(--color-fg-muted);
-    margin-top: 0.5rem;
-  }
   .countdown {
     margin-top: 0.75rem;
     font-family: var(--font-display);
