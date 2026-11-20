@@ -2,6 +2,7 @@
 title: Cranberry Syrup
 blurb: "Tart, bright cranberry syrup for the Cranberry Mule, margarita and bourbon sour."
 yield: Makes about 1½ cups. Keeps refrigerated for about 2 weeks.
+hero_image: ./cranberry-syrup.jpg
 ingredients:
   - 340 g fresh cranberries
   - 1 cup sugar

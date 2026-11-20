@@ -29,7 +29,7 @@ attribution:
 related: []
 aliases: []
 hero_image: ""
-gallery: []
+gallery: [./maple-bacon-old-fashioned-ingredients.jpg]
 preparations: []
 created: 2026-03-19
 ingredients:
